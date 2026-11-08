@@ -1,0 +1,251 @@
+page 420 (
+    name: Акт звірки взаєморозрахунків
+    alias: RECONCILIATION-ACT
+    title: Акт звірки взаєморозрахунків
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Акт звірки взаєморозрахунків</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Параметри
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-print-bar
+        }
+    )
+
+    pageItem P420_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-active
+            displayExtraValues: false
+            displayNullValue: true
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_org.default_org
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P420_CP (
+        type: popupLov
+        label {
+            label: Контрагент
+            alignment: right
+        }
+        layout {
+            sequence: 15
+            region: @bar
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @counterparties-active
+            displayExtraValues: false
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P420_FROM (
+        type: datePicker
+        label {
+            label: З
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'Q'), 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P420_TO (
+        type: datePicker
+        label {
+            label: По
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button show (
+        buttonName: SHOW
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    region act (
+        name: Акт звірки
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_debt_adj.reconciliation_html(:P420_ORG, :P420_CP,
+                         coalesce(to_date(:P420_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'Q')),
+                         coalesce(to_date(:P420_TO, 'DD.MM.YYYY'), trunc(sysdate)));
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction print (
+        name: Друк
+        when {
+            event: click
+            selectionType: button
+            button: @print
+        }
+        execution {
+            sequence: 10
+        }
+
+        action print (
+            name: Друк
+            action: executeJsCode
+            settings {
+                jsCode: window.print();
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

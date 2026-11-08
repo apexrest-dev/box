@@ -1,0 +1,24 @@
+lov prro-providers (
+    name: PRRO_PROVIDERS
+    source {
+        location: staticValues
+    }
+
+    entry stub (
+        sequence: 1
+        display: Імітація (без ДПС)
+        return: STUB
+    )
+
+    entry checkbox (
+        sequence: 2
+        display: Checkbox (не підключено)
+        return: CHECKBOX
+    )
+
+    entry dps (
+        sequence: 3
+        display: ПРРО ДПС (не підключено)
+        return: DPS
+    )
+)

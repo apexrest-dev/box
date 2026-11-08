@@ -1,0 +1,18 @@
+lov event-log-objects (
+    name: EVENT_LOG_OBJECTS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select trade_event_log.object_type_name(min(object_type)) d, trade_event_log.object_kind(object_type) r
+              from sys_audit_log
+             group by trade_event_log.object_kind(object_type)
+             order by 1
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

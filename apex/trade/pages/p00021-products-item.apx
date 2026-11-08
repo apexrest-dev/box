@@ -1,0 +1,757 @@
+page 21 (
+    name: Товар
+    alias: PRODUCTS-ITEM
+    title: Товар
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    dialog {
+        width: 720
+        chained: false
+    }
+
+    region form (
+        name: Товар
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: REF_PRODUCT
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    region buttons (
+        name: Кнопки
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: dialogFooter
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P21_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P21_CODE (
+        type: textField
+        label {
+            label: Код
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @form
+            column: CODE
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній код буде призначено автоматично під час запису.
+        }
+    )
+
+    pageItem P21_NAME (
+        type: textField
+        label {
+            label: Найменування
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            columnSpan: 9
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 255
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: NAME
+            dataType: varchar2
+        }
+    )
+
+    pageItem P21_UNIT_OF_MEASURE_ID (
+        type: popupLov
+        label {
+            label: Одиниця виміру
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: UNIT_OF_MEASURE_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @units-of-measure-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+    )
+
+    pageItem P21_PRODUCT_KIND (
+        type: selectList
+        label {
+            label: Вид номенклатури
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: PRODUCT_KIND
+            dataType: varchar2
+        }
+        default {
+            type: static
+            staticValue: GOODS
+        }
+        lov {
+            type: sharedComponent
+            lov: @product-kinds
+            displayExtraValues: true
+            displayNullValue: false
+        }
+    )
+
+    pageItem P21_ARTICLE (
+        type: textField
+        label {
+            label: Артикул
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 50
+        }
+        source {
+            formRegion: @form
+            column: ARTICLE
+            dataType: varchar2
+        }
+    )
+
+    pageItem P21_GROUP_ID (
+        type: popupLov
+        label {
+            label: Група
+            alignment: right
+        }
+        layout {
+            sequence: 70
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: GROUP_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @product-groups-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+    )
+
+    pageItem P21_WEIGHT_KG (
+        type: numberField
+        label {
+            label: Вага, кг
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G990D000
+        }
+        source {
+            formRegion: @form
+            column: WEIGHT_KG
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+    )
+
+    pageItem P21_DESCRIPTION (
+        type: textarea
+        label {
+            label: Опис
+            alignment: right
+        }
+        layout {
+            sequence: 90
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @form
+            column: DESCRIPTION
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    pageItem P21_USE_CHARACTERISTICS (
+        type: switch
+        label {
+            label: Використовувати характеристики
+            alignment: right
+        }
+        layout {
+            sequence: 100
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: USE_CHARACTERISTICS
+            dataType: varchar2
+        }
+        settings {
+            useDefaults: false
+            onValue: Y
+            onLabel: Так
+            offValue: N
+            offLabel: Ні
+        }
+        help {
+            helpText: Облік залишків у розрізі характеристик (розмір, колір …). Змінюється лише за нульового залишку.
+        }
+    )
+
+    pageItem P21_USE_SERIES (
+        type: switch
+        label {
+            label: Облік серій
+            alignment: right
+        }
+        layout {
+            sequence: 110
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: USE_SERIES
+            dataType: varchar2
+        }
+        settings {
+            useDefaults: false
+            onValue: Y
+            onLabel: Так
+            offValue: N
+            offLabel: Ні
+        }
+        help {
+            helpText: Облік залишків у розрізі серій (партій) з терміном придатності; відвантаження за FEFO. Змінюється лише за нульового залишку.
+        }
+    )
+
+    pageItem P21_SHELF_LIFE_DAYS (
+        type: numberField
+        label {
+            label: Термін придатності, днів
+            alignment: right
+        }
+        layout {
+            sequence: 120
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: SHELF_LIFE_DAYS
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Типовий термін для нових серій: «Придатний до» = дата виробництва + термін.
+        }
+    )
+
+    pageItem P21_VAT_RATE_CODE (
+        type: selectList
+        label {
+            label: Ставка ПДВ
+            alignment: right
+        }
+        layout {
+            sequence: 130
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: VAT_RATE_CODE
+            dataType: varchar2
+        }
+        default {
+            type: static
+            staticValue: VAT20
+        }
+        lov {
+            type: sharedComponent
+            lov: @vat-rates-product
+            displayExtraValues: true
+            displayNullValue: false
+        }
+        help {
+            helpText: Ставка ПДВ товару за замовчуванням у документах (організація або постачальник — не платник ПДВ: «Без ПДВ»).
+        }
+    )
+
+    pageItem P21_UKTZED_CODE (
+        type: textField
+        label {
+            label: Код УКТ ЗЕД / ДКПП
+            alignment: right
+        }
+        layout {
+            sequence: 140
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 10
+        }
+        source {
+            formRegion: @form
+            column: UKTZED_CODE
+            dataType: varchar2
+        }
+        help {
+            helpText: Код товару (УКТ ЗЕД) або послуги (ДКПП) для податкової накладної.
+        }
+    )
+
+    pageItem P21_STATE (
+        type: displayOnly
+        label {
+            label: Стан
+            alignment: right
+        }
+        layout {
+            sequence: 150
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: STATE
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @catalog-states
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button mark (
+        buttonName: MARK
+        label: Помітити на видалення
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Помітити елемент на видалення?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P21_ID is not null and :P21_STATE = 'ACTIVE'
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    button restore (
+        buttonName: RESTORE
+        label: Відновити
+        layout {
+            sequence: 30
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P21_STATE = 'MARKED_FOR_DELETION'
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати і закрити
+        layout {
+            sequence: 40
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P21_ID
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати і закрити
+        layout {
+            sequence: 50
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P21_ID
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Скасувати діалог
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+        execution {
+            sequence: 10
+        }
+
+        action cancel-dialog (
+            name: Закрити
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000008
+        }
+    )
+
+    process dml (
+        name: Записати
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE')
+        }
+        successMessage {
+            successMessage: Елемент записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000009
+        }
+    )
+
+    process mark (
+        name: Помітити на видалення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.mark_for_deletion('REF_PRODUCT', :P21_ID);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @mark
+        }
+        advanced {
+            executionMappingIdentifier: 910000000010
+        }
+    )
+
+    process restore (
+        name: Відновити
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.restore('REF_PRODUCT', :P21_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @restore
+        }
+        advanced {
+            executionMappingIdentifier: 910000000011
+        }
+    )
+
+    process close (
+        name: Закрити діалог
+        type: closeDialog
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE', 'MARK', 'RESTORE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000012
+        }
+    )
+)

@@ -1,0 +1,36 @@
+lov acl-roles-list (
+    name: ACL_ROLES_LIST
+    source {
+        location: staticValues
+    }
+
+    entry admin (
+        sequence: 1
+        display: Адміністратор
+        return: ADMIN
+    )
+
+    entry sales (
+        sequence: 2
+        display: Менеджер з продажу
+        return: SALES
+    )
+
+    entry purchase (
+        sequence: 3
+        display: Закупівельник
+        return: PURCHASE
+    )
+
+    entry storekeeper (
+        sequence: 4
+        display: Комірник
+        return: STOREKEEPER
+    )
+
+    entry cashier (
+        sequence: 5
+        display: Касир
+        return: CASHIER
+    )
+)

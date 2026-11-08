@@ -1,0 +1,308 @@
+/* =============================================================================
+   Trade — тема у стилі інтерфейсу «Такси» (1С:Підприємство 8.3)
+   Переписує Universal Theme: шрифт, кольори, панель розділів, вкладки,
+   командні панелі, поля з підписами ліворуч, таблиці.
+   ============================================================================= */
+:root {
+  --tx-font: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --tx-text: #333333;
+  --tx-label: #4d4d4d;
+  --tx-muted: #8c8c8c;
+  --tx-panel: #fbf1b8;          /* панель розділів */
+  --tx-panel-hover: #fdf6d6;
+  --tx-panel-border: #e3d48a;
+  --tx-green: #4f9a33;          /* заголовки груп */
+  --tx-link: #3c5f8f;
+  --tx-border: #b9b9b9;         /* рамки полів */
+  --tx-grid: #d6d6d6;           /* лінії таблиць */
+  --tx-head-top: #fafafa;
+  --tx-head-bottom: #e6e6e6;
+  --tx-row-hover: #fff8dc;
+  --tx-row-selected: #fbe9a6;
+  --tx-btn-top: #ffffff;
+  --tx-btn-bottom: #e8e8e8;
+  --tx-btn-border: #b5b5b5;
+  --tx-default-top: #ffe795;
+  --tx-default-bottom: #f6cd45;
+  --tx-default-border: #c9a12f;
+  --tx-toolbar: #f2f2f2;
+  --tx-tab: #e4e4e4;
+  --tx-nav-width: 196px;
+  --ut-body-nav-width: var(--tx-nav-width);
+}
+
+html, body, .t-PageBody, button, input, select, textarea {
+  font-family: var(--tx-font) !important;
+}
+body.t-PageBody {
+  font-size: 13px;
+  color: var(--tx-text);
+  background: #ffffff;
+}
+
+/* ---------------------------------------------------------------- Шапка вікна */
+.t-Header {
+  background: var(--tx-toolbar) !important;
+  border-bottom: 1px solid #d0d0d0;
+  box-shadow: none !important;
+  min-height: 34px;
+}
+.t-Header-branding, .t-Header-navBar, .t-Header-logo {
+  background: var(--tx-toolbar) !important; min-height: 34px;
+}
+.t-Header { --ut-header-background-color: var(--tx-toolbar); --ut-header-text-color: var(--tx-text); }
+.t-Header .t-Icon, .t-Header .a-Icon, .t-Header .fa, .t-Header-controlsIcon { color: #555 !important; background: transparent !important; }
+.t-Header .t-Button-label, .t-Header .t-NavigationBar-item { color: var(--tx-text) !important; }
+.t-Header-logo-link::after { content: "Trade — торгівля і склад"; font-size: 13px; color: var(--tx-text); margin-left: 6px; }
+.t-Header-logo-link .apex-logo-text { display: none; }
+.t-PageBody--login .t-Login-region .apex-item-text, .t-PageBody--login input { padding-left: 30px !important; }
+.t-Header-logo, .t-Header-logo-link, .t-Header-logo a { color: var(--tx-text) !important; font-size: 13px; font-weight: normal; }
+.t-Header-logo-link .apex-logo-text::before { content: ""; }
+.t-Header .t-Button--header, .t-Header .t-Button--headerTree, .t-Header .t-NavigationBar-item .t-Button {
+  color: #555 !important; background: transparent !important; box-shadow: none !important;
+}
+.t-Header .t-Button--header:hover { background: #e3e3e3 !important; }
+.t-Header-navBar { font-size: 12px; }
+
+/* ------------------------------------------------------------ Панель розділів */
+.t-Body-nav, .t-Body-nav .t-TreeNav, .t-TreeNav {
+  background: var(--tx-panel) !important;
+  border-right: 1px solid var(--tx-panel-border);
+}
+.t-PageBody--leftNav .t-Body-nav { width: var(--tx-nav-width) !important; }
+.t-TreeNav .a-TreeView-node--topLevel > .a-TreeView-content,
+.t-TreeNav .a-TreeView-node > .a-TreeView-content {
+  color: var(--tx-text) !important;
+  background: transparent !important;
+  border: 0 !important;
+  min-height: 30px;
+  padding-block: 2px;
+}
+.t-TreeNav .a-TreeView-label, .t-TreeNav .a-TreeView-content a { color: var(--tx-text) !important; font-size: 13px; }
+.t-TreeNav .fa, .t-TreeNav .a-Icon { color: #3d3d3d !important; }
+.t-TreeNav .a-TreeView-node > .a-TreeView-content:hover,
+.t-TreeNav .a-TreeView-row:hover + .a-TreeView-content { background: var(--tx-panel-hover) !important; }
+.t-TreeNav .a-TreeView-row { background: transparent !important; }
+.t-TreeNav .a-TreeView-row.is-selected, .t-TreeNav .a-TreeView-row.is-current,
+.t-TreeNav .a-TreeView-row.is-current--top { background: #ffffff !important; box-shadow: inset 3px 0 0 #e0b928; }
+.t-TreeNav .a-TreeView-row.is-hover { background: var(--tx-panel-hover) !important; }
+.tx-nav-current > .a-TreeView-row { background: #ffffff !important; box-shadow: inset 3px 0 0 #e0b928; }
+
+/* ------------------------------------------------- Панель відкритих (вкладки) */
+.t-PageBody--leftNav .t-Body-main { margin-inline-start: 0 !important; }
+.tx-open-tabs {
+  margin: -8px -14px 10px; box-sizing: border-box;
+  display: flex; align-items: flex-end; gap: 2px;
+  background: var(--tx-toolbar); border-bottom: 1px solid #c8c8c8;
+  padding: 4px 6px 0; min-height: 30px; overflow-x: auto; white-space: nowrap;
+  position: sticky; top: 0; z-index: 400;
+}
+.tx-open-tab {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 260px;
+  padding: 4px 8px; font-size: 12px; color: var(--tx-text); text-decoration: none;
+  background: var(--tx-tab); border: 1px solid #c8c8c8; border-bottom: 0; border-radius: 3px 3px 0 0;
+}
+.tx-open-tab span.tx-tab-title { overflow: hidden; text-overflow: ellipsis; }
+.tx-open-tab:hover { background: #efefef; text-decoration: none; }
+.tx-open-tab.is-active { background: #ffffff; position: relative; top: 1px; font-weight: bold; }
+.tx-open-tab .tx-tab-close { color: #888; font-size: 14px; line-height: 1; padding: 0 2px; cursor: pointer; }
+.tx-open-tab .tx-tab-close:hover { color: #c00; }
+.tx-open-tab .fa { font-size: 13px; color: #555; }
+
+/* ------------------------------------------------------------ Робоча область */
+.t-Body-content { background: #ffffff; }
+.t-Body-contentInner { padding: 8px 14px 16px !important; }
+.t-Body-title { display: none !important; }       /* заголовок форми малюємо самі */
+.t-Footer { display: none; }
+
+/* Заголовок форми: ← → ☆ Назва */
+.tx-form-title { display: flex; align-items: center; gap: 6px; margin: 2px 0 8px; }
+.tx-form-title .tx-nav-btn {
+  width: 24px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--tx-btn-border); border-radius: 2px; color: #555; cursor: pointer;
+  background: linear-gradient(var(--tx-btn-top), var(--tx-btn-bottom)); font-size: 12px;
+}
+.tx-form-title .tx-star { color: #b5b5b5; font-size: 18px; margin: 0 4px; cursor: pointer; }
+.tx-form-title .tx-star.is-on { color: #e8b500; }
+.tx-form-title h1 { font-size: 18px; font-weight: normal; color: var(--tx-text); margin: 0; }
+
+/* ------------------------------------------------------------------- Регіони */
+.t-Region { border: 0 !important; box-shadow: none !important; background: transparent !important; margin-bottom: 6px; }
+.t-Region-header { background: transparent !important; border: 0 !important; min-height: 0; padding: 0; }
+.t-Region-title { font-size: 13px; font-weight: normal; color: var(--tx-green); }
+.t-Region-body { padding: 4px 0 !important; }
+.t-ButtonRegion { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+.t-ButtonRegion-wrap { padding: 0 0 6px !important; }
+.t-ButtonRegion-col { gap: 4px; }
+
+/* Таблична частина як вкладка 1С */
+.tx-tabpart > .t-Region-header {
+  display: flex !important; border-bottom: 1px solid #c8c8c8 !important; margin-bottom: 4px;
+}
+.tx-tabpart > .t-Region-header .t-Region-headerItems--title {
+  display: inline-block; padding: 4px 12px; background: #fff; border: 1px solid #c8c8c8; border-bottom-color: #fff;
+  border-radius: 3px 3px 0 0; position: relative; top: 1px;
+}
+.tx-tabpart > .t-Region-header .t-Region-title { color: var(--tx-text); font-size: 13px; }
+
+/* Зелений заголовок групи полів */
+.tx-group-title { color: var(--tx-green); font-size: 13px; margin: 8px 0 2px; }
+
+/* ------------------------------------------------------------------- Кнопки */
+.t-Button:where(:not(.t-Button--header):not(.t-Button--headerTree):not(.t-Button--noUI):not(.a-Button)),
+.a-Button.a-IRR-button, .a-IG .a-Button, .a-Toolbar .a-Button, .ui-dialog .ui-button, .a-AlertMessages .a-Button {
+  font-size: 13px !important; font-weight: normal !important; color: var(--tx-text) !important;
+  height: 23px; min-height: 23px; line-height: 21px; padding: 0 10px !important;
+  background: linear-gradient(var(--tx-btn-top), var(--tx-btn-bottom)) !important;
+  border: 1px solid var(--tx-btn-border) !important; border-radius: 3px !important;
+  box-shadow: none !important; text-shadow: none !important;
+}
+.t-Button:where(:not(.t-Button--header)):hover, .a-Button:hover { background: linear-gradient(#ffffff, #f2f2f2) !important; border-color: #9c9c9c !important; }
+.t-Button.t-Button--hot, .a-Button.a-Button--hot, .ui-dialog .ui-button.ui-button--hot {
+  background: linear-gradient(var(--tx-default-top), var(--tx-default-bottom)) !important;
+  border-color: var(--tx-default-border) !important; font-weight: bold !important; color: #333 !important;
+}
+.t-Button.t-Button--hot:hover { background: linear-gradient(#fff0b8, #f8d660) !important; }
+.t-Button .t-Button-label { font-weight: inherit; }
+
+/* ---------------------------------------------------------- Поля форм (підпис ліворуч) */
+.t-Form-fieldContainer.rel-col { display: flex !important; align-items: flex-start; gap: 6px; }
+.t-Form-fieldContainer.rel-col > .t-Form-labelContainer {
+  flex: 0 0 auto; width: auto !important; max-width: none !important; min-width: 64px; padding-inline: 0 !important;
+}
+.t-Form-fieldContainer.rel-col > .t-Form-inputContainer {
+  flex: 1 1 auto; width: auto !important; max-width: none !important; padding-inline: 0 !important; min-width: 0;
+}
+.t-Form-fieldContainer.is-required .t-Form-label::before, .t-Form-fieldContainer.is-required .t-Form-label::after { color: inherit; }
+.t-Form-fieldContainer.is-required .t-Form-label::before { content: none !important; display: none !important; }
+.t-Form-fieldContainer.is-required:not(.apex-item-wrapper--has-initial-value):not(.is-readonly) .t-Form-itemWrapper input:not([type=hidden]) {
+  border-bottom: 1px dashed #d23c2a !important;           /* незаповнене обов'язкове поле, як у 1С */
+}
+.t-Form-itemRequired { display: none !important; }
+.t-Form-itemWrapper input.apex-item-datepicker-readonly, .is-readonly .t-Form-itemWrapper input { background: #f7f7f7 !important; }
+.t-Form-fieldContainer { margin-bottom: 4px; }
+.t-Form-fieldContainer .t-Form-labelContainer { padding-top: 3px !important; padding-bottom: 0 !important; text-align: start !important; }
+.t-Form-label { color: var(--tx-label) !important; font-size: 13px !important; font-weight: normal !important; white-space: nowrap; }
+.t-Form-label::after { content: ":"; }
+.t-Form-fieldContainer--required .t-Form-label { color: var(--tx-label) !important; }
+.t-Form-fieldContainer .t-Form-required, .t-Form-fieldContainer--required .t-Form-labelContainer::before { display: none !important; }
+.t-Form-inputContainer { padding-top: 0 !important; padding-bottom: 0 !important; }
+.apex-item-text, .apex-item-textarea, .apex-item-select, .apex-item-datepicker input, .apex-item-popup-lov,
+.t-Form-inputContainer input.text_field, .t-Form-inputContainer textarea, .t-Form-inputContainer select,
+.a-GV-columnItem input, .a-IRR-search-field, .a-Toolbar .a-Toolbar-inputText {
+  font-size: 13px !important; color: var(--tx-text) !important;
+  min-height: 23px !important; height: auto; padding: 2px 5px !important;
+  border: 1px solid var(--tx-border) !important; border-radius: 2px !important;
+  background: #ffffff !important; box-shadow: none !important;
+}
+.apex-item-text:focus, .apex-item-textarea:focus, .a-IRR-search-field:focus, .apex-item-popup-lov:focus {
+  border-color: #e0b928 !important; box-shadow: 0 0 0 1px #f3d76d !important; outline: none !important;
+}
+.t-Form-itemWrapper .t-Form-itemAssistance, .t-Form-itemWrapper .a-Button--popupLOV,
+.t-Form-itemWrapper .a-Button--calendar, .t-Form-itemWrapper .t-Form-helpButton {
+  height: 23px !important; min-height: 23px !important; width: 23px; padding: 0 !important;
+  border: 1px solid var(--tx-border) !important; border-left: 0 !important; border-radius: 0 2px 2px 0 !important;
+  background: linear-gradient(var(--tx-btn-top), var(--tx-btn-bottom)) !important; box-shadow: none !important;
+}
+.apex-item-display-only, .display_only {
+  min-height: 23px; padding: 2px 5px; border: 1px solid #e2e2e2; border-radius: 2px; background: #f7f7f7; color: var(--tx-text);
+  display: inline-block; min-width: 100%;
+}
+.t-Form-fieldContainer.is-readonly .apex-item-text, .is-readonly .apex-item-display-only { background: #f7f7f7 !important; }
+.apex-item-textarea { min-height: 46px !important; }
+.t-Form-inlineHelp, .t-Form-helpButton { color: var(--tx-muted); }
+.a-Switch .a-Switch-toggle { border-radius: 2px; }
+
+/* --------------------------------------------------------------- Таблиці (IR/IG) */
+.a-IRR, .a-IG { border: 1px solid #c8c8c8 !important; border-radius: 0 !important; box-shadow: none !important; }
+.a-IRR-container { background: transparent; }
+.a-IRR-toolbar, .a-IG-header {
+  background: transparent !important; border: 0 !important; padding: 0 0 6px !important; box-shadow: none !important;
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+.a-IRR-toolbar .a-IRR-buttons, .a-IRR-toolbar > div:last-child { order: -1; }     /* «Створити» першою, як у 1С */
+.a-IRR-search-field { width: 220px !important; }
+.a-IRR-table th, .a-IRR-header, .a-GV-header, .a-GV-headerGroup, .a-GV-table th {
+  background: linear-gradient(var(--tx-head-top), var(--tx-head-bottom)) !important;
+  color: var(--tx-label) !important; font-weight: normal !important; font-size: 13px !important;
+  border-color: var(--tx-grid) !important; padding: 3px 6px !important; height: 24px;
+}
+.a-IRR-headerLink, .a-GV-headerLabel { color: var(--tx-label) !important; font-weight: normal !important; }
+.a-IRR-table td, .a-GV-cell, .a-GV-table td {
+  font-size: 13px !important; color: var(--tx-text); padding: 2px 6px !important; height: 22px;
+  border-color: var(--tx-grid) !important; border-style: solid; border-width: 0 1px 1px 0;
+}
+.a-IRR-table tr:hover td, .a-GV-row.is-hover td { background-color: var(--tx-row-hover) !important; }
+.a-IRR-table tr.tx-selected td, .a-GV-row.is-selected td, .a-GV-row.is-selected .a-GV-cell { background-color: var(--tx-row-selected) !important; }
+.a-GV-cell.is-focused { box-shadow: inset 0 0 0 1px #d3a91b !important; }
+.a-IRR-table td.a-IRR-linkCol, .a-IRR-table th#LINK, .a-IRR-table th.a-IRR-header--link { width: 1px; padding: 0 !important; }
+.a-IRR-table td.a-IRR-linkCol a { opacity: 0; display: inline-block; width: 1px; overflow: hidden; }
+.a-IRR-pagination, .a-GV-footer { font-size: 12px; color: var(--tx-muted); background: transparent !important; }
+.a-IRR-paginationWrap { border-top: 1px solid var(--tx-grid); }
+
+/* Іконки стану в списках */
+.tx-ico { display: inline-block; width: 16px; text-align: center; font-size: 14px; }
+.tx-ico-draft  { color: #9a9a9a; }
+.tx-ico-posted { color: #3f9a2a; }
+.tx-ico-item   { color: #9a9a9a; font-size: 10px; }
+.tx-ico-marked { color: #d23c2a; }
+/* Колонку-посилання ховаємо: рядок відкривається подвійним кліком, як у 1С */
+.a-IRR-table:has(td.a-IRR-linkCol) tr > :first-child { display: none; }
+
+/* Перемикач режимів звітів як вкладки */
+.apex-rds-container { background: transparent !important; border-bottom: 1px solid #c8c8c8; box-shadow: none !important; }
+.apex-rds .apex-rds-item a, .apex-rds a { color: var(--tx-text) !important; font-size: 13px; padding: 5px 12px !important; border: 1px solid transparent; border-bottom: 0; }
+.apex-rds .apex-rds-selected a, .apex-rds .is-active a {
+  background: #ffffff; border-color: #c8c8c8 !important; border-radius: 3px 3px 0 0; font-weight: bold; box-shadow: none !important;
+}
+
+/* ------------------------------------------- Панель функцій розділу / начальна */
+.tx-fp { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 8px 40px; padding: 8px 6px; }
+.tx-fp-group { color: var(--tx-green); font-size: 15px; font-weight: normal; margin: 14px 0 6px; }
+.tx-fp-col > .tx-fp-group:first-child { margin-top: 2px; }
+.tx-fp-list { list-style: none; margin: 0 0 4px 0; padding: 0 0 0 14px; }
+.tx-fp-list li { padding: 3px 0; }
+.tx-fp-link { color: var(--tx-text) !important; text-decoration: none; }
+.tx-fp-link:hover { text-decoration: underline; color: #000 !important; }
+.tx-fp-link.tx-important { font-weight: bold; }
+.tx-fp-create { color: var(--tx-muted); font-size: 13px; }
+.tx-tasks { border-left: 1px solid #e3e3e3; padding-left: 20px; }
+.tx-task-value { color: var(--tx-muted); margin-left: 6px; }
+.tx-home { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; }
+
+/* ------------------------------------------------------- Діалоги й повідомлення */
+.ui-dialog .ui-dialog-titlebar { background: var(--tx-toolbar) !important; border-bottom: 1px solid #d0d0d0; }
+.ui-dialog .ui-dialog-title { font-size: 15px; font-weight: normal; color: var(--tx-text); }
+.t-Alert--page, .t-Body-alert .t-Alert { border-radius: 2px !important; }
+.t-Alert--success { background: #f4fbef !important; border: 1px solid #9ccc82 !important; }
+.t-Alert--warning, .t-Alert--danger { background: #fff5f2 !important; border: 1px solid #e3a08d !important; }
+
+/* Сторінка входу */
+.t-PageBody--login { background: #f2f2f2 !important; }
+.t-Login-container, .t-Login-region { border-radius: 2px !important; box-shadow: 0 1px 6px rgba(0,0,0,.15) !important; }
+
+/* Двокрапка після підпису для всіх полів (UT використовує ::after для позначки обов'язковості) */
+.t-Form-fieldContainer .t-Form-label::after,
+.t-Form-fieldContainer.is-required .t-Form-label::after {
+  content: ":" !important; display: inline !important; position: static !important;
+  color: inherit !important; margin: 0 !important; font-size: inherit !important; inset: auto !important;
+}
+.t-Form-fieldContainer.is-required .t-Form-labelContainer::before,
+.t-Form-fieldContainer.is-required .t-Form-labelContainer::after { content: none !important; display: none !important; }
+
+/* Поля вибору й дати займають усю ширину комірки */
+.t-Form-itemWrapper { display: flex !important; align-items: stretch; width: 100%; }
+.t-Form-itemWrapper > input:not([type=hidden]), .t-Form-itemWrapper > .apex-item-group,
+.t-Form-itemWrapper > .apex-item-popup-lov, .t-Form-itemWrapper > select, .t-Form-itemWrapper > textarea {
+  flex: 1 1 auto; width: auto !important; min-width: 0;
+}
+.t-Form-itemWrapper > .apex-item-display-only { flex: 1 1 auto; }
+.apex-item-group--popup-lov { display: flex !important; width: 100%; }
+.apex-item-group--popup-lov > input.apex-item-popup-lov { flex: 1 1 auto; width: auto !important; min-width: 0; }
+.apex-item-group--popup-lov > .a-Button--popupLOV {
+  height: 23px !important; min-height: 23px !important; width: 23px; padding: 0 !important; flex: 0 0 23px;
+  border: 1px solid var(--tx-border) !important; border-left: 0 !important; border-radius: 0 2px 2px 0 !important;
+  background: linear-gradient(var(--tx-btn-top), var(--tx-btn-bottom)) !important;
+}
+.t-Form-itemWrapper textarea.apex-item-textarea, .apex-item-textarea { width: 100% !important; }
+.t-Form-itemWrapper > .apex-item-textarea-wrapper, .t-Form-itemWrapper > div:has(> textarea) { flex: 1 1 auto; width: 100%; }

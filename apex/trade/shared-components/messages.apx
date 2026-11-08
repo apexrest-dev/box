@@ -1,0 +1,104 @@
+textMessage APEX.PAGE_ITEM_IS_REQUIRED (
+    message {
+        text: Поле «#LABEL#» обов'язкове для заповнення.
+        language: uk
+    }
+)
+
+textMessage FLOW.SINGLE_VALIDATION_ERROR (
+    message {
+        text: Виявлено 1 помилку
+        language: uk
+    }
+)
+
+textMessage FLOW.VALIDATION_ERROR (
+    message {
+        text: Виявлено помилок: %0
+        language: uk
+    }
+)
+
+textMessage APEXIR_NO_DATA_FOUND (
+    message {
+        text: Немає даних
+        language: uk
+    }
+)
+
+textMessage APEX.IG.NO_DATA_FOUND (
+    message {
+        text: Немає даних
+        language: uk
+    }
+)
+
+textMessage APEX.GV.NO_DATA_FOUND (
+    message {
+        text: Немає даних
+        language: uk
+    }
+)
+
+textMessage APEX.IG.ACTIONS (
+    message {
+        text: Ще
+        language: uk
+    }
+)
+
+textMessage APEX.IG.SAVE (
+    message {
+        text: Записати
+        language: uk
+    }
+)
+
+textMessage APEX.IG.EDIT (
+    message {
+        text: Змінити
+        language: uk
+    }
+)
+
+textMessage APEX.IG.ADD_ROW (
+    message {
+        text: Додати рядок
+        language: uk
+    }
+)
+
+textMessage APEX.IG.RESET (
+    message {
+        text: Скинути
+        language: uk
+    }
+)
+
+textMessage APEX.ERROR.PAGE_NOT_AVAILABLE (
+    message {
+        text: Сторінка недоступна
+        language: uk
+    }
+)
+
+textMessage APEX.DIALOG.CANCEL (
+    message {
+        text: Скасувати
+        language: uk
+    }
+)
+
+textMessage APEX.DIALOG.OK (
+    message {
+        text: Так
+        language: uk
+    }
+)
+
+textMessage APEX.WARN_ON_UNSAVED_CHANGES (
+    message {
+        text: Є незаписані зміни. Продовжити?
+        language: uk
+    }
+)

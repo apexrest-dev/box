@@ -1,0 +1,19 @@
+lov product-series-active (
+    name: PRODUCT_SERIES_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select p.name || ': ' || s.name || case when s.expiry_date is not null then ' (до ' || to_char(s.expiry_date, 'DD.MM.YYYY') || ')' end d,
+                   s.id r
+              from ref_product_series s join ref_product p on p.id = s.product_id
+             where s.state = 'ACTIVE'
+             order by p.name, s.expiry_date nulls last, s.name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

@@ -1,0 +1,835 @@
+page 250 (
+    name: Вартість запасів і валовий прибуток
+    alias: STOCK-COST
+    title: Вартість запасів і валовий прибуток
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Вартість запасів і валовий прибуток</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region period (
+        name: Період
+        type: staticContent
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P250_FROM (
+        type: datePicker
+        label {
+            label: Початок періоду
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @period
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P250_TO (
+        type: datePicker
+        label {
+            label: Кінець періоду
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @period
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P250_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 25
+            region: @period
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 30
+            region: @period
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button rebuild-cost (
+        buttonName: REBUILD_COST
+        label: Перерахувати собівартість
+        layout {
+            sequence: 40
+            region: @period
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Перерахувати собівартість за всіма документами?
+            style: warning
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    process rebuild-cost (
+        name: Перерахувати собівартість
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_r3.rebuild_stock_cost;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @rebuild-cost
+        }
+        successMessage {
+            successMessage: Собівартість перераховано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000418
+        }
+    )
+
+    button close-month (
+        buttonName: CLOSE_MONTH
+        label: Закрити місяць (знімки)
+        layout {
+            sequence: 41
+            region: @period
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Сформувати знімки залишків на кінець місяця кінцевої дати періоду?
+            style: warning
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    process close-month (
+        name: Закрити місяць (знімки)
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_regs.close_month(add_months(to_date(:P250_TO, 'DD.MM.YYYY'), 0));
+                ```
+        }
+        execution {
+            sequence: 11
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @close-month
+        }
+        successMessage {
+            successMessage: Знімки залишків сформовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000419
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region gross (
+        name: Валовий прибуток за товарами
+        title: Валовий прибуток за товарами
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P250_FROM
+                P250_TO
+                P250_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select product_name, unit_name, sum(quantity) quantity, sum(revenue) revenue, sum(cost) cost, sum(gross_profit) gross_profit,
+                       round(100 * sum(gross_profit) / nullif(sum(revenue), 0), 2) margin_pct
+                  from v_gross_profit
+                 where period >= to_date(:P250_FROM, 'DD.MM.YYYY') and period < to_date(:P250_TO, 'DD.MM.YYYY') + 1 and (:P250_ORG is null or organization_id = :P250_ORG)
+                 group by product_name, unit_name
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000420
+        }
+
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REVENUE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Виручка
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column COST (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Собівартість
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column GROSS_PROFIT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Валовий прибуток
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column MARGIN_PCT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Рентабельність, %
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region gross-docs (
+        name: Валовий прибуток за документами
+        title: Валовий прибуток за документами
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P250_FROM
+                P250_TO
+                P250_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select m.period, m.recorder_name, apex_page.get_url(p_page => m.page_id, p_items => 'P' || m.page_id || '_ID', p_values => m.recorder_id) recorder_url,
+                       m.organization_name, m.customer_name, m.product_name, m.quantity, m.revenue, m.cost, m.gross_profit
+                  from v_gross_profit m
+                 where m.period >= to_date(:P250_FROM, 'DD.MM.YYYY') and m.period < to_date(:P250_TO, 'DD.MM.YYYY') + 1 and (:P250_ORG is null or m.organization_id = :P250_ORG)
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000421
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Період
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column RECORDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстратор
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#RECORDER_URL#">#RECORDER_NAME#</a>
+            }
+        )
+
+        column RECORDER_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column CUSTOMER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Покупець
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REVENUE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Виручка
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column COST (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Собівартість
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column GROSS_PROFIT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Прибуток
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region cost (
+        name: Вартість запасів
+        title: Вартість запасів
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P250_FROM
+                P250_TO
+                P250_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select warehouse_name, product_code, product_name, unit_name, quantity, cost_amount, avg_cost
+                  from v_stock_cost_balance
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000422
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column COST_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Вартість
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AVG_COST (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Середня собівартість
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region recalc (
+        name: Потребує перерахунку
+        title: Потребує перерахунку
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P250_FROM
+                P250_TO
+                P250_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select w.name warehouse_name, p.name product_name, r.from_date, r.marked_at
+                  from reg_stock_cost_recalc r
+                  join ref_warehouse w on w.id = r.warehouse_id
+                  join ref_product p on p.id = r.product_id
+                ```
+        }
+        layout {
+            sequence: 50
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000423
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column FROM_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Змінено з
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column MARKED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Позначено
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+    )
+)

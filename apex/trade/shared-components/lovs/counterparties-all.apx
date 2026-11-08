@@ -1,0 +1,17 @@
+lov counterparties-all (
+    name: COUNTERPARTIES_ALL
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name d, id r
+              from ref_counterparty
+             order by name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

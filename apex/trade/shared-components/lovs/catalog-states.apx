@@ -1,0 +1,18 @@
+lov catalog-states (
+    name: CATALOG_STATES
+    source {
+        location: staticValues
+    }
+
+    entry active (
+        sequence: 1
+        display: Активний
+        return: ACTIVE
+    )
+
+    entry marked (
+        sequence: 2
+        display: Помічений на видалення
+        return: MARKED_FOR_DELETION
+    )
+)

@@ -1,0 +1,260 @@
+page 180 (
+    name: Договори контрагентів
+    alias: CONTRACTS
+    title: Договори контрагентів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Договори контрагентів</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Договори контрагентів
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select case c.state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, c.id, c.code, o.name owner_name, c.name, c.contract_number, c.contract_date, case c.contract_kind when 'WITH_CUSTOMER' then 'З покупцем' else 'З постачальником' end kind_name, pt.name price_type_name, c.payment_term_days, c.credit_limit, case c.state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name from ref_contract c join ref_counterparty o on o.id = c.owner_id left join ref_price_type pt on pt.id = c.price_type_id
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 181
+                clearCache: 181
+                items: {
+                    P181_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-edit" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000037
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OWNER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Найменування
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column CONTRACT_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column PRICE_TYPE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид цін
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column PAYMENT_TERM_DAYS (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Відстрочка, дн.
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column CREDIT_LIMIT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Кредитний ліміт
+            }
+            layout {
+                sequence: 110
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 181
+                clearCache: 181
+            }
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction refresh-on-close (
+        name: Оновити після закриття діалогу
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @list
+        }
+        execution {
+            sequence: 10
+        }
+
+        action refresh (
+            name: Оновити
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

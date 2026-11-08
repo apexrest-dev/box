@@ -1,0 +1,30 @@
+lov tax-erpn-statuses (
+    name: TAX_ERPN_STATUSES
+    source {
+        location: staticValues
+    }
+
+    entry not-sent (
+        sequence: 1
+        display: Не надіслано
+        return: NOT_SENT
+    )
+
+    entry sent (
+        sequence: 2
+        display: Надіслано
+        return: SENT
+    )
+
+    entry registered (
+        sequence: 3
+        display: Зареєстровано
+        return: REGISTERED
+    )
+
+    entry rejected (
+        sequence: 4
+        display: Відхилено
+        return: REJECTED
+    )
+)

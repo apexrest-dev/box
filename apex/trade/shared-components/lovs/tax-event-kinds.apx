@@ -1,0 +1,24 @@
+lov tax-event-kinds (
+    name: TAX_EVENT_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry shipment (
+        sequence: 1
+        display: Відвантаження
+        return: SHIPMENT
+    )
+
+    entry prepayment (
+        sequence: 2
+        display: Передоплата
+        return: PREPAYMENT
+    )
+
+    entry manual (
+        sequence: 3
+        display: Вручну
+        return: MANUAL
+    )
+)

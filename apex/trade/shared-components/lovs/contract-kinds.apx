@@ -1,0 +1,18 @@
+lov contract-kinds (
+    name: CONTRACT_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry customer (
+        sequence: 1
+        display: З покупцем
+        return: WITH_CUSTOMER
+    )
+
+    entry supplier (
+        sequence: 2
+        display: З постачальником
+        return: WITH_SUPPLIER
+    )
+)

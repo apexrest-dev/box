@@ -1,0 +1,48 @@
+lov event-log-events (
+    name: EVENT_LOG_EVENTS
+    source {
+        location: staticValues
+    }
+
+    entry post (
+        sequence: 1
+        display: Проведення
+        return: POST
+    )
+
+    entry unpost (
+        sequence: 2
+        display: Скасування проведення
+        return: UNPOST
+    )
+
+    entry delete (
+        sequence: 3
+        display: Видалення
+        return: DELETE
+    )
+
+    entry print (
+        sequence: 4
+        display: Друк
+        return: PRINT
+    )
+
+    entry warning (
+        sequence: 5
+        display: Попередження
+        return: WARNING
+    )
+
+    entry write (
+        sequence: 6
+        display: Запис
+        return: WRITE
+    )
+
+    entry other (
+        sequence: 7
+        display: Інші події
+        return: OTHER
+    )
+)

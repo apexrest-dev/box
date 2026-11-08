@@ -1,0 +1,534 @@
+page 70 (
+    name: Товари на складах
+    alias: STOCK-BALANCE
+    title: Товари на складах
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Товари на складах</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region balances (
+        name: Залишки
+        title: Залишки
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select warehouse_name, product_code, product_name, unit_name, balance,
+                       apex_page.get_url(p_page => 450, p_items => 'P450_PRODUCT,P450_WH', p_values => product_id || ',' || warehouse_id) card_url
+                  from v_stock_balance
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000397
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код товару
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 30
+            }
+            columnFormatting {
+                htmlExpression: <a href="#CARD_URL#" title="Картка товару">#PRODUCT_NAME#</a>
+            }
+        )
+
+        column CARD_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column BALANCE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region turnovers (
+        name: Обороти
+        title: Обороти
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        advanced {
+            regionDisplaySelector: true
+        }
+    )
+
+    pageItem P70_FROM (
+        type: datePicker
+        label {
+            label: Початок періоду
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @turnovers
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P70_TO (
+        type: datePicker
+        label {
+            label: Кінець періоду
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @turnovers
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 30
+            region: @turnovers
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region turnover-report (
+        name: Обороти за період
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P70_FROM
+                P70_TO
+            ]
+            sqlQuery:
+                ```sql
+                select w.name warehouse_name, p.name product_name, u.short_name unit_name,
+                       sum(case when m.period < to_date(:P70_FROM, 'DD.MM.YYYY') then m.quantity else 0 end) opening,
+                       sum(case when m.period >= to_date(:P70_FROM, 'DD.MM.YYYY') and m.period < to_date(:P70_TO, 'DD.MM.YYYY') + 1 and m.quantity > 0 then m.quantity else 0 end) incoming,
+                       sum(case when m.period >= to_date(:P70_FROM, 'DD.MM.YYYY') and m.period < to_date(:P70_TO, 'DD.MM.YYYY') + 1 and m.quantity < 0 then -m.quantity else 0 end) outgoing,
+                       sum(case when m.period < to_date(:P70_TO, 'DD.MM.YYYY') + 1 then m.quantity else 0 end) closing
+                  from reg_stock_balance_movement m
+                  join ref_warehouse w on w.id = m.warehouse_id
+                  join ref_product p on p.id = m.product_id
+                  join ref_unit_of_measure u on u.id = p.unit_of_measure_id
+                 group by w.name, p.name, u.short_name
+                ```
+        }
+        layout {
+            sequence: 30
+            parentRegion: @turnovers
+            slot: subRegions
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000398
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column OPENING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Поч. залишок
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column INCOMING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Прихід
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column OUTGOING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Розхід
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column CLOSING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кін. залишок
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region movements (
+        name: Рухи
+        title: Рухи
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select m.period, m.recorder_name, apex_page.get_url(p_page => m.page_id, p_items => 'P' || m.page_id || '_ID', p_values => m.recorder_id) recorder_url,
+                       m.warehouse_name, m.product_name, m.unit_name, m.quantity
+                  from v_stock_movement m
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000399
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Період
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column RECORDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстратор
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#RECORDER_URL#">#RECORDER_NAME#</a>
+            }
+        )
+
+        column RECORDER_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+)

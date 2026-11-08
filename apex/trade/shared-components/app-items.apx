@@ -1,0 +1,6 @@
+appItem TRADE_WARN (
+    scope: app
+    security {
+        sessionStateProtection: restricted
+    }
+)

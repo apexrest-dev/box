@@ -1,0 +1,16 @@
+lov recorders (
+    name: RECORDERS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select recorder_name d, recorder_id r
+              from v_recorder
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

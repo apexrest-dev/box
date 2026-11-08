@@ -1,0 +1,18 @@
+lov assembly-operation-kinds (
+    name: ASSEMBLY_OPERATION_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry assembly (
+        sequence: 1
+        display: Комплектація
+        return: ASSEMBLY
+    )
+
+    entry disassembly (
+        sequence: 2
+        display: Розкомплектація
+        return: DISASSEMBLY
+    )
+)

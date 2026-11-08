@@ -1,0 +1,24 @@
+lov discount-applies-to (
+    name: DISCOUNT_APPLIES_TO
+    source {
+        location: staticValues
+    }
+
+    entry all (
+        sequence: 1
+        display: Замовлення й реалізація
+        return: ALL
+    )
+
+    entry order (
+        sequence: 2
+        display: Замовлення клієнтів
+        return: ORDER
+    )
+
+    entry sale (
+        sequence: 3
+        display: Реалізація
+        return: SALE
+    )
+)

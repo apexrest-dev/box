@@ -1,0 +1,18 @@
+lov currencies-foreign (
+    name: CURRENCIES_FOREIGN
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select code || ' — ' || name d, code r
+              from ref_currency
+             where code <> 'UAH'
+             order by code
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

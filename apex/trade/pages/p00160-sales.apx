@@ -1,0 +1,540 @@
+page 160 (
+    name: Продажі
+    alias: SALES
+    title: Продажі
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Продажі</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region period (
+        name: Період
+        type: staticContent
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P160_FROM (
+        type: datePicker
+        label {
+            label: Початок періоду
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @period
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P160_TO (
+        type: datePicker
+        label {
+            label: Кінець періоду
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @period
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P160_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 25
+            region: @period
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 30
+            region: @period
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region by-product (
+        name: За товарами
+        title: За товарами
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P160_FROM
+                P160_TO
+                P160_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select m.product_name, m.unit_name, sum(m.quantity) quantity, sum(m.amount) amount,
+                       round(sum(m.amount) / nullif(sum(m.quantity), 0), 2) avg_price
+                  from v_sales m
+                 where m.period >= to_date(:P160_FROM, 'DD.MM.YYYY') and m.period < to_date(:P160_TO, 'DD.MM.YYYY') + 1 and (:P160_ORG is null or m.organization_id = :P160_ORG)
+                 group by m.product_name, m.unit_name
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000405
+        }
+
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AVG_PRICE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Середня ціна
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region by-customer (
+        name: За покупцями
+        title: За покупцями
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P160_FROM
+                P160_TO
+                P160_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select m.counterparty_name, count(distinct m.recorder_id) doc_count, sum(m.amount) amount
+                  from v_sales m
+                 where m.period >= to_date(:P160_FROM, 'DD.MM.YYYY') and m.period < to_date(:P160_TO, 'DD.MM.YYYY') + 1 and (:P160_ORG is null or m.organization_id = :P160_ORG)
+                 group by m.counterparty_name
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000406
+        }
+
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Покупець
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column DOC_COUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Документів
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region records (
+        name: Записи
+        title: Записи
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P160_FROM
+                P160_TO
+                P160_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select m.period, m.recorder_name, apex_page.get_url(p_page => m.page_id, p_items => 'P' || m.page_id || '_ID', p_values => m.recorder_id) recorder_url,
+                       m.organization_name, m.counterparty_name, m.warehouse_name, m.product_name, m.unit_name, m.quantity, m.amount
+                  from v_sales m
+                 where m.period >= to_date(:P160_FROM, 'DD.MM.YYYY') and m.period < to_date(:P160_TO, 'DD.MM.YYYY') + 1 and (:P160_ORG is null or m.organization_id = :P160_ORG)
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000407
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Період
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column RECORDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстратор
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#RECORDER_URL#">#RECORDER_NAME#</a>
+            }
+        )
+
+        column RECORDER_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Покупець
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+)

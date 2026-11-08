@@ -1,0 +1,231 @@
+page 530 (
+    name: Обмеження ручних знижок
+    alias: DISCOUNT-LIMITS
+    title: Обмеження ручних знижок
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-admin
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Обмеження ручних знижок</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region grid (
+        name: Обмеження ручних знижок
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, role_static_id, max_manual_percent, note, updated_by
+                  from reg_discount_limit
+                 order by role_static_id
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                searchField
+                actionsMenu
+                saveButton
+            ]
+            addButtonLabel: Додати
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000434
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn ROLE_STATIC_ID (
+                column: @ROLE_STATIC_ID
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 220
+                }
+            )
+
+            displayColumn MAX_MANUAL_PERCENT (
+                column: @MAX_MANUAL_PERCENT
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 160
+                }
+            )
+
+            displayColumn NOTE (
+                column: @NOTE
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 320
+                }
+            )
+
+            displayColumn UPDATED_BY (
+                column: @UPDATED_BY
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 140
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 5
+            }
+        )
+
+        column ROLE_STATIC_ID (
+            type: selectList
+            source {
+                type: databaseColumn
+                databaseColumn: ROLE_STATIC_ID
+                dataType: varchar2
+                }
+            heading {
+                heading: Роль
+                alignment: start
+            }
+            layout {
+                sequence: 10
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @acl-roles-list
+                displayExtraValues: true
+                displayNullValue: true
+            }
+        )
+
+        column MAX_MANUAL_PERCENT (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: MAX_MANUAL_PERCENT
+                dataType: number
+            }
+            heading {
+                heading: Макс. ручна знижка, %
+                alignment: end
+            }
+            layout {
+                sequence: 20
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM990D00
+            }
+        )
+
+        column NOTE (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: NOTE
+                dataType: varchar2
+                }
+            heading {
+                heading: Примітка
+                alignment: start
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column UPDATED_BY (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: UPDATED_BY
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Змінив
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+        )
+    )
+
+    process dml (
+        name: Записати
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @grid
+        target {
+            targetType: tableView
+            tableName: REG_DISCOUNT_LIMIT
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        advanced {
+            executionMappingIdentifier: 910000000435
+        }
+    )
+)

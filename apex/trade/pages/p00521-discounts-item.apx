@@ -1,0 +1,777 @@
+page 521 (
+    name: Знижка (акція)
+    alias: DISCOUNTS-ITEM
+    title: Знижка (акція)
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    dialog {
+        width: 900
+        chained: false
+    }
+
+    region form (
+        name: Знижка (акція)
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: REF_DISCOUNT
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    region buttons (
+        name: Кнопки
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: dialogFooter
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P521_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P521_CODE (
+        type: textField
+        label {
+            label: Код
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @form
+            column: CODE
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній код буде призначено автоматично.
+        }
+    )
+
+    pageItem P521_NAME (
+        type: textField
+        label {
+            label: Найменування
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            columnSpan: 9
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 255
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: NAME
+            dataType: varchar2
+        }
+        help {
+            helpText: Напр. «Акція: олії −5 %» або «Постійний клієнт».
+        }
+    )
+
+    pageItem P521_DISCOUNT_PERCENT (
+        type: numberField
+        label {
+            label: Знижка, %
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+            formatMask: FM990D00
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: DISCOUNT_PERCENT
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Автоматична знижка рядка. З кількох придатних умов застосовується одна — з найбільшим відсотком; ручна знижка рядка додається до неї.
+        }
+    )
+
+    pageItem P521_APPLIES_TO (
+        type: selectList
+        label {
+            label: Застосовується в
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: APPLIES_TO
+            dataType: varchar2
+        }
+        default {
+            type: static
+            staticValue: ALL
+        }
+        lov {
+            type: sharedComponent
+            lov: @discount-applies-to
+            displayExtraValues: true
+            displayNullValue: false
+        }
+    )
+
+    pageItem P521_DATE_FROM (
+        type: datePicker
+        label {
+            label: Діє з
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        source {
+            formRegion: @form
+            column: DATE_FROM
+            dataType: date
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        help {
+            helpText: Період акції за датою документа. Порожньо — без обмеження.
+        }
+    )
+
+    pageItem P521_DATE_TO (
+        type: datePicker
+        label {
+            label: по
+            alignment: right
+        }
+        layout {
+            sequence: 70
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        source {
+            formRegion: @form
+            column: DATE_TO
+            dataType: date
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+    )
+
+    pageItem P521_CUSTOMER_ID (
+        type: popupLov
+        label {
+            label: Покупець
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: CUSTOMER_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @counterparties-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Порожньо — для всіх покупців.
+        }
+    )
+
+    pageItem P521_CONTRACT_ID (
+        type: popupLov
+        label {
+            label: Договір
+            alignment: right
+        }
+        layout {
+            sequence: 90
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: CONTRACT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select o.name || ': ' || c.name || case when c.contract_number is not null then ' № ' || c.contract_number end d, c.id r
+                  from ref_contract c join ref_counterparty o on o.id = c.owner_id
+                 where c.state = 'ACTIVE' and c.contract_kind = 'WITH_CUSTOMER'
+                   and (:P521_CUSTOMER_ID is null or c.owner_id = :P521_CUSTOMER_ID)
+                 order by o.name, c.name
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P521_CUSTOMER_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: Знижка лише за документами з цим договором; покупець — власник договору.
+        }
+    )
+
+    pageItem P521_PRODUCT_GROUP_ID (
+        type: popupLov
+        label {
+            label: Група номенклатури
+            alignment: right
+        }
+        layout {
+            sequence: 100
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: PRODUCT_GROUP_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @product-groups-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Діє на товари групи та всіх її підгруп. Або група, або товар.
+        }
+    )
+
+    pageItem P521_PRODUCT_ID (
+        type: popupLov
+        label {
+            label: Товар
+            alignment: right
+        }
+        layout {
+            sequence: 110
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: PRODUCT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @products-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+    )
+
+    pageItem P521_MIN_QUANTITY (
+        type: numberField
+        label {
+            label: Від кількості в рядку
+            alignment: right
+        }
+        layout {
+            sequence: 120
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: MIN_QUANTITY
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+    )
+
+    pageItem P521_MIN_DOC_AMOUNT (
+        type: numberField
+        label {
+            label: Від суми документа, грн
+            alignment: right
+        }
+        layout {
+            sequence: 130
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G999G990D00
+        }
+        source {
+            formRegion: @form
+            column: MIN_DOC_AMOUNT
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Сума документа за цінами до знижок.
+        }
+    )
+
+    pageItem P521_DESCRIPTION (
+        type: textarea
+        label {
+            label: Опис
+            alignment: right
+        }
+        layout {
+            sequence: 140
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @form
+            column: DESCRIPTION
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    pageItem P521_STATE (
+        type: displayOnly
+        label {
+            label: Стан
+            alignment: right
+        }
+        layout {
+            sequence: 150
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: STATE
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @catalog-states
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button mark (
+        buttonName: MARK
+        label: Помітити на видалення
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Помітити елемент на видалення?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P521_ID is not null and :P521_STATE = 'ACTIVE'
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    button restore (
+        buttonName: RESTORE
+        label: Відновити
+        layout {
+            sequence: 30
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P521_STATE = 'MARKED_FOR_DELETION'
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати і закрити
+        layout {
+            sequence: 40
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P521_ID
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати і закрити
+        layout {
+            sequence: 50
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P521_ID
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Скасувати діалог
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+        execution {
+            sequence: 10
+        }
+
+        action cancel-dialog (
+            name: Закрити
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000082
+        }
+    )
+
+    process dml (
+        name: Записати
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE')
+        }
+        successMessage {
+            successMessage: Елемент записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000083
+        }
+    )
+
+    process mark (
+        name: Помітити на видалення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.mark_for_deletion('REF_DISCOUNT', :P521_ID);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @mark
+        }
+        advanced {
+            executionMappingIdentifier: 910000000084
+        }
+    )
+
+    process restore (
+        name: Відновити
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.restore('REF_DISCOUNT', :P521_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @restore
+        }
+        advanced {
+            executionMappingIdentifier: 910000000085
+        }
+    )
+
+    process close (
+        name: Закрити діалог
+        type: closeDialog
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE', 'MARK', 'RESTORE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000086
+        }
+    )
+)

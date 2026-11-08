@@ -1,0 +1,162 @@
+page 900 (
+    name: Друк документа
+    alias: PRINT
+    title: Друк
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region bar (
+        name: Панель друку
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-print-bar
+        }
+    )
+
+    pageItem P900_FORM (
+        type: selectList
+        label {
+            label: Форма
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 5
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select substr(column_value, instr(column_value, ':') + 1) d, substr(column_value, 1, instr(column_value, ':') - 1) r
+                  from table(apex_string.split(trade_print.forms_of(:P900_ID), ';'))
+                ```
+            displayNullValue: false
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_print.default_form(:P900_ID)
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P900_ID (
+        type: hidden
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    region doc (
+        name: Друкована форма
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_print.document_html(coalesce(:P900_FORM, trade_print.default_form(:P900_ID)), :P900_ID);
+                ```
+            pageItemsToSubmit: [
+                P900_FORM
+            ]
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction print (
+        name: Друк
+        when {
+            event: click
+            selectionType: button
+            button: @print
+        }
+        execution {
+            sequence: 10
+        }
+
+        action print (
+            name: Друк
+            action: executeJsCode
+            settings {
+                jsCode: window.print();
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    dynamicAction change-form (
+        name: Змінити форму
+        when {
+            event: change
+            selectionType: items
+            items: P900_FORM
+        }
+        execution {
+            sequence: 20
+        }
+
+        action refresh (
+            name: Оновити
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @doc
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

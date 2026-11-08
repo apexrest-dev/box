@@ -1,0 +1,396 @@
+page 480 (
+    name: Журнал реєстрації
+    alias: EVENT-LOG
+    title: Журнал реєстрації
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-admin
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Журнал реєстрації</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Відбір
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P480_FROM (
+        type: datePicker
+        label {
+            label: Початок періоду
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate) - 7, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P480_TO (
+        type: datePicker
+        label {
+            label: Кінець періоду
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate), 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P480_USER (
+        type: selectList
+        label {
+            label: Користувач
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @event-log-users
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі користувачі
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P480_OBJECT (
+        type: selectList
+        label {
+            label: Об'єкт
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @event-log-objects
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі об'єкти
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P480_EVENT (
+        type: selectList
+        label {
+            label: Подія
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @event-log-events
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі події
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 60
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region log (
+        name: Журнал реєстрації
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P480_FROM
+                P480_TO
+                P480_USER
+                P480_OBJECT
+                P480_EVENT
+            ]
+            sqlQuery:
+                ```sql
+                select cast(e.occurred_at as date) occurred_at, e.user_name, e.event_group_name, e.event_name, e.object_type_name, e.object_name,
+                       case when e.link_page is not null then
+                         apex_page.get_url(p_page => e.link_page, p_items => e.link_item,
+                                           p_values => case when e.link_item is not null then e.object_id end) end object_url,
+                       e.details, e.action, e.object_id
+                  from v_event_log e
+                 where e.occurred_at >= coalesce(to_date(:P480_FROM, 'DD.MM.YYYY'), trunc(sysdate) - 7)
+                   and e.occurred_at < coalesce(to_date(:P480_TO, 'DD.MM.YYYY'), trunc(sysdate)) + 1
+                   and (:P480_USER is null or e.user_name = :P480_USER)
+                   and (:P480_OBJECT is null or e.object_kind = :P480_OBJECT)
+                   and (:P480_EVENT is null or e.event_group = :P480_EVENT)
+                 order by e.occurred_at desc
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000432
+        }
+
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата, час
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column USER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Користувач
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column EVENT_GROUP_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Група подій
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column EVENT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Подія
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OBJECT_TYPE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Метадані
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column OBJECT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Дані
+            }
+            layout {
+                sequence: 60
+            }
+            columnFormatting {
+                htmlExpression: {if OBJECT_URL/}<a href="#OBJECT_URL#">#OBJECT_NAME#</a>{else/}#OBJECT_NAME#{endif/}
+            }
+        )
+
+        column OBJECT_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column DETAILS (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Коментар
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column ACTION (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код події
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column OBJECT_ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Ідентифікатор
+            }
+            layout {
+                sequence: 100
+            }
+        )
+    )
+)

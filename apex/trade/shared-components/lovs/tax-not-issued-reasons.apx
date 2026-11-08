@@ -1,0 +1,30 @@
+lov tax-not-issued-reasons (
+    name: TAX_NOT_ISSUED_REASONS
+    source {
+        location: staticValues
+    }
+
+    entry 02 (
+        sequence: 1
+        display: 02 — постачання неплатнику податку
+        return: 02
+    )
+
+    entry 07 (
+        sequence: 2
+        display: 07 — вивезення товарів за межі митної території
+        return: 07
+    )
+
+    entry 01 (
+        sequence: 3
+        display: 01 — перевищення звичайної ціни
+        return: 01
+    )
+
+    entry 03 (
+        sequence: 4
+        display: 03 — у рахунок оплати праці
+        return: 03
+    )
+)

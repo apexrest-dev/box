@@ -1,0 +1,36 @@
+lov cash-payment-kinds (
+    name: CASH_PAYMENT_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry supplier-payment (
+        sequence: 1
+        display: Оплата постачальнику
+        return: SUPPLIER_PAYMENT
+    )
+
+    entry customer-refund (
+        sequence: 2
+        display: Повернення коштів покупцю
+        return: CUSTOMER_REFUND
+    )
+
+    entry accountable-issue (
+        sequence: 3
+        display: Видача підзвітній особі
+        return: ACCOUNTABLE_ISSUE
+    )
+
+    entry encashment (
+        sequence: 4
+        display: Інкасація (здача готівки в банк)
+        return: ENCASHMENT
+    )
+
+    entry other (
+        sequence: 5
+        display: Інша видача
+        return: OTHER
+    )
+)

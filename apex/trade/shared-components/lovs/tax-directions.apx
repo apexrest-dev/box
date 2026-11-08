@@ -1,0 +1,18 @@
+lov tax-directions (
+    name: TAX_DIRECTIONS
+    source {
+        location: staticValues
+    }
+
+    entry issued (
+        sequence: 1
+        display: Видана (податкове зобов'язання)
+        return: ISSUED
+    )
+
+    entry received (
+        sequence: 2
+        display: Отримана (податковий кредит)
+        return: RECEIVED
+    )
+)

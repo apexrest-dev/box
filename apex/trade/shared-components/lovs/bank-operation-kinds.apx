@@ -1,0 +1,60 @@
+lov bank-operation-kinds (
+    name: BANK_OPERATION_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry customer-payment (
+        sequence: 1
+        display: Надходження: оплата від покупця
+        return: CUSTOMER_PAYMENT
+    )
+
+    entry supplier-refund (
+        sequence: 2
+        display: Надходження: повернення коштів постачальником
+        return: SUPPLIER_REFUND
+    )
+
+    entry cash-deposit (
+        sequence: 3
+        display: Надходження: внесення готівки (інкасація)
+        return: CASH_DEPOSIT
+    )
+
+    entry other-in (
+        sequence: 4
+        display: Надходження: інше
+        return: OTHER_IN
+    )
+
+    entry supplier-payment (
+        sequence: 5
+        display: Списання: оплата постачальнику
+        return: SUPPLIER_PAYMENT
+    )
+
+    entry customer-refund (
+        sequence: 6
+        display: Списання: повернення коштів покупцю
+        return: CUSTOMER_REFUND
+    )
+
+    entry cash-withdrawal (
+        sequence: 7
+        display: Списання: зняття готівки в касу
+        return: CASH_WITHDRAWAL
+    )
+
+    entry bank-fee (
+        sequence: 8
+        display: Списання: банківська комісія
+        return: BANK_FEE
+    )
+
+    entry other-out (
+        sequence: 9
+        display: Списання: інше
+        return: OTHER_OUT
+    )
+)

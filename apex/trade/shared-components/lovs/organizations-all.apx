@@ -1,0 +1,17 @@
+lov organizations-all (
+    name: ORGANIZATIONS_ALL
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name d, id r
+              from ref_organization
+             order by code
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

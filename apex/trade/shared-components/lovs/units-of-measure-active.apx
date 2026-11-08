@@ -1,0 +1,18 @@
+lov units-of-measure-active (
+    name: UNITS_OF_MEASURE_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name || ' (' || short_name || ')' d, id r
+              from ref_unit_of_measure
+             where state = 'ACTIVE'
+             order by name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

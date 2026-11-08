@@ -1,0 +1,18 @@
+lov product-kinds (
+    name: PRODUCT_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry goods (
+        sequence: 1
+        display: Товар
+        return: GOODS
+    )
+
+    entry service (
+        sequence: 2
+        display: Послуга
+        return: SERVICE
+    )
+)

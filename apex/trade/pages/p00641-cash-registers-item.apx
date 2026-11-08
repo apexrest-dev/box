@@ -1,0 +1,827 @@
+page 641 (
+    name: Каса ККМ
+    alias: CASH-REGISTERS-ITEM
+    title: Каса ККМ
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    dialog {
+        width: 900
+        chained: false
+    }
+    security {
+        authorizationScheme: @role-sales-or-cashier
+    }
+
+    region form (
+        name: Каса ККМ
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: REF_CASH_REGISTER
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    region buttons (
+        name: Кнопки
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: dialogFooter
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P641_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P641_CODE (
+        type: textField
+        label {
+            label: Код
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @form
+            column: CODE
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній код буде призначено автоматично.
+        }
+    )
+
+    pageItem P641_NAME (
+        type: textField
+        label {
+            label: Найменування
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            columnSpan: 9
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 255
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: NAME
+            dataType: varchar2
+        }
+    )
+
+    pageItem P641_ORGANIZATION_ID (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: ORGANIZATION_ID
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_org.default_org
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-active
+            displayExtraValues: true
+            displayNullValue: false
+        }
+        help {
+            helpText: Організація — власник каси ККМ; каса й рахунок — лише цієї організації.
+        }
+    )
+
+    pageItem P641_WAREHOUSE_ID (
+        type: popupLov
+        label {
+            label: Склад
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: WAREHOUSE_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @warehouses-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Склад, з якого продається товар (без ордерної схеми).
+        }
+    )
+
+    pageItem P641_CASH_DESK_ID (
+        type: popupLov
+        label {
+            label: Каса (готівкова виручка)
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: CASH_DESK_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select name d, id r
+                  from ref_cash_desk
+                 where state = 'ACTIVE' and currency_code = 'UAH' and organization_id = :P641_ORGANIZATION_ID
+                 order by code
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P641_ORGANIZATION_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: Каса організації в UAH: чек збільшує її залишок на суму, оплачену готівкою (без решти).
+        }
+    )
+
+    pageItem P641_BANK_ACCOUNT_ID (
+        type: popupLov
+        label {
+            label: Рахунок для оплат карткою
+            alignment: right
+        }
+        layout {
+            sequence: 70
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: BANK_ACCOUNT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select name d, id r
+                  from ref_bank_account
+                 where state = 'ACTIVE' and currency_code = 'UAH' and organization_id = :P641_ORGANIZATION_ID
+                 order by name
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P641_ORGANIZATION_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: До підключення еквайрингу оплата карткою зараховується на цей рахунок; порожньо — оплата карткою не рухає грошові кошти (попередження при проведенні).
+        }
+    )
+
+    pageItem P641_PRICE_TYPE_ID (
+        type: popupLov
+        label {
+            label: Вид цін
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: PRICE_TYPE_ID
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_retail.retail_price_type
+        }
+        lov {
+            type: sharedComponent
+            lov: @price-types-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Роздрібні ціни чеків (ціни включають ПДВ).
+        }
+    )
+
+    pageItem P641_CUSTOMER_ID (
+        type: popupLov
+        label {
+            label: Роздрібний покупець
+            alignment: right
+        }
+        layout {
+            sequence: 90
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: CUSTOMER_ID
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_retail.retail_customer
+        }
+        lov {
+            type: sharedComponent
+            lov: @counterparties-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Контрагент, на якого записуються роздрібні продажі (регістр «Продажі»).
+        }
+    )
+
+    pageItem P641_IS_FISCAL (
+        type: switch
+        label {
+            label: Фіскальна (ПРРО)
+            alignment: right
+        }
+        layout {
+            sequence: 100
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: IS_FISCAL
+            dataType: varchar2
+        }
+        default {
+            type: static
+            staticValue: Y
+        }
+        settings {
+            useDefaults: false
+            onValue: Y
+            onLabel: Так
+            offValue: N
+            offLabel: Ні
+        }
+        help {
+            helpText: Чеки фіскалізуються програмним РРО. Вимкнено — нефіскальні чеки (напр. ФОП без обов'язку РРО).
+        }
+    )
+
+    pageItem P641_FISCAL_NUMBER (
+        type: textField
+        label {
+            label: Фіскальний номер ПРРО
+            alignment: right
+        }
+        layout {
+            sequence: 110
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 10
+        }
+        source {
+            formRegion: @form
+            column: FISCAL_NUMBER
+            dataType: varchar2
+        }
+        help {
+            helpText: 10 цифр — номер, присвоєний ДПС під час реєстрації ПРРО.
+        }
+    )
+
+    pageItem P641_PRRO_PROVIDER (
+        type: selectList
+        label {
+            label: Провайдер ПРРО
+            alignment: right
+        }
+        layout {
+            sequence: 120
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: PRRO_PROVIDER
+            dataType: varchar2
+        }
+        default {
+            type: static
+            staticValue: STUB
+        }
+        lov {
+            type: sharedComponent
+            lov: @prro-providers
+            displayExtraValues: true
+            displayNullValue: false
+        }
+        help {
+            helpText: Зараз доступна лише імітація: фіскальний номер чека формується локально, до ДПС нічого не передається. Інтеграція з Checkbox / ПРРО ДПС — окреме завдання.
+        }
+    )
+
+    pageItem P641_FISCAL_SEQ (
+        type: displayOnly
+        label {
+            label: Фіскальних чеків
+            alignment: right
+        }
+        layout {
+            sequence: 130
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: FISCAL_SEQ
+            dataType: number
+            queryOnly: true
+        }
+    )
+
+    pageItem P641_NOTE (
+        type: textarea
+        label {
+            label: Коментар
+            alignment: right
+        }
+        layout {
+            sequence: 140
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @form
+            column: NOTE
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    pageItem P641_STATE (
+        type: displayOnly
+        label {
+            label: Стан
+            alignment: right
+        }
+        layout {
+            sequence: 150
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: STATE
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @catalog-states
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button mark (
+        buttonName: MARK
+        label: Помітити на видалення
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Помітити елемент на видалення?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P641_ID is not null and :P641_STATE = 'ACTIVE'
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    button restore (
+        buttonName: RESTORE
+        label: Відновити
+        layout {
+            sequence: 30
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P641_STATE = 'MARKED_FOR_DELETION'
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати і закрити
+        layout {
+            sequence: 40
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P641_ID
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати і закрити
+        layout {
+            sequence: 50
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P641_ID
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Скасувати діалог
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+        execution {
+            sequence: 10
+        }
+
+        action cancel-dialog (
+            name: Закрити
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000100
+        }
+    )
+
+    process dml (
+        name: Записати
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE')
+        }
+        successMessage {
+            successMessage: Елемент записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000101
+        }
+    )
+
+    process mark (
+        name: Помітити на видалення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.mark_for_deletion('REF_CASH_REGISTER', :P641_ID);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @mark
+        }
+        advanced {
+            executionMappingIdentifier: 910000000102
+        }
+    )
+
+    process restore (
+        name: Відновити
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.restore('REF_CASH_REGISTER', :P641_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @restore
+        }
+        advanced {
+            executionMappingIdentifier: 910000000103
+        }
+    )
+
+    process close (
+        name: Закрити діалог
+        type: closeDialog
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE', 'MARK', 'RESTORE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000104
+        }
+    )
+)

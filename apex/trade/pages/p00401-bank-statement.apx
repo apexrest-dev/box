@@ -1,0 +1,1610 @@
+page 401 (
+    name: Банківська виписка
+    alias: BANK-STATEMENT
+    title: Банківська виписка
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>&P401_FORM_TITLE.</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region actions (
+        name: Команди
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region header (
+        name: Банківська виписка
+        title: Банківська виписка
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: DOC_BANK_STATEMENT
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P401_STATUS is not null and :P401_STATUS <> 'DRAFT'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    pageItem P401_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @header
+            slot: regionBody
+        }
+        source {
+            formRegion: @header
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P401_DOC_NUMBER (
+        type: textField
+        label {
+            label: Номер
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @header
+            column: DOC_NUMBER
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній номер буде призначено автоматично.
+        }
+    )
+
+    pageItem P401_OCCURRED_AT (
+        type: datePicker
+        label {
+            label: Дата
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY HH24:MI:SS
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: OCCURRED_AT
+            dataType: date
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY HH24:MI:SS')
+        }
+        settings {
+            displayAs: popup
+            showTime: true
+        }
+    )
+
+    pageItem P401_ORGANIZATION_ID (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: ORGANIZATION_ID
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_org.default_org
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-active
+            displayExtraValues: true
+            displayNullValue: false
+        }
+        help {
+            helpText: Організація — власник рахунку.
+        }
+    )
+
+    pageItem P401_BANK_ACCOUNT_ID (
+        type: popupLov
+        label {
+            label: Банківський рахунок
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: BANK_ACCOUNT_ID
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_fin.default_bank_account(trade_org.default_org)
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select name || ' (' || currency_code || ')' d, id r
+                  from ref_bank_account
+                 where state = 'ACTIVE' and organization_id = :P401_ORGANIZATION_ID
+                 order by case is_default when 'Y' then 0 else 1 end, name
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P401_ORGANIZATION_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: Рахунок організації, за яким отримано виписку. Рухи коштів — на дату виписки.
+        }
+    )
+
+    pageItem P401_CURRENCY_CODE (
+        type: displayOnly
+        label {
+            label: Валюта
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @header
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: CURRENCY_CODE
+            dataType: varchar2
+        }
+    )
+
+    pageItem P401_TOTAL_IN (
+        type: displayOnly
+        label {
+            label: Надходження
+            alignment: right
+        }
+        layout {
+            sequence: 70
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G999G990D00
+        }
+        source {
+            formRegion: @header
+            column: TOTAL_IN
+            dataType: number
+        }
+    )
+
+    pageItem P401_TOTAL_OUT (
+        type: displayOnly
+        label {
+            label: Списання
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G999G990D00
+        }
+        source {
+            formRegion: @header
+            column: TOTAL_OUT
+            dataType: number
+        }
+    )
+
+    pageItem P401_SOURCE_FORMAT (
+        type: displayOnly
+        label {
+            label: Джерело
+            alignment: right
+        }
+        layout {
+            sequence: 90
+            region: @header
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: SOURCE_FORMAT
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @bank-source-formats
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    pageItem P401_SOURCE_NAME (
+        type: displayOnly
+        label {
+            label: Файл
+            alignment: right
+        }
+        layout {
+            sequence: 100
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: SOURCE_NAME
+            dataType: varchar2
+        }
+    )
+
+    pageItem P401_STATUS (
+        type: hidden
+        layout {
+            sequence: 110
+            region: @header
+            slot: regionBody
+        }
+        source {
+            formRegion: @header
+            column: STATUS
+            dataType: varchar2
+        }
+        settings {
+            valueProtected: true
+        }
+    )
+
+    pageItem P401_FORM_TITLE (
+        type: hidden
+        layout {
+            sequence: 120
+            region: @header
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P401_NEW_ID (
+        type: hidden
+        layout {
+            sequence: 130
+            region: @header
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    region lines (
+        name: Операції
+        title: Операції
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, document_id, line_number, operation_kind, amount, counterparty_id, contract_id, purpose, cp_name, cp_edrpou, cp_iban, ext_doc_number, cash_order_id, payment_doc_id, case matched_by when 'EDRPOU' then 'ЄДРПОУ' when 'IBAN' then 'IBAN' when 'HISTORY' then 'Історія' end matched_name
+                  from doc_bank_statement_line
+                 where document_id = :P401_ID
+                 order by line_number
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+            cssClasses: tx-tabpart
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P401_STATUS is not null and :P401_STATUS <> 'DRAFT'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                actionsMenu
+            ]
+            addButtonLabel: Додати рядок
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000313
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn LINE_NUMBER (
+                column: @LINE_NUMBER
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 50
+                }
+            )
+
+            displayColumn OPERATION_KIND (
+                column: @OPERATION_KIND
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 260
+                }
+            )
+
+            displayColumn AMOUNT (
+                column: @AMOUNT
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 120
+                }
+            )
+
+            displayColumn COUNTERPARTY_ID (
+                column: @COUNTERPARTY_ID
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 220
+                }
+            )
+
+            displayColumn CONTRACT_ID (
+                column: @CONTRACT_ID
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 200
+                }
+            )
+
+            displayColumn PURPOSE (
+                column: @PURPOSE
+                layout {
+                    sequence: 60
+                    show: true
+                    width: 300
+                }
+            )
+
+            displayColumn CP_NAME (
+                column: @CP_NAME
+                layout {
+                    sequence: 70
+                    show: true
+                    width: 200
+                }
+            )
+
+            displayColumn CP_EDRPOU (
+                column: @CP_EDRPOU
+                layout {
+                    sequence: 80
+                    show: true
+                    width: 100
+                }
+            )
+
+            displayColumn CP_IBAN (
+                column: @CP_IBAN
+                layout {
+                    sequence: 90
+                    show: true
+                    width: 240
+                }
+            )
+
+            displayColumn EXT_DOC_NUMBER (
+                column: @EXT_DOC_NUMBER
+                layout {
+                    sequence: 100
+                    show: true
+                    width: 100
+                }
+            )
+
+            displayColumn CASH_ORDER_ID (
+                column: @CASH_ORDER_ID
+                layout {
+                    sequence: 110
+                    show: true
+                    width: 240
+                }
+            )
+
+            displayColumn PAYMENT_DOC_ID (
+                column: @PAYMENT_DOC_ID
+                layout {
+                    sequence: 120
+                    show: true
+                    width: 240
+                }
+            )
+
+            displayColumn MATCHED_NAME (
+                column: @MATCHED_NAME
+                layout {
+                    sequence: 130
+                    show: true
+                    width: 110
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column DOCUMENT_ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: DOCUMENT_ID
+                dataType: varchar2
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column LINE_NUMBER (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: LINE_NUMBER
+                dataType: number
+            }
+            heading {
+                heading: N
+                alignment: end
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+        )
+
+        column OPERATION_KIND (
+            type: selectList
+            source {
+                type: databaseColumn
+                databaseColumn: OPERATION_KIND
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид операції
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @bank-operation-kinds
+                displayExtraValues: true
+                displayNullValue: false
+            }
+        )
+
+        column AMOUNT (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: AMOUNT
+                dataType: number
+            }
+            heading {
+                heading: Сума
+                alignment: end
+            }
+            layout {
+                sequence: 50
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column COUNTERPARTY_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: COUNTERPARTY_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+                alignment: start
+            }
+            layout {
+                sequence: 60
+            }
+            lov {
+                type: sharedComponent
+                lov: @counterparties-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Порожній — знаходиться автоматично за ЄДРПОУ / IBAN з виписки (команда «Заповнити контрагентів» шукає й за попередніми виписками).
+            }
+        )
+
+        column CONTRACT_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: CONTRACT_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Договір
+                alignment: start
+            }
+            layout {
+                sequence: 70
+            }
+            lov {
+                type: sharedComponent
+                lov: @contracts-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Порожній — договір контрагента за замовчуванням (якщо один).
+            }
+        )
+
+        column PURPOSE (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: PURPOSE
+                dataType: varchar2
+            }
+            heading {
+                heading: Призначення платежу
+                alignment: start
+            }
+            layout {
+                sequence: 80
+            }
+            validation {
+                maxLength: 500
+            }
+        )
+
+        column CP_NAME (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: CP_NAME
+                dataType: varchar2
+            }
+            heading {
+                heading: Платник / одержувач (з виписки)
+                alignment: start
+            }
+            layout {
+                sequence: 90
+            }
+            validation {
+                maxLength: 255
+            }
+        )
+
+        column CP_EDRPOU (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: CP_EDRPOU
+                dataType: varchar2
+            }
+            heading {
+                heading: ЄДРПОУ
+                alignment: start
+            }
+            layout {
+                sequence: 100
+            }
+            validation {
+                maxLength: 10
+            }
+        )
+
+        column CP_IBAN (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: CP_IBAN
+                dataType: varchar2
+            }
+            heading {
+                heading: IBAN контрагента
+                alignment: start
+            }
+            layout {
+                sequence: 110
+            }
+            validation {
+                maxLength: 34
+            }
+        )
+
+        column EXT_DOC_NUMBER (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: EXT_DOC_NUMBER
+                dataType: varchar2
+            }
+            heading {
+                heading: № платіжки
+                alignment: start
+            }
+            layout {
+                sequence: 120
+            }
+            validation {
+                maxLength: 30
+            }
+        )
+
+        column CASH_ORDER_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: CASH_ORDER_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Касовий ордер
+                alignment: start
+            }
+            layout {
+                sequence: 130
+            }
+            lov {
+                type: sharedComponent
+                lov: @bank-cash-orders
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Для внесення / зняття готівки: ВКО «Інкасація» або ПКО «Отримання готівки в банку». Ордер уже рухає рахунок — виписка суму не проводить повторно.
+            }
+        )
+
+        column PAYMENT_DOC_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: PAYMENT_DOC_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Документ оплати
+                alignment: start
+            }
+            layout {
+                sequence: 140
+            }
+            lov {
+                type: sharedComponent
+                lov: @bank-payment-docs
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Безготівкова оплата постачальнику / від покупця, яку відображає рядок. Рух рахунку й погашення боргу вже записала оплата — виписка рядок лише звіряє. Під час проведення підбирається автоматично (рахунок, контрагент, сума, ±3 дні).
+            }
+        )
+
+        column MATCHED_NAME (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: MATCHED_NAME
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Знайдено за
+                alignment: start
+            }
+            layout {
+                sequence: 150
+            }
+        )
+    )
+
+    region footer (
+        name: Підвал
+        type: staticContent
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P401_DOC_COMMENT (
+        type: textarea
+        label {
+            label: Коментар
+            alignment: right
+        }
+        layout {
+            sequence: 140
+            region: @footer
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @header
+            column: DOC_COMMENT
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    process form-title (
+        name: Заголовок форми
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P401_FORM_TITLE := trade_ui.doc_title('Банківська виписка', :P401_DOC_NUMBER, :P401_OCCURRED_AT, :P401_STATUS);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000314
+        }
+    )
+
+    button create-post-close (
+        buttonName: CREATE_POST_CLOSE
+        label: Провести і закрити
+        layout {
+            sequence: 10
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P401_ID
+        }
+    )
+
+    button post-close (
+        buttonName: POST_CLOSE
+        label: Провести і закрити
+        layout {
+            sequence: 11
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P401_ID is not null and :P401_STATUS = 'DRAFT'
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати
+        layout {
+            sequence: 20
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P401_ID
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати
+        layout {
+            sequence: 21
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P401_ID is not null and :P401_STATUS = 'DRAFT'
+        }
+    )
+
+    button create-post (
+        buttonName: CREATE_POST
+        label: Провести
+        layout {
+            sequence: 30
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P401_ID
+        }
+    )
+
+    button post (
+        buttonName: POST
+        label: Провести
+        layout {
+            sequence: 31
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P401_ID is not null and :P401_STATUS = 'DRAFT'
+        }
+    )
+
+    button unpost (
+        buttonName: UNPOST
+        label: Скасувати проведення
+        layout {
+            sequence: 40
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Скасувати проведення документа? Рухи регістрів буде видалено.
+            style: warning
+        }
+        serverSideCondition {
+            type: item=value
+            item: P401_STATUS
+            value: POSTED
+        }
+    )
+
+    button cmd-fill-counterparties (
+        buttonName: FILL_COUNTERPARTIES
+        label: Заповнити контрагентів
+        layout {
+            sequence: 41
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P401_ID is not null and :P401_STATUS = 'DRAFT'
+        }
+    )
+
+    button cmd-link-cash-orders (
+        buttonName: LINK_CASH_ORDERS
+        label: Підібрати касові ордери
+        layout {
+            sequence: 42
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P401_ID is not null and :P401_STATUS = 'DRAFT'
+        }
+    )
+
+    button cmd-link-payments (
+        buttonName: LINK_PAYMENTS
+        label: Підібрати оплати
+        layout {
+            sequence: 43
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P401_ID is not null and :P401_STATUS = 'DRAFT'
+        }
+    )
+
+    button cmd-print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 44
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P401_ID
+        }
+    )
+
+    button copy (
+        buttonName: COPY
+        label: Скопіювати (F9)
+        layout {
+            sequence: 50
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P401_ID
+        }
+    )
+
+    button close (
+        buttonName: CLOSE
+        label: Закрити
+        layout {
+            sequence: 60
+            region: @actions
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 400
+            }
+        }
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @header
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000315
+        }
+    )
+
+    process dml (
+        name: Записати шапку
+        type: formAutoRowProcessing
+        formRegion: @header
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        successMessage {
+            successMessage: Документ записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000316
+        }
+    )
+
+    process dml-lines (
+        name: Записати рядки
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @lines
+        target {
+            targetType: plsqlCode
+            dmlPlsqlCode:
+                ```plsql
+                case :APEX$ROW_STATUS
+                  when 'C' then
+                    insert into doc_bank_statement_line (document_id, line_number, operation_kind, amount, counterparty_id, contract_id, purpose, cp_name, cp_edrpou, cp_iban, ext_doc_number, cash_order_id, payment_doc_id)
+                    values (:P401_ID, null,
+                            :OPERATION_KIND,
+                            to_number(:AMOUNT, 'FM999G999G999G990D00'),
+                            :COUNTERPARTY_ID,
+                            :CONTRACT_ID,
+                            :PURPOSE,
+                            :CP_NAME,
+                            :CP_EDRPOU,
+                            :CP_IBAN,
+                            :EXT_DOC_NUMBER,
+                            :CASH_ORDER_ID,
+                            :PAYMENT_DOC_ID)
+                    returning id into :ID;
+                  when 'U' then
+                    update doc_bank_statement_line
+                       set operation_kind = :OPERATION_KIND,
+                           amount = to_number(:AMOUNT, 'FM999G999G999G990D00'),
+                           counterparty_id = :COUNTERPARTY_ID,
+                           contract_id = :CONTRACT_ID,
+                           purpose = :PURPOSE,
+                           cp_name = :CP_NAME,
+                           cp_edrpou = :CP_EDRPOU,
+                           cp_iban = :CP_IBAN,
+                           ext_doc_number = :EXT_DOC_NUMBER,
+                           cash_order_id = :CASH_ORDER_ID,
+                           payment_doc_id = :PAYMENT_DOC_ID
+                     where id = :ID and document_id = :P401_ID;
+                  when 'D' then
+                    delete from doc_bank_statement_line where id = :ID and document_id = :P401_ID;
+                end case;
+                ```
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000317
+        }
+    )
+
+    process post (
+        name: Провести
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_warn.clear;
+                trade_bank_doc.post(:P401_ID);
+                :TRADE_WARN := trade_warn.take;
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        successMessage {
+            successMessage: Документ проведено. &TRADE_WARN.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000318
+        }
+    )
+
+    process unpost (
+        name: Скасувати проведення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_bank_doc.unpost(:P401_ID);
+                ```
+        }
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @unpost
+        }
+        successMessage {
+            successMessage: Проведення документа скасовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000319
+        }
+    )
+
+    process copy (
+        name: Скопіювати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P401_ID := trade_bank_doc.copy(:P401_ID);
+                ```
+        }
+        execution {
+            sequence: 50
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @copy
+        }
+        successMessage {
+            successMessage: Створено копію документа (чернетка).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000320
+        }
+    )
+
+    process cmd-fill-counterparties (
+        name: Заповнити контрагентів
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare n number; begin n := trade_bank_doc.fill_counterparties(:P401_ID); end;
+                ```
+        }
+        execution {
+            sequence: 60
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('FILL_COUNTERPARTIES')
+        }
+        successMessage {
+            successMessage: Контрагентів знайдено за ЄДРПОУ / IBAN (рядки без контрагента).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000321
+        }
+    )
+
+    process cmd-link-cash-orders (
+        name: Підібрати касові ордери
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare n number; begin n := trade_bank_doc.link_cash_orders(:P401_ID); end;
+                ```
+        }
+        execution {
+            sequence: 61
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LINK_CASH_ORDERS')
+        }
+        successMessage {
+            successMessage: Рядки внесення / зняття готівки зіставлено з проведеними касовими ордерами.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000322
+        }
+    )
+
+    process cmd-link-payments (
+        name: Підібрати оплати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare n number; begin n := trade_bank_doc.link_payments(:P401_ID); end;
+                ```
+        }
+        execution {
+            sequence: 62
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LINK_PAYMENTS')
+        }
+        successMessage {
+            successMessage: Рядки оплат зіставлено з проведеними безготівковими документами оплати.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000323
+        }
+    )
+
+    process cmd-print (
+        name: Друк
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P401_NEW_ID := :P401_ID;
+                ```
+        }
+        execution {
+            sequence: 63
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PRINT')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000324
+        }
+    )
+
+    branch to-print (
+        name: До документа: Друк
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 900
+                clearCache: 900
+                items: {
+                    P900_ID: &P401_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 8
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PRINT')
+        }
+    )
+
+    branch to-list (
+        name: До списку
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 400
+            }
+        }
+        execution {
+            sequence: 10
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('POST_CLOSE', 'CREATE_POST_CLOSE')
+        }
+    )
+
+    branch stay (
+        name: Залишитися в документі
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 401
+                clearCache: 401
+                items: {
+                    P401_ID: &P401_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 20
+            point: afterProcessing
+        }
+    )
+)

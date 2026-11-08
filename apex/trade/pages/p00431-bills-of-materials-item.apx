@@ -1,0 +1,801 @@
+page 431 (
+    name: Специфікація набору
+    alias: BILLS-OF-MATERIALS-ITEM
+    title: Специфікація набору
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    dialog {
+        width: 960
+        chained: false
+    }
+
+    region form (
+        name: Специфікація набору
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: REF_BILL_OF_MATERIALS
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    region buttons (
+        name: Кнопки
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: dialogFooter
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P431_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P431_CODE (
+        type: textField
+        label {
+            label: Код
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @form
+            column: CODE
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній код буде призначено автоматично.
+        }
+    )
+
+    pageItem P431_NAME (
+        type: textField
+        label {
+            label: Найменування
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            columnSpan: 9
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 255
+        }
+        source {
+            formRegion: @form
+            column: NAME
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожнє — «Специфікація: <набір>».
+        }
+    )
+
+    pageItem P431_PRODUCT_ID (
+        type: popupLov
+        label {
+            label: Набір
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: PRODUCT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @products-goods
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Товар-комплект, який збирається з комплектуючих.
+        }
+    )
+
+    pageItem P431_QUANTITY (
+        type: numberField
+        label {
+            label: Кількість набору
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G999G990D000
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: QUANTITY
+            dataType: number
+        }
+        default {
+            type: static
+            staticValue: 1
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: На яку кількість наборів задано комплектуючі (зазвичай 1).
+        }
+    )
+
+    pageItem P431_IS_MAIN (
+        type: switch
+        label {
+            label: Основна
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: IS_MAIN
+            dataType: varchar2
+        }
+        settings {
+            useDefaults: false
+            onValue: Y
+            onLabel: Так
+            offValue: N
+            offLabel: Ні
+        }
+        help {
+            helpText: Підставляється в документ комплектації. Лише одна основна специфікація набору.
+        }
+    )
+
+    pageItem P431_DESCRIPTION (
+        type: textarea
+        label {
+            label: Опис
+            alignment: right
+        }
+        layout {
+            sequence: 70
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @form
+            column: DESCRIPTION
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    pageItem P431_STATE (
+        type: displayOnly
+        label {
+            label: Стан
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: STATE
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @catalog-states
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    region lines (
+        name: Комплектуючі
+        title: Комплектуючі
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, bom_id, line_number, product_id, quantity, cost_share
+                  from ref_bill_of_materials_items
+                 where bom_id = :P431_ID
+                 order by line_number
+                ```
+        }
+        layout {
+            sequence: 15
+            slot: contentBody
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+            cssClasses: tx-tabpart
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P431_STATE is not null and :P431_STATE <> 'ACTIVE'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                actionsMenu
+            ]
+            addButtonLabel: Додати рядок
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000062
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn LINE_NUMBER (
+                column: @LINE_NUMBER
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 50
+                }
+            )
+
+            displayColumn PRODUCT_ID (
+                column: @PRODUCT_ID
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 380
+                }
+            )
+
+            displayColumn QUANTITY (
+                column: @QUANTITY
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 130
+                }
+            )
+
+            displayColumn COST_SHARE (
+                column: @COST_SHARE
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 130
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column BOM_ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: BOM_ID
+                dataType: varchar2
+                queryOnly: true
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column LINE_NUMBER (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: LINE_NUMBER
+                dataType: number
+            }
+            heading {
+                heading: N
+                alignment: end
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+        )
+
+        column PRODUCT_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: PRODUCT_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @products-goods
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+        )
+
+        column QUANTITY (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: QUANTITY
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+                alignment: end
+            }
+            layout {
+                sequence: 50
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column COST_SHARE (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: COST_SHARE
+                dataType: number
+            }
+            heading {
+                heading: Частка вартості
+                alignment: end
+            }
+            layout {
+                sequence: 60
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G990D0000
+            }
+            help {
+                helpText: Вага рядка при розподілі собівартості набору під час розкомплектації. Порожньо в усіх рядках — розподіл за середньою собівартістю комплектуючих.
+            }
+        )
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button mark (
+        buttonName: MARK
+        label: Помітити на видалення
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Помітити елемент на видалення?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P431_ID is not null and :P431_STATE = 'ACTIVE'
+        }
+        security {
+            authorizationScheme: @role-warehouse
+        }
+    )
+
+    button restore (
+        buttonName: RESTORE
+        label: Відновити
+        layout {
+            sequence: 30
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P431_STATE = 'MARKED_FOR_DELETION'
+        }
+        security {
+            authorizationScheme: @role-warehouse
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати і закрити
+        layout {
+            sequence: 40
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P431_ID
+        }
+        security {
+            authorizationScheme: @role-warehouse
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати і закрити
+        layout {
+            sequence: 50
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P431_ID
+        }
+        security {
+            authorizationScheme: @role-warehouse
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Скасувати діалог
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+        execution {
+            sequence: 10
+        }
+
+        action cancel-dialog (
+            name: Закрити
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000063
+        }
+    )
+
+    process dml (
+        name: Записати
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE')
+        }
+        successMessage {
+            successMessage: Елемент записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000064
+        }
+    )
+
+    process dml-lines (
+        name: Записати рядки
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @lines
+        target {
+            targetType: plsqlCode
+            dmlPlsqlCode:
+                ```plsql
+                case :APEX$ROW_STATUS
+                  when 'C' then
+                    insert into ref_bill_of_materials_items (bom_id, line_number, product_id, quantity, cost_share)
+                    values (:P431_ID, null,
+                            :PRODUCT_ID,
+                            to_number(:QUANTITY, 'FM999G999G999G990D000'),
+                            to_number(:COST_SHARE, 'FM999G990D0000'))
+                    returning id into :ID;
+                  when 'U' then
+                    update ref_bill_of_materials_items
+                       set product_id = :PRODUCT_ID,
+                           quantity = to_number(:QUANTITY, 'FM999G999G999G990D000'),
+                           cost_share = to_number(:COST_SHARE, 'FM999G990D0000')
+                     where id = :ID and bom_id = :P431_ID;
+                  when 'D' then
+                    delete from ref_bill_of_materials_items where id = :ID and bom_id = :P431_ID;
+                end case;
+                ```
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 15
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000065
+        }
+    )
+
+    process mark (
+        name: Помітити на видалення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.mark_for_deletion('REF_BILL_OF_MATERIALS', :P431_ID);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @mark
+        }
+        advanced {
+            executionMappingIdentifier: 910000000066
+        }
+    )
+
+    process restore (
+        name: Відновити
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.restore('REF_BILL_OF_MATERIALS', :P431_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @restore
+        }
+        advanced {
+            executionMappingIdentifier: 910000000067
+        }
+    )
+
+    process close (
+        name: Закрити діалог
+        type: closeDialog
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE', 'MARK', 'RESTORE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000068
+        }
+    )
+)

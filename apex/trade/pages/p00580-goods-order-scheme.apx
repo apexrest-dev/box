@@ -1,0 +1,1051 @@
+page 580 (
+    name: Товари до надходження й відвантаження
+    alias: GOODS-ORDER-SCHEME
+    title: Товари до надходження й відвантаження
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Товари до надходження й відвантаження</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region receipts (
+        name: Очікується надходження
+        title: Очікується надходження
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select b.warehouse_name, b.basis_name, apex_page.get_url(p_page => b.basis_page_id, p_items => 'P' || b.basis_page_id || '_ID', p_values => b.basis_id) basis_url, b.basis_date, b.planned_qty, b.done_qty,
+                       b.remaining_qty, b.state_name
+                  from v_goods_order_basis b
+                 where b.direction = 'RECEIPT'
+                 order by b.basis_date desc
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000437
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column BASIS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Розпорядження
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#BASIS_URL#">#BASIS_NAME#</a>
+            }
+        )
+
+        column BASIS_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column BASIS_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column PLANNED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: За документом
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column DONE_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Прийнято
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REMAINING_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column STATE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 80
+            }
+        )
+    )
+
+    region shipments (
+        name: Розпорядження на відвантаження
+        title: Розпорядження на відвантаження
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select b.warehouse_name, b.basis_name, apex_page.get_url(p_page => b.basis_page_id, p_items => 'P' || b.basis_page_id || '_ID', p_values => b.basis_id) basis_url, b.basis_date, b.planned_qty, b.done_qty,
+                       b.remaining_qty, b.state_name
+                  from v_goods_order_basis b
+                 where b.direction = 'SHIPMENT'
+                 order by b.basis_date desc
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000438
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column BASIS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Розпорядження
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#BASIS_URL#">#BASIS_NAME#</a>
+            }
+        )
+
+        column BASIS_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column BASIS_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column PLANNED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: За документом
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column DONE_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Відвантажено
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REMAINING_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column STATE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 80
+            }
+        )
+    )
+
+    region by-product (
+        name: За товарами
+        title: За товарами
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select v.direction_name, v.warehouse_name, v.product_code, v.product_name, v.characteristic_name, v.series_name,
+                       v.unit_name, sum(v.planned_qty) planned_qty, sum(v.done_qty) done_qty, sum(v.remaining_qty) remaining_qty
+                  from v_goods_order_balance v
+                 where v.remaining_qty <> 0
+                 group by v.direction_name, v.warehouse_name, v.product_code, v.product_name, v.characteristic_name, v.series_name, v.unit_name
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000439
+        }
+
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Напрям
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column CHARACTERISTIC_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Характеристика
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column SERIES_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Серія
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column PLANNED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: За документами
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column DONE_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Оформлено ордерами
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REMAINING_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region physical (
+        name: Фактичні залишки
+        title: Фактичні залишки
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select s.warehouse_name, s.product_code, s.product_name, s.characteristic_name, s.series_name, s.unit_name,
+                       s.book_qty, s.to_receive_qty, s.to_ship_qty, s.physical_qty
+                  from v_order_scheme_stock s
+                ```
+        }
+        layout {
+            sequence: 50
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000440
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CHARACTERISTIC_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Характеристика
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column SERIES_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Серія
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column BOOK_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: За обліком
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column TO_RECEIVE_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: До надходження
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column TO_SHIP_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: До відвантаження
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column PHYSICAL_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Фактично на складі
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region bins (
+        name: Товари в комірках
+        title: Товари в комірках
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select v.warehouse_name, v.bin_name, v.product_code, v.product_name, v.characteristic_name, v.series_name, v.unit_name, v.quantity
+                  from v_bin_stock v
+                 order by v.warehouse_name, v.bin_name, v.product_name
+                ```
+        }
+        layout {
+            sequence: 60
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000441
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column BIN_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Комірка
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column CHARACTERISTIC_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Характеристика
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column SERIES_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Серія
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region movements (
+        name: Рухи
+        title: Рухи
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select m.period, m.recorder_name, apex_page.get_url(p_page => m.page_id, p_items => 'P' || m.page_id || '_ID', p_values => m.recorder_id) recorder_url,
+                       m.register_name, m.direction_name, m.warehouse_name, m.bin_name,
+                       m.product_name, m.characteristic_name, m.series_name, m.quantity, m.basis_name
+                  from v_goods_order_movement m
+                ```
+        }
+        layout {
+            sequence: 70
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000442
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Період
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column RECORDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстратор
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#RECORDER_URL#">#RECORDER_NAME#</a>
+            }
+        )
+
+        column RECORDER_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column REGISTER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Регістр
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид руху
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column BIN_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Комірка
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column CHARACTERISTIC_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Характеристика
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column SERIES_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Серія
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 110
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column BASIS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Розпорядження
+            }
+            layout {
+                sequence: 120
+            }
+        )
+    )
+)

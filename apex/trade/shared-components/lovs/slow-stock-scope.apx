@@ -1,0 +1,18 @@
+lov slow-stock-scope (
+    name: SLOW_STOCK_SCOPE
+    source {
+        location: staticValues
+    }
+
+    entry y (
+        sequence: 1
+        display: Лише залежалі й з терміном, що минає
+        return: Y
+    )
+
+    entry n (
+        sequence: 2
+        display: Усі залишки
+        return: N
+    )
+)

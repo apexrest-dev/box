@@ -1,0 +1,18 @@
+lov warehouses-order-scheme (
+    name: WAREHOUSES_ORDER_SCHEME
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name d, id r
+              from ref_warehouse
+             where state = 'ACTIVE' and use_order_scheme = 'Y'
+             order by name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

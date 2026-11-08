@@ -1,0 +1,269 @@
+page 380 (
+    name: Видаткові касові ордери
+    alias: CASH-PAYMENTS
+    title: Видаткові касові ордери
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Видаткові касові ордери</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Видаткові касові ордери
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select d.id, case when d.status in ('POSTED', 'ISSUED') then 'fa-file-text-o tx-ico-posted' when d.status = 'CANCELLED' then 'fa-times tx-ico-marked' else 'fa-file-o tx-ico-draft' end icon_class, ' ' state_icon, d.organization_name, d.doc_number, d.occurred_at, d.operation_name, d.cash_desk_name, d.counterparty_name, d.person_name, d.amount, d.currency_code, case d.status when 'POSTED' then 'Проведено' else 'Чернетка' end status_name, d.doc_comment
+                  from v_cash_order_list d
+                 where d.doc_type = 'DocCashPayment'
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 381
+                clearCache: 381
+                items: {
+                    P381_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-file-text-o" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000304
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column OPERATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид операції
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column CASH_DESK_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column PERSON_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Видати
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 110
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 120
+            }
+        )
+
+        column DOC_COMMENT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Коментар
+            }
+            layout {
+                sequence: 130
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 381
+                clearCache: 381
+            }
+        }
+    )
+)

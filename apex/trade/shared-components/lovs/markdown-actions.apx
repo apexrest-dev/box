@@ -1,0 +1,24 @@
+lov markdown-actions (
+    name: MARKDOWN_ACTIONS
+    source {
+        location: staticValues
+    }
+
+    entry markdown (
+        sequence: 1
+        display: Уцінити
+        return: MARKDOWN
+    )
+
+    entry clearance (
+        sequence: 2
+        display: Розпродати
+        return: CLEARANCE
+    )
+
+    entry write-off (
+        sequence: 3
+        display: Списати
+        return: WRITE_OFF
+    )
+)

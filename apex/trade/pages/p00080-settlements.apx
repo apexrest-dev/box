@@ -1,0 +1,618 @@
+page 80 (
+    name: Взаєморозрахунки
+    alias: SETTLEMENTS
+    title: Взаєморозрахунки
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Взаєморозрахунки</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region filter (
+        name: Відбір
+        type: staticContent
+        layout {
+            sequence: 3
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P80_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @filter
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply-org (
+        buttonName: APPLY_ORG
+        label: Застосувати
+        layout {
+            sequence: 20
+            region: @filter
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region balances (
+        name: Залишки
+        title: Залишки
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select organization_name, counterparty_code, counterparty_name, direction_name, currency_code, balance
+                  from v_settlement_balance
+                 where (:P80_ORG is null or organization_id = :P80_ORG)
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000400
+        }
+
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column COUNTERPARTY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Заборгованість
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column BALANCE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region turnovers (
+        name: Обороти
+        title: Обороти
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        advanced {
+            regionDisplaySelector: true
+        }
+    )
+
+    pageItem P80_FROM (
+        type: datePicker
+        label {
+            label: Початок періоду
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @turnovers
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P80_TO (
+        type: datePicker
+        label {
+            label: Кінець періоду
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @turnovers
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 30
+            region: @turnovers
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region turnover-report (
+        name: Обороти за період
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P80_FROM
+                P80_TO
+                P80_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select o.name organization_name, c.name counterparty_name,
+                       case m.direction when 'PAYABLE' then 'Кредиторська' else 'Дебіторська' end direction_name,
+                       m.currency_code,
+                       sum(case when m.period < to_date(:P80_FROM, 'DD.MM.YYYY') then m.amount else 0 end) opening,
+                       sum(case when m.period >= to_date(:P80_FROM, 'DD.MM.YYYY') and m.period < to_date(:P80_TO, 'DD.MM.YYYY') + 1 and m.amount > 0 then m.amount else 0 end) incoming,
+                       sum(case when m.period >= to_date(:P80_FROM, 'DD.MM.YYYY') and m.period < to_date(:P80_TO, 'DD.MM.YYYY') + 1 and m.amount < 0 then -m.amount else 0 end) outgoing,
+                       sum(case when m.period < to_date(:P80_TO, 'DD.MM.YYYY') + 1 then m.amount else 0 end) closing
+                  from reg_counterparty_settlement_mv m
+                  join ref_counterparty c on c.id = m.counterparty_id
+                  join ref_organization o on o.id = m.organization_id
+                 where (:P80_ORG is null or m.organization_id = :P80_ORG)
+                 group by o.name, c.name, m.direction, m.currency_code
+                ```
+        }
+        layout {
+            sequence: 30
+            parentRegion: @turnovers
+            slot: subRegions
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000401
+        }
+
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Заборгованість
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OPENING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Поч. залишок
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column INCOMING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Виникло
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column OUTGOING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Погашено
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column CLOSING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кін. залишок
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region movements (
+        name: Рухи
+        title: Рухи
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select m.period, m.recorder_name, apex_page.get_url(p_page => m.page_id, p_items => 'P' || m.page_id || '_ID', p_values => m.recorder_id) recorder_url,
+                       m.organization_name, m.counterparty_name, m.direction_name, m.currency_code, m.amount
+                  from v_settlement_movement m
+                 where (:P80_ORG is null or m.organization_id = :P80_ORG)
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000402
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Період
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column RECORDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстратор
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#RECORDER_URL#">#RECORDER_NAME#</a>
+            }
+        )
+
+        column RECORDER_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Заборгованість
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+)

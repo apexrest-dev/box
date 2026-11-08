@@ -1,0 +1,24 @@
+lov import-modes (
+    name: IMPORT_MODES
+    source {
+        location: staticValues
+    }
+
+    entry create-update (
+        sequence: 1
+        display: Створювати нові й оновлювати існуючі
+        return: CREATE_UPDATE
+    )
+
+    entry create-only (
+        sequence: 2
+        display: Лише створювати нові
+        return: CREATE_ONLY
+    )
+
+    entry update-only (
+        sequence: 3
+        display: Лише оновлювати існуючі
+        return: UPDATE_ONLY
+    )
+)

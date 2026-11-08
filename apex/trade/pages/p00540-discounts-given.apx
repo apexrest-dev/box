@@ -1,0 +1,509 @@
+page 540 (
+    name: Надані знижки
+    alias: DISCOUNTS-GIVEN
+    title: Надані знижки
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Надані знижки</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Відбір
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P540_FROM (
+        type: datePicker
+        label {
+            label: З
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P540_TO (
+        type: datePicker
+        label {
+            label: По
+            alignment: right
+        }
+        layout {
+            sequence: 11
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P540_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region summary (
+        name: Підсумки за умовами
+        title: Підсумки за умовами
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_discount.given_html(coalesce(to_date(:P540_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'MM')), coalesce(to_date(:P540_TO, 'DD.MM.YYYY'), trunc(sysdate)), :P540_ORG);
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region lines (
+        name: Рядки реалізацій зі знижкою
+        title: Рядки реалізацій зі знижкою
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P540_FROM
+                P540_TO
+                P540_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select v.period, v.doc_number, v.document_id, v.customer_name, v.product_code, v.product_name, v.group_path,
+                       v.quantity, v.base_price, v.price, v.list_amount, v.discount_percent, v.manual_discount_percent,
+                       v.auto_discount_percent, v.discount_name, v.discount_amount, v.auto_discount_amount, v.amount, v.author,
+                       apex_page.get_url(p_page => 111, p_items => 'P111_ID', p_values => v.document_id) doc_url
+                  from v_discount_given v
+                 where v.period >= coalesce(to_date(:P540_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'MM')) and v.period < coalesce(to_date(:P540_TO, 'DD.MM.YYYY'), trunc(sysdate)) + 1
+                   and (:P540_ORG is null or v.organization_id = :P540_ORG)
+                 order by v.period, v.doc_number, v.line_number
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000436
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реалізація
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#DOC_URL#">#DOC_NUMBER#</a>
+            }
+        )
+
+        column DOCUMENT_ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CUSTOMER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Покупець
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column GROUP_PATH (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Група
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column BASE_PRICE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Ціна до знижки
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column PRICE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Ціна зі знижкою
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column LIST_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума без знижки
+            }
+            layout {
+                sequence: 110
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column DISCOUNT_PERCENT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Знижка, %
+            }
+            layout {
+                sequence: 120
+            }
+            appearance {
+                formatMask: FM990D00
+            }
+        )
+
+        column MANUAL_DISCOUNT_PERCENT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Ручна, %
+            }
+            layout {
+                sequence: 130
+            }
+            appearance {
+                formatMask: FM990D00
+            }
+        )
+
+        column AUTO_DISCOUNT_PERCENT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Авт., %
+            }
+            layout {
+                sequence: 140
+            }
+            appearance {
+                formatMask: FM990D00
+            }
+        )
+
+        column DISCOUNT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Умова знижки
+            }
+            layout {
+                sequence: 150
+            }
+        )
+
+        column DISCOUNT_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума знижки
+            }
+            layout {
+                sequence: 160
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AUTO_DISCOUNT_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: у т. ч. автоматична
+            }
+            layout {
+                sequence: 170
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 180
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AUTHOR (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Автор документа
+            }
+            layout {
+                sequence: 190
+            }
+        )
+
+        column DOC_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: url
+            }
+            layout {
+                sequence: 200
+            }
+        )
+    )
+)

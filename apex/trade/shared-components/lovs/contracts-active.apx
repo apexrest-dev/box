@@ -1,0 +1,18 @@
+lov contracts-active (
+    name: CONTRACTS_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select o.name || ': ' || c.name || case when c.contract_number is not null then ' № ' || c.contract_number end d, c.id r
+              from ref_contract c join ref_counterparty o on o.id = c.owner_id
+             where c.state = 'ACTIVE'
+             order by 1
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

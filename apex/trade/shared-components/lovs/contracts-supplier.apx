@@ -1,0 +1,18 @@
+lov contracts-supplier (
+    name: CONTRACTS_SUPPLIER
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select o.name || ': ' || c.name d, c.id r
+              from ref_contract c join ref_counterparty o on o.id = c.owner_id
+             where c.state = 'ACTIVE' and c.contract_kind = 'WITH_SUPPLIER'
+             order by 1
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

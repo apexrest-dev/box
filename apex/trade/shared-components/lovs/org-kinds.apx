@@ -1,0 +1,18 @@
+lov org-kinds (
+    name: ORG_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry legal (
+        sequence: 1
+        display: Юридична особа
+        return: LEGAL
+    )
+
+    entry individual (
+        sequence: 2
+        display: Фізична особа-підприємець
+        return: INDIVIDUAL
+    )
+)

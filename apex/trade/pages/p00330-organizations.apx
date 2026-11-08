@@ -1,0 +1,247 @@
+page 330 (
+    name: Організації
+    alias: ORGANIZATIONS
+    title: Організації
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Організації</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Організації
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select case state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, id, code, name, case org_kind when 'INDIVIDUAL' then 'ФОП' else 'Юридична особа' end kind_name, edrpou, case vat_payer when 'Y' then 'Так' else 'Ні' end vat_name, iban, case is_default when 'Y' then 'Так' end default_name, case state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name from ref_organization
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 331
+                clearCache: 331
+                items: {
+                    P331_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-edit" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000043
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Найменування
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column EDRPOU (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ЄДРПОУ / ІПН
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column VAT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Платник ПДВ
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column IBAN (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: IBAN
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column DEFAULT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: За замовчуванням
+            }
+            layout {
+                sequence: 100
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 331
+                clearCache: 331
+            }
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction refresh-on-close (
+        name: Оновити після закриття діалогу
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @list
+        }
+        execution {
+            sequence: 10
+        }
+
+        action refresh (
+            name: Оновити
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

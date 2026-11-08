@@ -1,0 +1,332 @@
+page 650 (
+    name: Чеки ККМ
+    alias: RETAIL-RECEIPTS
+    title: Чеки ККМ
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-sales-or-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Чеки ККМ</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Чеки ККМ
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select d.id, case when d.status in ('POSTED', 'ISSUED') then 'fa-file-text-o tx-ico-posted' when d.status = 'CANCELLED' then 'fa-times tx-ico-marked' else 'fa-file-o tx-ico-draft' end icon_class, ' ' state_icon, d.organization_name, d.doc_number, d.occurred_at, d.cash_register_name, d.kind_name, d.total_amount, d.vat_amount, d.paid_cash, d.paid_card, d.change_amount, d.fiscal_status_name, d.fiscal_number, d.cashier_name, case d.status when 'POSTED' then 'Проведено' else 'Чернетка' end status_name, d.doc_comment
+                  from v_retail_receipt_list d
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 651
+                clearCache: 651
+                items: {
+                    P651_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-file-text-o" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000385
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column CASH_REGISTER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса ККМ
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column TOTAL_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column VAT_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: ПДВ
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column PAID_CASH (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Готівкою
+            }
+            layout {
+                sequence: 110
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column PAID_CARD (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Карткою
+            }
+            layout {
+                sequence: 120
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column CHANGE_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Решта
+            }
+            layout {
+                sequence: 130
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column FISCAL_STATUS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ПРРО
+            }
+            layout {
+                sequence: 140
+            }
+        )
+
+        column FISCAL_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Фіскальний номер
+            }
+            layout {
+                sequence: 150
+            }
+        )
+
+        column CASHIER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Касир
+            }
+            layout {
+                sequence: 160
+            }
+        )
+
+        column DOC_COMMENT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Коментар
+            }
+            layout {
+                sequence: 170
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 651
+                clearCache: 651
+            }
+        }
+    )
+)

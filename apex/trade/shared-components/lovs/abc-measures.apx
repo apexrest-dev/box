@@ -1,0 +1,24 @@
+lov abc-measures (
+    name: ABC_MEASURES
+    source {
+        location: staticValues
+    }
+
+    entry revenue (
+        sequence: 1
+        display: Виручка
+        return: REVENUE
+    )
+
+    entry qty (
+        sequence: 2
+        display: Кількість
+        return: QTY
+    )
+
+    entry profit (
+        sequence: 3
+        display: Валовий прибуток
+        return: PROFIT
+    )
+)

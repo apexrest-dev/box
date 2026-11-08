@@ -1,0 +1,18 @@
+lov price-types-active (
+    name: PRICE_TYPES_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name d, id r
+              from ref_price_type
+             where state = 'ACTIVE'
+             order by name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

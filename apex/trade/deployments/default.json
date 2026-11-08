@@ -1,0 +1,11 @@
+{
+  "workspace": {
+    "name": "TRADE"
+  },
+  "app": {
+    "id": 100,
+    "databaseSession": {
+      "parsingSchema": "TRADE"
+    }
+  }
+}

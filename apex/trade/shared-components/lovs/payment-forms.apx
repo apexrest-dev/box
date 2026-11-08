@@ -1,0 +1,18 @@
+lov payment-forms (
+    name: PAYMENT_FORMS
+    source {
+        location: staticValues
+    }
+
+    entry bank (
+        sequence: 1
+        display: Безготівкова (банківський рахунок)
+        return: BANK
+    )
+
+    entry cash (
+        sequence: 2
+        display: Готівкова (каса)
+        return: CASH
+    )
+)

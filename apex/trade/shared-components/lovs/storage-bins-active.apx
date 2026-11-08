@@ -1,0 +1,18 @@
+lov storage-bins-active (
+    name: STORAGE_BINS_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select w.name || ': ' || b.name d, b.id r
+              from ref_storage_bin b join ref_warehouse w on w.id = b.warehouse_id
+             where b.state = 'ACTIVE'
+             order by w.name, b.name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

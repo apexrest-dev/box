@@ -1,0 +1,379 @@
+page 510 (
+    name: Товари з терміном, що спливає
+    alias: EXPIRING-GOODS
+    title: Товари з терміном, що спливає
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Товари з терміном, що спливає</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Відбір
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P510_DATE (
+        type: datePicker
+        label {
+            label: На дату
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P510_DAYS (
+        type: numberField
+        label {
+            label: Спливає протягом, днів
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: static
+            staticValue: 30
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Серії, термін придатності яких минув або спливає протягом указаної кількості днів від дати. Порожньо — усі залишки серій і характеристик.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P510_WAREHOUSE (
+        type: selectList
+        label {
+            label: Склад
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @warehouses-active
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі склади
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region goods (
+        name: Залишки серій
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P510_DATE
+                P510_DAYS
+                P510_WAREHOUSE
+            ]
+            sqlQuery:
+                ```sql
+                select v.warehouse_name, v.product_code, v.product_name, v.characteristic_name, v.series_number,
+                       v.production_date, v.expiry_date, v.expiry_date - coalesce(to_date(:P510_DATE, 'DD.MM.YYYY'), trunc(sysdate)) days_left,
+                       trade_series.expiry_state_name(trade_series.expiry_state(v.expiry_date, coalesce(to_date(:P510_DATE, 'DD.MM.YYYY'), trunc(sysdate)), case when validate_conversion(:P510_DAYS as number) = 1 then to_number(:P510_DAYS) end)) expiry_state_name,
+                       v.quantity, v.unit_name,
+                       round(v.quantity * coalesce(trade_r3.avg_cost(v.warehouse_id, v.product_id), 0), 2) cost_amount,
+                       case when v.expiry_date < coalesce(to_date(:P510_DATE, 'DD.MM.YYYY'), trunc(sysdate)) then 'u-danger-text' when v.expiry_date is not null then 'u-warning-text' end state_css
+                  from v_series_stock_balance v
+                 where v.quantity > 0
+                   and (:P510_WAREHOUSE is null or v.warehouse_id = :P510_WAREHOUSE)
+                   and (case when validate_conversion(:P510_DAYS as number) = 1 then to_number(:P510_DAYS) end is null or v.expiry_date <= coalesce(to_date(:P510_DATE, 'DD.MM.YYYY'), trunc(sysdate)) + case when validate_conversion(:P510_DAYS as number) = 1 then to_number(:P510_DAYS) end)
+                 order by v.expiry_date nulls last, v.product_name, v.warehouse_name
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000433
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CHARACTERISTIC_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Характеристика
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column SERIES_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Серія
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column PRODUCTION_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата виробництва
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column EXPIRY_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Придатний до
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column DAYS_LEFT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишилось днів
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column EXPIRY_STATE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 90
+            }
+            columnFormatting {
+                htmlExpression: <span class="#STATE_CSS#">#EXPIRY_STATE_NAME#</span>
+            }
+        )
+
+        column QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 110
+            }
+        )
+
+        column COST_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Собівартість (оцінка)
+            }
+            layout {
+                sequence: 120
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column STATE_CSS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: css
+            }
+            layout {
+                sequence: 130
+            }
+        )
+    )
+)

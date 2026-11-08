@@ -1,0 +1,738 @@
+page 630 (
+    name: Реєстр податкових накладних
+    alias: TAX-INVOICE-REGISTER
+    title: Реєстр податкових накладних
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-tax
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Реєстр податкових накладних</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Відбір
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P630_FROM (
+        type: datePicker
+        label {
+            label: З
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P630_TO (
+        type: datePicker
+        label {
+            label: По
+            alignment: right
+        }
+        layout {
+            sequence: 11
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P630_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button generate (
+        buttonName: GENERATE
+        label: Створити ПН за першою подією
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Створити й провести податкові накладні за всіма подіями періоду без ПН?
+            style: warning
+        }
+    )
+
+    process generate (
+        name: Створити ПН за першою подією
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                  l_n number;
+                begin
+                  l_n := trade_tax.generate(coalesce(to_date(:P630_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'MM')), coalesce(to_date(:P630_TO, 'DD.MM.YYYY'), trunc(sysdate)), :P630_ORG, 'Y');
+                  apex_application.g_print_success_message := 'Створено й проведено податкових накладних: ' || l_n || '.';
+                end;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @generate
+        }
+        advanced {
+            executionMappingIdentifier: 910000000449
+        }
+    )
+
+    region summary (
+        name: Зведення ПДВ
+        title: Зведення ПДВ за період
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_tax.register_html(coalesce(to_date(:P630_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'MM')), coalesce(to_date(:P630_TO, 'DD.MM.YYYY'), trunc(sysdate)), :P630_ORG);
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region invoices (
+        name: Податкові накладні періоду
+        title: Податкові накладні періоду
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P630_FROM
+                P630_TO
+                P630_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select d.id, d.occurred_at, d.doc_number, d.organization_name, d.direction_name, d.counterparty_name,
+                       case when d.direction = 'ISSUED' then d.buyer_vat_number else d.seller_vat_number end vat_number,
+                       d.event_name, d.base_name, d.ext_number, d.amount_without_vat, d.vat_amount, d.total_amount, d.status_name,
+                       d.erpn_status_name, d.erpn_reg_number, d.erpn_deadline, d.erpn_overdue,
+                       apex_page.get_url(p_page => 621, p_items => 'P621_ID', p_values => d.id) doc_url
+                  from v_tax_invoice_list d
+                 where d.occurred_at >= coalesce(to_date(:P630_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'MM')) and d.occurred_at < coalesce(to_date(:P630_TO, 'DD.MM.YYYY'), trunc(sysdate)) + 1
+                   and (:P630_ORG is null or d.organization_id = :P630_ORG)
+                 order by d.direction, d.occurred_at, d.doc_number
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000450
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 20
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 30
+            }
+            columnFormatting {
+                htmlExpression: <a href="#DOC_URL#">#DOC_NUMBER#</a>
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column VAT_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ІПН
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column EVENT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Перша подія
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column BASE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Підстава
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column EXT_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: № постачальника
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column AMOUNT_WITHOUT_VAT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Без ПДВ
+            }
+            layout {
+                sequence: 110
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column VAT_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: ПДВ
+            }
+            layout {
+                sequence: 120
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column TOTAL_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: З ПДВ
+            }
+            layout {
+                sequence: 130
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column STATUS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Статус
+            }
+            layout {
+                sequence: 140
+            }
+        )
+
+        column ERPN_STATUS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ЄРПН
+            }
+            layout {
+                sequence: 150
+            }
+        )
+
+        column ERPN_REG_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстр. №
+            }
+            layout {
+                sequence: 160
+            }
+        )
+
+        column ERPN_DEADLINE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Зареєструвати до
+            }
+            layout {
+                sequence: 170
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column ERPN_OVERDUE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Прострочено
+            }
+            layout {
+                sequence: 180
+            }
+        )
+
+        column DOC_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: url
+            }
+            layout {
+                sequence: 190
+            }
+        )
+    )
+
+    region open-events (
+        name: Події без податкової накладної
+        title: Події без податкової накладної
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P630_FROM
+                P630_TO
+                P630_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select e.event_date, e.doc_id, r.recorder_name doc_name, o.name organization_name, c.name counterparty_name,
+                       case e.event_kind when 'SHIPMENT' then 'Відвантаження' else 'Оплата' end event_name,
+                       e.event_amount, e.base_amount, e.invoiced_amount, e.remaining_amount,
+                       apex_page.get_url(p_page => r.page_id, p_items => 'P' || r.page_id || '_ID', p_values => e.doc_id) doc_url
+                  from table(trade_tax.events(coalesce(to_date(:P630_FROM, 'DD.MM.YYYY'), trunc(sysdate, 'MM')), coalesce(to_date(:P630_TO, 'DD.MM.YYYY'), trunc(sysdate)), :P630_ORG)) e
+                  join ref_organization o on o.id = e.organization_id
+                  join ref_counterparty c on c.id = e.counterparty_id
+                  left join v_recorder r on r.recorder_type = e.doc_type and r.recorder_id = e.doc_id
+                 where e.remaining_amount > 0
+                 order by e.event_date
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000451
+        }
+
+
+        column EVENT_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column DOC_ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column DOC_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Документ
+            }
+            layout {
+                sequence: 30
+            }
+            columnFormatting {
+                htmlExpression: <a href="#DOC_URL#">#DOC_NAME#</a>
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column EVENT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Подія
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column EVENT_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума події
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column BASE_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Зобов'язання (перша подія)
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column INVOICED_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Оформлено ПН
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column REMAINING_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Без ПН
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column DOC_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: url
+            }
+            layout {
+                sequence: 110
+            }
+        )
+    )
+)

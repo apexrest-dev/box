@@ -1,0 +1,17 @@
+lov event-log-users (
+    name: EVENT_LOG_USERS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select distinct user_name d, user_name r
+              from sys_audit_log
+             order by 1
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

@@ -1,0 +1,489 @@
+page 950 (
+    name: Підбір товарів
+    alias: PICK
+    title: Підбір товарів
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    dialog {
+        width: 1000
+        chained: false
+    }
+
+    pageItem P950_KIND (
+        type: hidden
+        layout {
+            sequence: 1
+            region: @goods
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P950_ID (
+        type: hidden
+        layout {
+            sequence: 2
+            region: @goods
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P950_WH (
+        type: hidden
+        layout {
+            sequence: 3
+            region: @goods
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P950_PT (
+        type: hidden
+        layout {
+            sequence: 4
+            region: @goods
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P950_SUP (
+        type: hidden
+        layout {
+            sequence: 5
+            region: @goods
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    region goods (
+        name: Товари
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select p.id product_id, p.code, p.article, p.name product_name, u.short_name unit_name, g.full_path group_path,
+                       (select f.free_qty from v_free_stock f where f.warehouse_id = :P950_WH and f.product_id = p.id) free_qty,
+                       coalesce(case when :P950_PT is not null then trade_lines.get_price(:P950_PT, p.id, sysdate) end,
+                                case when :P950_SUP is not null then trade_lines.get_supplier_price(:P950_SUP, p.id, sysdate) end) price,
+                       cast(null as number) qty
+                  from ref_product p
+                  join ref_unit_of_measure u on u.id = p.unit_of_measure_id
+                  left join v_product_group_path g on g.id = p.group_id
+                 where p.state = 'ACTIVE'
+                   and (p.product_kind = 'GOODS' or :P950_KIND in ('SALE', 'RECEIPT', 'CUSTOMER_ORDER', 'SUPPLIER_ORDER', 'INVOICE'))
+                 order by g.full_path nulls last, p.name
+                ```
+            pageItemsToSubmit: [
+                P950_WH
+                P950_PT
+                P950_SUP
+                P950_KIND
+            ]
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                searchField
+            ]
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000472
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn CODE (
+                column: @CODE
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 90
+                }
+            )
+
+            displayColumn ARTICLE (
+                column: @ARTICLE
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 90
+                }
+            )
+
+            displayColumn PRODUCT_NAME (
+                column: @PRODUCT_NAME
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 260
+                }
+            )
+
+            displayColumn UNIT_NAME (
+                column: @UNIT_NAME
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 50
+                }
+            )
+
+            displayColumn GROUP_PATH (
+                column: @GROUP_PATH
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 180
+                }
+            )
+
+            displayColumn FREE_QTY (
+                column: @FREE_QTY
+                layout {
+                    sequence: 60
+                    show: true
+                    width: 110
+                }
+            )
+
+            displayColumn PRICE (
+                column: @PRICE
+                layout {
+                    sequence: 70
+                    show: true
+                    width: 100
+                }
+            )
+
+            displayColumn QTY (
+                column: @QTY
+                layout {
+                    sequence: 80
+                    show: true
+                    width: 100
+                }
+            )
+        )
+
+        column PRODUCT_ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: PRODUCT_ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 5
+            }
+        )
+
+        column CODE (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: CODE
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Код
+                alignment: start
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column ARTICLE (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: ARTICLE
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Артикул
+                alignment: start
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: PRODUCT_NAME
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Товар
+                alignment: start
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column UNIT_NAME (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: UNIT_NAME
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Од.
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column GROUP_PATH (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: GROUP_PATH
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Група
+                alignment: start
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column FREE_QTY (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: FREE_QTY
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: Вільний залишок
+                alignment: end
+            }
+            layout {
+                sequence: 60
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column PRICE (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: PRICE
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: Ціна
+                alignment: end
+            }
+            layout {
+                sequence: 70
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column QTY (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: QTY
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+                alignment: end
+            }
+            layout {
+                sequence: 80
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region buttons (
+        name: Кнопки
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: dialogFooter
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button add (
+        buttonName: ADD
+        label: Перенести в документ
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction cancel (
+        name: Скасувати
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+        execution {
+            sequence: 10
+        }
+
+        action cancel-dialog (
+            name: Закрити
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    process add-lines (
+        name: Перенести в документ
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @goods
+        target {
+            targetType: plsqlCode
+            dmlPlsqlCode:
+                ```plsql
+                if :APEX$ROW_STATUS = 'U' and :QTY is not null then
+                  trade_r3.add_product(
+                    :P950_KIND, :P950_ID, :PRODUCT_ID,
+                    to_number(:QTY, 'FM999G999G999G990D000'),
+                    case :P950_KIND
+                      when 'RECEIPT' then trade_lines.get_supplier_price(:P950_SUP, :PRODUCT_ID, sysdate)
+                      when 'SURPLUS' then trade_r3.last_average_cost(:P950_WH, :PRODUCT_ID)
+                    end);
+                end if;
+                ```
+        }
+        lockRow {
+            lockRow: false
+            preventLostUpdates: false
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @add
+        }
+        advanced {
+            executionMappingIdentifier: 910000000473
+        }
+    )
+
+    process close (
+        name: Закрити діалог
+        type: closeDialog
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @add
+        }
+        advanced {
+            executionMappingIdentifier: 910000000474
+        }
+    )
+)

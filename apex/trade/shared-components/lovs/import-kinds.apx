@@ -1,0 +1,42 @@
+lov import-kinds (
+    name: IMPORT_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry product (
+        sequence: 1
+        display: Номенклатура (зі штрихкодами й цінами)
+        return: PRODUCT
+    )
+
+    entry counterparty (
+        sequence: 2
+        display: Контрагенти
+        return: COUNTERPARTY
+    )
+
+    entry unit (
+        sequence: 3
+        display: Одиниці виміру
+        return: UNIT
+    )
+
+    entry group (
+        sequence: 4
+        display: Групи номенклатури
+        return: GROUP
+    )
+
+    entry barcode (
+        sequence: 5
+        display: Штрихкоди
+        return: BARCODE
+    )
+
+    entry price (
+        sequence: 6
+        display: Ціни номенклатури (документ «Встановлення цін»)
+        return: PRICE
+    )
+)

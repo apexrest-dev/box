@@ -1,0 +1,208 @@
+page 10 (
+    name: Одиниці виміру
+    alias: UNITS-OF-MEASURE
+    title: Одиниці виміру
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Одиниці виміру</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Одиниці виміру
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select case state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, id, code, name, short_name, case fractional when 'Y' then 'Так' else 'Ні' end fractional_name, case state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name from ref_unit_of_measure
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 11
+                clearCache: 11
+                items: {
+                    P11_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-edit" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000001
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Найменування
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column SHORT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Скорочене найменування
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column FRACTIONAL_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Дробова кількість
+            }
+            layout {
+                sequence: 70
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 11
+                clearCache: 11
+            }
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction refresh-on-close (
+        name: Оновити після закриття діалогу
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @list
+        }
+        execution {
+            sequence: 10
+        }
+
+        action refresh (
+            name: Оновити
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

@@ -1,0 +1,20 @@
+lov bank-cash-orders (
+    name: BANK_CASH_ORDERS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select short_name || ' № ' || doc_number || ' від ' || to_char(occurred_at, 'DD.MM.YYYY') || ' — '
+                   || to_char(amount, 'FM999G999G999G990D00') || ' ' || currency_code
+                   || case when status <> 'POSTED' then ' (не проведено)' end d, id r
+              from v_cash_order
+             where operation_kind in ('ENCASHMENT', 'BANK_WITHDRAWAL')
+             order by occurred_at desc
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

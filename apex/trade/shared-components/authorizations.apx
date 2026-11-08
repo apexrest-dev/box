@@ -1,0 +1,177 @@
+authorization administration-rights (
+    name: Administration Rights
+    type: plSqlFunctionBody
+    settings {
+        plsqlFunctionBody: return true;
+    }
+    error {
+        errorMessage: Insufficient privileges, user is not an Administrator
+    }
+)
+
+
+authorization role-admin (
+    name: Роль: адміністратор
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Адміністратор».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-sales (
+    name: Роль: продажі
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Менеджер з продажу
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Менеджер з продажу».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-purchase (
+    name: Роль: закупівлі
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Закупівельник
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Закупівельник».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-warehouse (
+    name: Роль: склад
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Комірник
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Комірник».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-warehouse-or-purchase (
+    name: Роль: склад або закупівлі
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Комірник
+            Закупівельник
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Комірник» або «Закупівельник».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-cashier (
+    name: Роль: каса
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Касир
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Касир».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-purchase-or-cashier (
+    name: Роль: закупівлі або каса
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Закупівельник
+            Касир
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Закупівельник» або «Касир».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-sales-or-cashier (
+    name: Роль: продажі або каса
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Менеджер з продажу
+            Касир
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: потрібна роль «Менеджер з продажу» або «Касир».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)
+
+authorization role-tax (
+    name: Роль: податковий облік
+    type: isInRoleOrGroup
+    settings {
+        type: applicationRole
+        names: [
+            Адміністратор
+            Менеджер з продажу
+            Закупівельник
+            Касир
+        ]
+    }
+    error {
+        errorMessage: Недостатньо прав: податкові накладні доступні ролям «Менеджер з продажу», «Закупівельник», «Касир».
+    }
+    advanced {
+        evaluationType: perSession
+    }
+)

@@ -1,0 +1,18 @@
+lov slow-stock-basis (
+    name: SLOW_STOCK_BASIS
+    source {
+        location: staticValues
+    }
+
+    entry sale (
+        sequence: 1
+        display: Без продажу
+        return: SALE
+    )
+
+    entry move (
+        sequence: 2
+        display: Без руху
+        return: MOVE
+    )
+)

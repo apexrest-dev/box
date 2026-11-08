@@ -1,0 +1,312 @@
+page 520 (
+    name: Знижки та акції
+    alias: DISCOUNTS
+    title: Знижки та акції
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Знижки та акції</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Знижки та акції
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select case state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, id, code, name, discount_percent, applies_to_name, period_text, validity_name, customer_name, contract_name, group_path, product_name, min_quantity, min_doc_amount, case state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name from v_discount_list
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 521
+                clearCache: 521
+                items: {
+                    P521_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-edit" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000081
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Найменування
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column DISCOUNT_PERCENT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Знижка, %
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column APPLIES_TO_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Застосування
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column PERIOD_TEXT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Період дії
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column VALIDITY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан дії
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column CUSTOMER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Покупець
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column CONTRACT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Договір
+            }
+            layout {
+                sequence: 110
+            }
+        )
+
+        column GROUP_PATH (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Група номенклатури
+            }
+            layout {
+                sequence: 120
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 130
+            }
+        )
+
+        column MIN_QUANTITY (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Від кількості
+            }
+            layout {
+                sequence: 140
+            }
+        )
+
+        column MIN_DOC_AMOUNT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Від суми документа
+            }
+            layout {
+                sequence: 150
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 521
+                clearCache: 521
+            }
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction refresh-on-close (
+        name: Оновити після закриття діалогу
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @list
+        }
+        execution {
+            sequence: 10
+        }
+
+        action refresh (
+            name: Оновити
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

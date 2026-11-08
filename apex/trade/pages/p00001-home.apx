@@ -1,0 +1,31 @@
+page 1 (
+    name: Начальна сторінка
+    alias: HOME
+    title: Trade
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region home (
+        name: Начальна сторінка
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return '<div class="tx-home"><div>' || trade_ui.function_panel('Main') || '</div>'
+                       || trade_ui.current_tasks() || '</div>';
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+)

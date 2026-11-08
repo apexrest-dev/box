@@ -1,0 +1,45 @@
+# Локальне середовище Trade: Oracle AI Database 26ai Free + ORDS (APEX 26.2)
+# Запуск:  cd infra && docker compose up -d
+# Паролі зберігаються у infra/.env (не комітити).
+name: trade
+
+services:
+  db:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: trade-db
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD}
+    ports:
+      - "1521:1521"
+    volumes:
+      - trade-oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/checkDBStatus.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 80
+    restart: unless-stopped
+
+  ords:
+    image: container-registry.oracle.com/database/ords:latest
+    container_name: trade-ords
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DBHOST: db
+      DBPORT: "1521"
+      DBSERVICENAME: FREEPDB1
+      ORACLE_PWD: ${ORACLE_PWD}
+      ORACLE_USER_PWD: ${ORDS_USER_PWD}
+      APEX_PWD: ${APEX_PUBLIC_PWD}
+    ports:
+      - "8181:8080"
+    volumes:
+      - trade-ords-config:/etc/ords/config
+      - ${HOME}/oracle-local/apex/apex:/opt/oracle/apex
+    restart: unless-stopped
+
+volumes:
+  trade-oradata:
+  trade-ords-config:

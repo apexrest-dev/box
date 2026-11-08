@@ -1,0 +1,67 @@
+app TRADE (
+    name: Trade
+    version: r1
+    logo {
+        type: text
+        text: &APP_TITLE.
+    }
+    navigation {
+        homeUrl: {
+            page: 1
+        }
+        loginUrl: {
+            page: LOGIN
+        }
+    }
+    navigationMenu {
+        listTemplate: @/side-navigation-menu
+        templateOptions: [
+            #DEFAULT#
+            t-TreeNav--styleA
+        ]
+        list: @navigation-menu
+    }
+    navigationBar {
+        list: @navigation-bar
+        listTemplate: @/navigation-bar
+        templateOptions: #DEFAULT#
+    }
+    css {
+        fileUrls: #APP_FILES#css/trade-taxi.css
+    }
+    javaScript {
+        fileUrls: #APP_FILES#js/trade-taxi.js
+    }
+    userInterface {
+        currentTheme: @universal-theme
+        globalPage: 0
+        addBuiltWithApexToFooter: false
+    }
+    appFormatMasks {
+        date: DD.MM.YYYY HH24:MI:SS
+        timestamp: DD.MM.YYYY HH24:MI:SS
+        timestampTimeZone: DD.MM.YYYY HH24:MI:SS TZR
+    }
+    globalization {
+        primaryLanguage: uk
+    }
+    errorHandling {
+        errorHandlingFunctionName: trade_core.apex_error_handler
+    }
+    authentication {
+        scheme: @oracle-apex-accounts
+    }
+    security {
+        allowBotAccess: false
+        deepLinking: true
+    }
+    runtime {
+        debugging: true
+        allowFeedback: false
+        compatibilityMode: 24.2
+    }
+    advanced {
+        modernizeApp: true
+    }
+)
+

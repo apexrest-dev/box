@@ -1,0 +1,24 @@
+lov fiscal-statuses (
+    name: FISCAL_STATUSES
+    source {
+        location: staticValues
+    }
+
+    entry pending (
+        sequence: 1
+        display: Не фіскалізовано
+        return: PENDING
+    )
+
+    entry fiscalized (
+        sequence: 2
+        display: Фіскалізовано
+        return: FISCALIZED
+    )
+
+    entry not-fiscal (
+        sequence: 3
+        display: Нефіскальний
+        return: NOT_FISCAL
+    )
+)

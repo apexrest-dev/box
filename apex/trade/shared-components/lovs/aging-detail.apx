@@ -1,0 +1,18 @@
+lov aging-detail (
+    name: AGING_DETAIL
+    source {
+        location: staticValues
+    }
+
+    entry contract (
+        sequence: 1
+        display: Контрагенти й договори
+        return: CONTRACT
+    )
+
+    entry document (
+        sequence: 2
+        display: З документами боргу
+        return: DOCUMENT
+    )
+)

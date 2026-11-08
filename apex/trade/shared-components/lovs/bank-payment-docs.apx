@@ -1,0 +1,21 @@
+lov bank-payment-docs (
+    name: BANK_PAYMENT_DOCS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select case v.doc_type when 'DocSupplierPayment' then 'Оплата постачальнику' else 'Оплата від покупця' end
+                   || ' № ' || v.doc_number || ' від ' || to_char(v.occurred_at, 'DD.MM.YYYY') || ' — ' || c.name || ', '
+                   || to_char(v.amount, 'FM999G999G999G990D00') || ' ' || v.currency_code
+                   || case when v.status <> 'POSTED' then ' (не проведено)' end d, v.id r
+              from v_payment_doc v join ref_counterparty c on c.id = v.counterparty_id
+             where v.payment_form = 'BANK'
+             order by v.occurred_at desc
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

@@ -1,0 +1,302 @@
+page 640 (
+    name: Каси ККМ
+    alias: CASH-REGISTERS
+    title: Каси ККМ
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-sales-or-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Каси ККМ</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Каси ККМ
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select case state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, id, code, name, organization_name, warehouse_name, cash_desk_name, bank_account_name, price_type_name, fiscal_name, fiscal_number, provider_name, fiscal_seq, case state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name from v_cash_register_list
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 641
+                clearCache: 641
+                items: {
+                    P641_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-edit" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000099
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Найменування
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column CASH_DESK_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса (готівка)
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column BANK_ACCOUNT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Рахунок (картки)
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column PRICE_TYPE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид цін
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column FISCAL_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Фіскальна
+            }
+            layout {
+                sequence: 110
+            }
+        )
+
+        column FISCAL_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ФН ПРРО
+            }
+            layout {
+                sequence: 120
+            }
+        )
+
+        column PROVIDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ПРРО
+            }
+            layout {
+                sequence: 130
+            }
+        )
+
+        column FISCAL_SEQ (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Фіскальних чеків
+            }
+            layout {
+                sequence: 140
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 641
+                clearCache: 641
+            }
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    dynamicAction refresh-on-close (
+        name: Оновити після закриття діалогу
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @list
+        }
+        execution {
+            sequence: 10
+        }
+
+        action refresh (
+            name: Оновити
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

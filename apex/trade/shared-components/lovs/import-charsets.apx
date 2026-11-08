@@ -1,0 +1,18 @@
+lov import-charsets (
+    name: IMPORT_CHARSETS
+    source {
+        location: staticValues
+    }
+
+    entry al32utf8 (
+        sequence: 1
+        display: UTF-8
+        return: AL32UTF8
+    )
+
+    entry cl8mswin1251 (
+        sequence: 2
+        display: Windows-1251 (CSV з Excel)
+        return: CL8MSWIN1251
+    )
+)

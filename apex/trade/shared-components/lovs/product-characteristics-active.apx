@@ -1,0 +1,18 @@
+lov product-characteristics-active (
+    name: PRODUCT_CHARACTERISTICS_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select p.name || ': ' || c.name d, c.id r
+              from ref_product_characteristic c join ref_product p on p.id = c.product_id
+             where c.state = 'ACTIVE'
+             order by p.name, c.name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

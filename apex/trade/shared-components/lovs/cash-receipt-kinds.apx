@@ -1,0 +1,36 @@
+lov cash-receipt-kinds (
+    name: CASH_RECEIPT_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry customer-payment (
+        sequence: 1
+        display: Оплата від покупця
+        return: CUSTOMER_PAYMENT
+    )
+
+    entry supplier-refund (
+        sequence: 2
+        display: Повернення коштів постачальником
+        return: SUPPLIER_REFUND
+    )
+
+    entry accountable-return (
+        sequence: 3
+        display: Повернення від підзвітної особи
+        return: ACCOUNTABLE_RETURN
+    )
+
+    entry bank-withdrawal (
+        sequence: 4
+        display: Отримання готівки в банку
+        return: BANK_WITHDRAWAL
+    )
+
+    entry other (
+        sequence: 5
+        display: Інше надходження
+        return: OTHER
+    )
+)

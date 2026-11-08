@@ -1,0 +1,33 @@
+list navigation-menu (
+    name: Панель розділів
+    source {
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            -- Розділи-підсистеми (як панель розділів «Такси»)
+            select 1 lvl,
+                   s.name label,
+                   case s.tech_name
+                     when 'Main' then apex_page.get_url(p_page => 1)
+                     else apex_page.get_url(p_page => 2, p_items => 'P2_SECTION', p_values => s.tech_name)
+                   end target,
+                   case
+                     when s.tech_name = 'Main' and :APP_PAGE_ID = 1 then 'YES'
+                     when :APP_PAGE_ID = 2 and :P2_SECTION = s.tech_name then 'YES'
+                     else 'NO'
+                   end is_current,
+                   s.icon
+              from sys_main_menu_section s
+             where s.is_subsystem = 'Y'
+               and s.is_visible = 'Y'
+               -- розділ без жодного доступного користувачу об'єкта не показується
+               and (s.tech_name = 'Main'
+                    or exists (select 1
+                                 from sys_function_panel f
+                                 join sys_metadata_object o on o.id = f.object_id
+                                where f.section_id = s.id
+                                  and (o.auth_scheme is null or apex_authorization.is_authorized(o.auth_scheme))))
+             order by s.sort_order
+            ```
+    }
+)

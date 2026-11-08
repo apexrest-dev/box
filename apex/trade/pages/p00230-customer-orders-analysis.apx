@@ -1,0 +1,238 @@
+page 230 (
+    name: Аналіз замовлень клієнтів
+    alias: CUSTOMER-ORDERS-ANALYSIS
+    title: Аналіз замовлень клієнтів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Аналіз замовлень клієнтів</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region analysis (
+        name: Виконання замовлень
+        title: Виконання замовлень
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select order_number, occurred_at, shipment_date, customer_name, product_name, unit_name, ordered_qty, shipped_qty, remaining_qty, remaining_amount, order_state
+                  from v_customer_orders_analysis
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000416
+        }
+
+
+        column ORDER_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Замовлення
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 20
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column SHIPMENT_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Відвантажити до
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column CUSTOMER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Покупець
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column ORDERED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Замовлено
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column SHIPPED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Відвантажено
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REMAINING_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REMAINING_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума залишку
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column ORDER_STATE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 110
+            }
+        )
+    )
+)

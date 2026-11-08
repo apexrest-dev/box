@@ -1,0 +1,18 @@
+lov cash-desks-active (
+    name: CASH_DESKS_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select k.name || ' (' || k.currency_code || ', ' || o.name || ')' d, k.id r
+              from ref_cash_desk k join ref_organization o on o.id = k.organization_id
+             where k.state = 'ACTIVE'
+             order by o.name, k.code
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

@@ -1,0 +1,18 @@
+lov vat-price-modes (
+    name: VAT_PRICE_MODES
+    source {
+        location: staticValues
+    }
+
+    entry y (
+        sequence: 1
+        display: Ціна включає ПДВ
+        return: Y
+    )
+
+    entry n (
+        sequence: 2
+        display: ПДВ зверху ціни
+        return: N
+    )
+)

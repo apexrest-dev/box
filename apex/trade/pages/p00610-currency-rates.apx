@@ -1,0 +1,436 @@
+page 610 (
+    name: Курси валют
+    alias: CURRENCY-RATES
+    title: Курси валют
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Курси валют</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region grid (
+        name: Курси валют
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, currency_code, rate_date, rate, multiplier, source, note, updated_by
+                  from reg_currency_rate
+                 order by rate_date desc, currency_code
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                searchField
+                actionsMenu
+                saveButton
+            ]
+            addButtonLabel: Додати
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000447
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn CURRENCY_CODE (
+                column: @CURRENCY_CODE
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 220
+                }
+            )
+
+            displayColumn RATE_DATE (
+                column: @RATE_DATE
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 120
+                }
+            )
+
+            displayColumn RATE (
+                column: @RATE
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 130
+                }
+            )
+
+            displayColumn MULTIPLIER (
+                column: @MULTIPLIER
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 90
+                }
+            )
+
+            displayColumn SOURCE (
+                column: @SOURCE
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 90
+                }
+            )
+
+            displayColumn NOTE (
+                column: @NOTE
+                layout {
+                    sequence: 60
+                    show: true
+                    width: 220
+                }
+            )
+
+            displayColumn UPDATED_BY (
+                column: @UPDATED_BY
+                layout {
+                    sequence: 70
+                    show: true
+                    width: 140
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 5
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: selectList
+            source {
+                type: databaseColumn
+                databaseColumn: CURRENCY_CODE
+                dataType: varchar2
+                }
+            heading {
+                heading: Валюта
+                alignment: start
+            }
+            layout {
+                sequence: 10
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @currencies-foreign
+                displayExtraValues: true
+                displayNullValue: true
+            }
+        )
+
+        column RATE_DATE (
+            type: datePicker
+            source {
+                type: databaseColumn
+                databaseColumn: RATE_DATE
+                dataType: date
+            }
+            heading {
+                heading: Дата
+                alignment: start
+            }
+            layout {
+                sequence: 20
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column RATE (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: RATE
+                dataType: number
+            }
+            heading {
+                heading: Курс, грн
+                alignment: end
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G990D000000
+            }
+        )
+
+        column MULTIPLIER (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: MULTIPLIER
+                dataType: number
+            }
+            heading {
+                heading: Кратність
+                alignment: end
+            }
+            layout {
+                sequence: 40
+                columnAlignment: end
+            }
+        )
+
+        column SOURCE (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: SOURCE
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Джерело
+                alignment: start
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column NOTE (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: NOTE
+                dataType: varchar2
+                }
+            heading {
+                heading: Примітка
+                alignment: start
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column UPDATED_BY (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: UPDATED_BY
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Змінив
+                alignment: start
+            }
+            layout {
+                sequence: 70
+            }
+        )
+    )
+
+    process dml (
+        name: Записати
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @grid
+        target {
+            targetType: tableView
+            tableName: REG_CURRENCY_RATE
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        advanced {
+            executionMappingIdentifier: 910000000448
+        }
+    )
+
+    region nbu (
+        name: Завантаження курсів НБУ
+        title: Завантаження курсів НБУ
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P610_FROM (
+        type: datePicker
+        label {
+            label: З
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @nbu
+            slot: regionBody
+            columnSpan: 2
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P610_TO (
+        type: datePicker
+        label {
+            label: По
+            alignment: right
+        }
+        layout {
+            sequence: 11
+            region: @nbu
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button load-nbu (
+        buttonName: LOAD_NBU
+        label: Завантажити курси НБУ
+        layout {
+            sequence: 30
+            region: @nbu
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    process load-nbu (
+        name: Завантажити курси НБУ
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                  l_n number;
+                begin
+                  l_n := trade_currency.load_nbu_period(coalesce(to_date(:P610_FROM, 'DD.MM.YYYY'), trunc(sysdate)),
+                                                        coalesce(to_date(:P610_TO, 'DD.MM.YYYY'), trunc(sysdate)));
+                  apex_application.g_print_success_message := 'Завантажено курсів НБУ: ' || l_n || '.';
+                end;
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @load-nbu
+        }
+        advanced {
+            executionMappingIdentifier: 910000000446
+        }
+    )
+)

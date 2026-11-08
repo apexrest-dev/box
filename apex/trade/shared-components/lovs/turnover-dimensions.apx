@@ -1,0 +1,30 @@
+lov turnover-dimensions (
+    name: TURNOVER_DIMENSIONS
+    source {
+        location: staticValues
+    }
+
+    entry product (
+        sequence: 1
+        display: Товари
+        return: PRODUCT
+    )
+
+    entry group (
+        sequence: 2
+        display: Групи номенклатури
+        return: GROUP
+    )
+
+    entry warehouse (
+        sequence: 3
+        display: Склади
+        return: WAREHOUSE
+    )
+
+    entry product-warehouse (
+        sequence: 4
+        display: Товари за складами
+        return: PRODUCT_WAREHOUSE
+    )
+)

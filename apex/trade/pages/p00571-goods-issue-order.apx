@@ -1,0 +1,1354 @@
+page 571 (
+    name: Видатковий ордер на товари
+    alias: GOODS-ISSUE-ORDER
+    title: Видатковий ордер на товари
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-warehouse
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>&P571_FORM_TITLE.</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region actions (
+        name: Команди
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region header (
+        name: Видатковий ордер на товари
+        title: Видатковий ордер на товари
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: DOC_GOODS_ISSUE_ORDER
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P571_STATUS is not null and :P571_STATUS <> 'DRAFT'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    pageItem P571_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @header
+            slot: regionBody
+        }
+        source {
+            formRegion: @header
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P571_DOC_NUMBER (
+        type: textField
+        label {
+            label: Номер
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @header
+            column: DOC_NUMBER
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній номер буде призначено автоматично.
+        }
+    )
+
+    pageItem P571_OCCURRED_AT (
+        type: datePicker
+        label {
+            label: Дата
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY HH24:MI:SS
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: OCCURRED_AT
+            dataType: date
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY HH24:MI:SS')
+        }
+        settings {
+            displayAs: popup
+            showTime: true
+        }
+    )
+
+    pageItem P571_ORGANIZATION_ID (
+        type: displayOnly
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: ORGANIZATION_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+        help {
+            helpText: Організація документа-підстави (заповнюється під час запису).
+        }
+    )
+
+    pageItem P571_WAREHOUSE_ID (
+        type: popupLov
+        label {
+            label: Склад
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: WAREHOUSE_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @warehouses-order-scheme
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Лише склади з ознакою «Ордерна схема».
+        }
+    )
+
+    pageItem P571_BASIS_ID (
+        type: popupLov
+        label {
+            label: Розпорядження
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @header
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: BASIS_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select b.basis_name || ' — ' || b.state_name || ' (залишок ' || rtrim(to_char(b.remaining_qty, 'FM999G999G990D999'), '.,') || ')' d,
+                       b.basis_id r
+                  from v_goods_order_basis b
+                 where b.direction = 'SHIPMENT' and b.warehouse_id = :P571_WAREHOUSE_ID
+                   and (b.remaining_qty > 0 or b.basis_id = :P571_BASIS_ID)
+                 order by b.basis_date desc
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P571_WAREHOUSE_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: Проведений документ менеджера з товарами до відвантаження на складі (реалізація, повернення постачальнику, переміщення, списання …).
+        }
+    )
+
+    pageItem P571_STATUS (
+        type: hidden
+        layout {
+            sequence: 70
+            region: @header
+            slot: regionBody
+        }
+        source {
+            formRegion: @header
+            column: STATUS
+            dataType: varchar2
+        }
+        settings {
+            valueProtected: true
+        }
+    )
+
+    pageItem P571_FORM_TITLE (
+        type: hidden
+        layout {
+            sequence: 80
+            region: @header
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P571_NEW_ID (
+        type: hidden
+        layout {
+            sequence: 90
+            region: @header
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    region scan (
+        name: Сканер
+        type: staticContent
+        layout {
+            sequence: 25
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P571_ID is not null and :P571_STATUS = 'DRAFT'
+        }
+    )
+
+    pageItem P571_SCAN (
+        type: textField
+        label {
+            label: Штрихкод / артикул
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @scan
+            slot: regionBody
+            columnSpan: 5
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            valuePlaceholder: Відскануйте або введіть і натисніть «Додати»
+        }
+        advanced {
+            customAttributes: autocomplete="off"
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button scan (
+        buttonName: SCAN
+        label: Додати
+        layout {
+            sequence: 20
+            region: @scan
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+    )
+
+    region lines (
+        name: Товари
+        title: Товари
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, document_id, line_number, product_id, characteristic_id, series_id, quantity, bin_id, trade_order_scheme.line_expected('SHIPMENT', document_id, product_id, characteristic_id, series_id) expected_qty, trade_order_scheme.bin_qty(bin_id, product_id, characteristic_id, series_id, 'N') bin_qty
+                  from doc_goods_issue_order_goods
+                 where document_id = :P571_ID
+                 order by line_number
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+            cssClasses: tx-tabpart
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P571_STATUS is not null and :P571_STATUS <> 'DRAFT'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                actionsMenu
+            ]
+            addButtonLabel: Додати рядок
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000360
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn LINE_NUMBER (
+                column: @LINE_NUMBER
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 50
+                }
+            )
+
+            displayColumn PRODUCT_ID (
+                column: @PRODUCT_ID
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 380
+                }
+            )
+
+            displayColumn CHARACTERISTIC_ID (
+                column: @CHARACTERISTIC_ID
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 200
+                }
+            )
+
+            displayColumn SERIES_ID (
+                column: @SERIES_ID
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 220
+                }
+            )
+
+            displayColumn QUANTITY (
+                column: @QUANTITY
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 130
+                }
+            )
+
+            displayColumn BIN_ID (
+                column: @BIN_ID
+                layout {
+                    sequence: 60
+                    show: true
+                    width: 170
+                }
+            )
+
+            displayColumn EXPECTED_QTY (
+                column: @EXPECTED_QTY
+                layout {
+                    sequence: 70
+                    show: true
+                    width: 110
+                }
+            )
+
+            displayColumn BIN_QTY (
+                column: @BIN_QTY
+                layout {
+                    sequence: 80
+                    show: true
+                    width: 100
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column DOCUMENT_ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: DOCUMENT_ID
+                dataType: varchar2
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column LINE_NUMBER (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: LINE_NUMBER
+                dataType: number
+            }
+            heading {
+                heading: N
+                alignment: end
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+        )
+
+        column PRODUCT_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: PRODUCT_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @products-goods
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+        )
+
+        column CHARACTERISTIC_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: CHARACTERISTIC_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Характеристика
+                alignment: start
+            }
+            layout {
+                sequence: 50
+            }
+            lov {
+                type: sharedComponent
+                lov: @product-characteristics-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Для товарів з ознакою «Використовувати характеристики» (розмір, колір …) — обов'язкова при проведенні.
+            }
+        )
+
+        column SERIES_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: SERIES_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Серія
+                alignment: start
+            }
+            layout {
+                sequence: 60
+            }
+            lov {
+                type: sharedComponent
+                lov: @product-series-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Для товарів з обліком серій. У видаткових документах порожня серія підбирається за FEFO під час проведення.
+            }
+        )
+
+        column QUANTITY (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: QUANTITY
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+                alignment: end
+            }
+            layout {
+                sequence: 70
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column BIN_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: BIN_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Комірка
+                alignment: start
+            }
+            layout {
+                sequence: 80
+            }
+            lov {
+                type: sharedComponent
+                lov: @storage-bins-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+            help {
+                helpText: Обов'язкова для складу з адресним зберіганням. Залишок комірки контролюється.
+            }
+        )
+
+        column EXPECTED_QTY (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: EXPECTED_QTY
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: Очікується
+                alignment: end
+            }
+            layout {
+                sequence: 90
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column BIN_QTY (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: BIN_QTY
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: У комірці
+                alignment: end
+            }
+            layout {
+                sequence: 100
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+    )
+
+    region footer (
+        name: Підвал
+        type: staticContent
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P571_DOC_COMMENT (
+        type: textarea
+        label {
+            label: Коментар
+            alignment: right
+        }
+        layout {
+            sequence: 100
+            region: @footer
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @header
+            column: DOC_COMMENT
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    process form-title (
+        name: Заголовок форми
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P571_FORM_TITLE := trade_ui.doc_title('Видатковий ордер на товари', :P571_DOC_NUMBER, :P571_OCCURRED_AT, :P571_STATUS);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000361
+        }
+    )
+
+    button create-post-close (
+        buttonName: CREATE_POST_CLOSE
+        label: Провести і закрити
+        layout {
+            sequence: 10
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P571_ID
+        }
+    )
+
+    button post-close (
+        buttonName: POST_CLOSE
+        label: Провести і закрити
+        layout {
+            sequence: 11
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P571_ID is not null and :P571_STATUS = 'DRAFT'
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати
+        layout {
+            sequence: 20
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P571_ID
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати
+        layout {
+            sequence: 21
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P571_ID is not null and :P571_STATUS = 'DRAFT'
+        }
+    )
+
+    button create-post (
+        buttonName: CREATE_POST
+        label: Провести
+        layout {
+            sequence: 30
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P571_ID
+        }
+    )
+
+    button post (
+        buttonName: POST
+        label: Провести
+        layout {
+            sequence: 31
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P571_ID is not null and :P571_STATUS = 'DRAFT'
+        }
+    )
+
+    button unpost (
+        buttonName: UNPOST
+        label: Скасувати проведення
+        layout {
+            sequence: 40
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Скасувати проведення документа? Рухи регістрів буде видалено.
+            style: warning
+        }
+        serverSideCondition {
+            type: item=value
+            item: P571_STATUS
+            value: POSTED
+        }
+    )
+
+    button cmd-fill-from-basis (
+        buttonName: FILL_FROM_BASIS
+        label: Заповнити за розпорядженням
+        layout {
+            sequence: 41
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Замінити рядки товарами до відвантаження за розпорядженням?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P571_ID is not null and :P571_STATUS = 'DRAFT'
+        }
+    )
+
+    button cmd-print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 42
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P571_ID
+        }
+    )
+
+    button copy (
+        buttonName: COPY
+        label: Скопіювати (F9)
+        layout {
+            sequence: 50
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P571_ID
+        }
+    )
+
+    button close (
+        buttonName: CLOSE
+        label: Закрити
+        layout {
+            sequence: 60
+            region: @actions
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 570
+            }
+        }
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @header
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000362
+        }
+    )
+
+    process dml (
+        name: Записати шапку
+        type: formAutoRowProcessing
+        formRegion: @header
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        successMessage {
+            successMessage: Документ записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000363
+        }
+    )
+
+    process dml-lines (
+        name: Записати рядки
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @lines
+        target {
+            targetType: plsqlCode
+            dmlPlsqlCode:
+                ```plsql
+                case :APEX$ROW_STATUS
+                  when 'C' then
+                    insert into doc_goods_issue_order_goods (document_id, line_number, product_id, characteristic_id, series_id, quantity, bin_id)
+                    values (:P571_ID, null,
+                            :PRODUCT_ID,
+                            :CHARACTERISTIC_ID,
+                            :SERIES_ID,
+                            to_number(:QUANTITY, 'FM999G999G999G990D000'),
+                            :BIN_ID)
+                    returning id into :ID;
+                  when 'U' then
+                    update doc_goods_issue_order_goods
+                       set product_id = :PRODUCT_ID,
+                           characteristic_id = :CHARACTERISTIC_ID,
+                           series_id = :SERIES_ID,
+                           quantity = to_number(:QUANTITY, 'FM999G999G999G990D000'),
+                           bin_id = :BIN_ID
+                     where id = :ID and document_id = :P571_ID;
+                  when 'D' then
+                    delete from doc_goods_issue_order_goods where id = :ID and document_id = :P571_ID;
+                end case;
+                ```
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000364
+        }
+    )
+
+    process post (
+        name: Провести
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_warn.clear;
+                trade_order_scheme.post_issue(:P571_ID);
+                :TRADE_WARN := trade_warn.take;
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        successMessage {
+            successMessage: Документ проведено. &TRADE_WARN.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000365
+        }
+    )
+
+    process unpost (
+        name: Скасувати проведення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_order_scheme.unpost_issue(:P571_ID);
+                ```
+        }
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @unpost
+        }
+        successMessage {
+            successMessage: Проведення документа скасовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000366
+        }
+    )
+
+    process copy (
+        name: Скопіювати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P571_ID := trade_order_scheme.copy_issue(:P571_ID);
+                ```
+        }
+        execution {
+            sequence: 50
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @copy
+        }
+        successMessage {
+            successMessage: Створено копію документа (чернетка).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000367
+        }
+    )
+
+    process cmd-fill-from-basis (
+        name: Заповнити за розпорядженням
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_order_scheme.fill_from_basis('SHIPMENT', :P571_ID);
+                ```
+        }
+        execution {
+            sequence: 60
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('FILL_FROM_BASIS')
+        }
+        successMessage {
+            successMessage: Рядки заповнено за розпорядженням. Комірки підібрано за залишками.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000368
+        }
+    )
+
+    process cmd-print (
+        name: Друк
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P571_NEW_ID := :P571_ID;
+                ```
+        }
+        execution {
+            sequence: 61
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PRINT')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000369
+        }
+    )
+
+    branch to-print (
+        name: До документа: Друк
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 900
+                clearCache: 900
+                items: {
+                    P900_ID: &P571_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 6
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PRINT')
+        }
+    )
+
+    process scan (
+        name: Сканер штрихкодів
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_order_scheme.scan('SHIPMENT', :P571_ID, :P571_SCAN);
+                :P571_SCAN := null;
+                ```
+        }
+        execution {
+            sequence: 59
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SCAN')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000370
+        }
+    )
+
+    branch to-list (
+        name: До списку
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 570
+            }
+        }
+        execution {
+            sequence: 10
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('POST_CLOSE', 'CREATE_POST_CLOSE')
+        }
+    )
+
+    branch stay (
+        name: Залишитися в документі
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 571
+                clearCache: 571
+                items: {
+                    P571_ID: &P571_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 20
+            point: afterProcessing
+        }
+    )
+)

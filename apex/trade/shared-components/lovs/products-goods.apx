@@ -1,0 +1,19 @@
+lov products-goods (
+    name: PRODUCTS_GOODS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select p.name || ' (' || u.short_name || ')' d, p.id r
+              from ref_product p
+              join ref_unit_of_measure u on u.id = p.unit_of_measure_id
+             where p.state = 'ACTIVE' and p.product_kind = 'GOODS'
+             order by p.name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

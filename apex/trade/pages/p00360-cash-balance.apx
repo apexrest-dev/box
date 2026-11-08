@@ -1,0 +1,999 @@
+page 360 (
+    name: Залишки й обороти коштів
+    alias: CASH-BALANCE
+    title: Залишки й обороти коштів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Залишки й обороти коштів</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region filter (
+        name: Відбір
+        type: staticContent
+        layout {
+            sequence: 3
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P360_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @filter
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply-org (
+        buttonName: APPLY_ORG
+        label: Застосувати
+        layout {
+            sequence: 20
+            region: @filter
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region balances (
+        name: Залишки
+        title: Залишки
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select organization_name, place_kind_name, place_code, place_name, currency_code, balance, rate, rate_date, balance_uah
+                  from v_cash_balance_uah
+                 where (:P360_ORG is null or organization_id = :P360_ORG)
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000426
+        }
+
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PLACE_KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PLACE_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Код
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column PLACE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса / рахунок
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column BALANCE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column RATE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Курс НБУ
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G990D0000
+            }
+        )
+
+        column RATE_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата курсу
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column BALANCE_UAH (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Еквівалент, грн
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region turnovers (
+        name: Обороти
+        title: Обороти
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        advanced {
+            regionDisplaySelector: true
+        }
+    )
+
+    pageItem P360_FROM (
+        type: datePicker
+        label {
+            label: Початок періоду
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @turnovers
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P360_TO (
+        type: datePicker
+        label {
+            label: Кінець періоду
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @turnovers
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Сформувати
+        layout {
+            sequence: 30
+            region: @turnovers
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region turnover-report (
+        name: Обороти за період
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P360_FROM
+                P360_TO
+                P360_ORG
+            ]
+            sqlQuery:
+                ```sql
+                select x.*, trade_currency.rate(x.currency_code, to_date(:P360_TO, 'DD.MM.YYYY') + 1 - 1) closing_rate,
+                       trade_currency.to_uah(x.closing, x.currency_code, to_date(:P360_TO, 'DD.MM.YYYY') + 1 - 1) closing_uah
+                  from (select m.organization_name, m.place_kind_name, m.place_name, m.currency_code,
+                       sum(case when m.period < to_date(:P360_FROM, 'DD.MM.YYYY') then m.amount else 0 end) opening,
+                       sum(case when m.period >= to_date(:P360_FROM, 'DD.MM.YYYY') and m.period < to_date(:P360_TO, 'DD.MM.YYYY') + 1 then m.incoming else 0 end) incoming,
+                       sum(case when m.period >= to_date(:P360_FROM, 'DD.MM.YYYY') and m.period < to_date(:P360_TO, 'DD.MM.YYYY') + 1 then m.outgoing else 0 end) outgoing,
+                       sum(case when m.period < to_date(:P360_TO, 'DD.MM.YYYY') + 1 then m.amount else 0 end) closing
+                  from v_cash_movement m
+                 where (:P360_ORG is null or m.organization_id = :P360_ORG)
+                 group by m.organization_name, m.place_kind_name, m.place_name, m.currency_code) x
+                ```
+        }
+        layout {
+            sequence: 30
+            parentRegion: @turnovers
+            slot: subRegions
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000427
+        }
+
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PLACE_KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PLACE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса / рахунок
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OPENING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Поч. залишок
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column INCOMING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Надходження
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column OUTGOING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Витрата
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column CLOSING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кін. залишок
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column CLOSING_RATE (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Курс на кінець
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G990D0000
+            }
+        )
+
+        column CLOSING_UAH (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кін. залишок, грн
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region movements (
+        name: Рухи
+        title: Рухи
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select m.period, m.recorder_name, apex_page.get_url(p_page => m.page_id, p_items => 'P' || m.page_id || '_ID', p_values => m.recorder_id) recorder_url,
+                       m.organization_name, m.place_kind_name, m.place_name, m.currency_code, m.incoming, m.outgoing, m.content
+                  from v_cash_movement m
+                 where (:P360_ORG is null or m.organization_id = :P360_ORG)
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000428
+        }
+
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Період
+            }
+            layout {
+                sequence: 10
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column RECORDER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реєстратор
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <a href="#RECORDER_URL#">#RECORDER_NAME#</a>
+            }
+        )
+
+        column RECORDER_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column PLACE_KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column PLACE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса / рахунок
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column INCOMING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Надходження
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column OUTGOING (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Витрата
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column CONTENT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Зміст
+            }
+            layout {
+                sequence: 100
+            }
+        )
+    )
+
+    region opening (
+        name: Введення залишків
+        title: Введення залишків
+        type: staticContent
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        advanced {
+            regionDisplaySelector: true
+        }
+    )
+
+    pageItem P360_OB_PLACE (
+        type: selectList
+        label {
+            label: Каса / рахунок
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @opening
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @cash-places-active
+            displayExtraValues: false
+            displayNullValue: true
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P360_OB_DATE (
+        type: datePicker
+        label {
+            label: Дата залишку
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @opening
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trunc(sysdate, 'MM'), 'DD.MM.YYYY')
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P360_OB_AMOUNT (
+        type: numberField
+        label {
+            label: Сума
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @opening
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Залишок у валюті каси / рахунку на початок дати. Повторне введення замінює попереднє; 0 — видаляє введення. Зменшення залишку перевіряється: витрати після дати не можуть зробити залишок від'ємним.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button set-opening (
+        buttonName: SET_OPENING
+        label: Записати залишок
+        layout {
+            sequence: 40
+            region: @opening
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    process set-opening (
+        name: Записати початковий залишок
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                  l_kind varchar2(12);
+                begin
+                  select max(place_kind) into l_kind from v_cash_place where place_id = :P360_OB_PLACE;
+                  trade_cash.set_opening_balance(l_kind, :P360_OB_PLACE, to_date(:P360_OB_DATE, 'DD.MM.YYYY'),
+                                                 to_number(replace(translate(:P360_OB_AMOUNT, 'x ' || unistr('\00A0'), 'x'), ',', '.'), '999999999999990.99'));
+                end;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @set-opening
+        }
+        successMessage {
+            successMessage: Початковий залишок записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000424
+        }
+    )
+
+    region opening-list (
+        name: Введені залишки
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select m.organization_name, m.place_kind_name, m.place_name, m.currency_code, m.period, m.amount
+                  from v_cash_movement m
+                 where m.recorder_type = 'CashOpeningBalance' and (:P360_ORG is null or m.organization_id = :P360_ORG)
+                ```
+        }
+        layout {
+            sequence: 50
+            parentRegion: @opening
+            slot: subRegions
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000425
+        }
+
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PLACE_KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вид
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column PLACE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Каса / рахунок
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column CURRENCY_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Валюта
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column PERIOD (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+)

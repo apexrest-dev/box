@@ -1,0 +1,19 @@
+lov products-with-characteristics (
+    name: PRODUCTS_WITH_CHARACTERISTICS
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select p.name || ' (' || u.short_name || ')' d, p.id r
+              from ref_product p
+              join ref_unit_of_measure u on u.id = p.unit_of_measure_id
+             where p.state = 'ACTIVE' and p.use_characteristics = 'Y'
+             order by p.name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

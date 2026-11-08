@@ -1,0 +1,471 @@
+page 491 (
+    name: Характеристика номенклатури
+    alias: PRODUCT-CHARACTERISTICS-ITEM
+    title: Характеристика номенклатури
+    appearance {
+        pageMode: modalDialog
+        dialogTemplate: @/modal-dialog
+        templateOptions: #DEFAULT#
+    }
+    dialog {
+        width: 720
+        chained: false
+    }
+
+    region form (
+        name: Характеристика номенклатури
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: REF_PRODUCT_CHARACTERISTIC
+        }
+        layout {
+            sequence: 10
+            slot: contentBody
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    region buttons (
+        name: Кнопки
+        type: staticContent
+        layout {
+            sequence: 20
+            slot: dialogFooter
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P491_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @form
+            slot: regionBody
+        }
+        source {
+            formRegion: @form
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P491_PRODUCT_ID (
+        type: popupLov
+        label {
+            label: Товар
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: PRODUCT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @products-with-characteristics
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Лише товари з ознакою «Використовувати характеристики».
+        }
+    )
+
+    pageItem P491_CODE (
+        type: textField
+        label {
+            label: Код
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @form
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @form
+            column: CODE
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній код буде призначено автоматично.
+        }
+    )
+
+    pageItem P491_NAME (
+        type: textField
+        label {
+            label: Найменування
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @form
+            slot: regionBody
+            columnSpan: 9
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 255
+            valueRequired: true
+        }
+        source {
+            formRegion: @form
+            column: NAME
+            dataType: varchar2
+        }
+        help {
+            helpText: Напр. «Червона, M». Унікальне в межах товару.
+        }
+    )
+
+    pageItem P491_DESCRIPTION (
+        type: textarea
+        label {
+            label: Опис
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @form
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @form
+            column: DESCRIPTION
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    pageItem P491_STATE (
+        type: displayOnly
+        label {
+            label: Стан
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @form
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @form
+            column: STATE
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @catalog-states
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 10
+            region: @buttons
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button mark (
+        buttonName: MARK
+        label: Помітити на видалення
+        layout {
+            sequence: 20
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Помітити елемент на видалення?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P491_ID is not null and :P491_STATE = 'ACTIVE'
+        }
+        security {
+            authorizationScheme: @role-warehouse-or-purchase
+        }
+    )
+
+    button restore (
+        buttonName: RESTORE
+        label: Відновити
+        layout {
+            sequence: 30
+            region: @buttons
+            slot: delete
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P491_STATE = 'MARKED_FOR_DELETION'
+        }
+        security {
+            authorizationScheme: @role-warehouse-or-purchase
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати і закрити
+        layout {
+            sequence: 40
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P491_ID
+        }
+        security {
+            authorizationScheme: @role-warehouse-or-purchase
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати і закрити
+        layout {
+            sequence: 50
+            region: @buttons
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P491_ID
+        }
+        security {
+            authorizationScheme: @role-warehouse-or-purchase
+        }
+    )
+
+    dynamicAction cancel-dialog (
+        name: Скасувати діалог
+        when {
+            event: click
+            selectionType: button
+            button: @cancel
+        }
+        execution {
+            sequence: 10
+        }
+
+        action cancel-dialog (
+            name: Закрити
+            action: cancelDialog
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000070
+        }
+    )
+
+    process dml (
+        name: Записати
+        type: formAutoRowProcessing
+        formRegion: @form
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE')
+        }
+        successMessage {
+            successMessage: Елемент записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000071
+        }
+    )
+
+    process mark (
+        name: Помітити на видалення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.mark_for_deletion('REF_PRODUCT_CHARACTERISTIC', :P491_ID);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @mark
+        }
+        advanced {
+            executionMappingIdentifier: 910000000072
+        }
+    )
+
+    process restore (
+        name: Відновити
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_core.restore('REF_PRODUCT_CHARACTERISTIC', :P491_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @restore
+        }
+        advanced {
+            executionMappingIdentifier: 910000000073
+        }
+    )
+
+    process close (
+        name: Закрити діалог
+        type: closeDialog
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAVE', 'CREATE', 'MARK', 'RESTORE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000074
+        }
+    )
+)

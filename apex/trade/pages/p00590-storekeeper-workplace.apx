@@ -1,0 +1,610 @@
+page 590 (
+    name: Робоче місце комірника
+    alias: STOREKEEPER-WORKPLACE
+    title: Робоче місце комірника
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-warehouse
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Робоче місце комірника</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Нове завдання
+        title: Нове завдання
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P590_WH (
+        type: selectList
+        label {
+            label: Склад
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @warehouses-order-scheme
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі ордерні склади
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P590_TASK (
+        type: popupLov
+        label {
+            label: Розпорядження
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select b.direction_name || ': ' || b.basis_name || ' — ' || b.warehouse_name || ' (' || b.state_name
+                       || ', залишок ' || rtrim(to_char(b.remaining_qty, 'FM999G999G990D999'), '.,') || ')' d, b.task_key r
+                  from v_goods_order_basis b
+                 where b.remaining_qty > 0 and (:P590_WH is null or b.warehouse_id = :P590_WH)
+                 order by b.basis_date
+                ```
+            displayExtraValues: false
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P590_WH
+            ]
+            parentRequired: false
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        help {
+            helpText: Документ менеджера з товарами до надходження або до відвантаження. «Оформити ордер» створює прибутковий / видатковий ордер, заповнений за розпорядженням (видатковий — з відбором по комірках).
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P590_NEW_ID (
+        type: hidden
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P590_NEW_KIND (
+        type: hidden
+        layout {
+            sequence: 31
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button create-order (
+        buttonName: CREATE_ORDER
+        label: Оформити ордер
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        security {
+            authorizationScheme: @role-warehouse
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Оновити
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    process create-order (
+        name: Оформити ордер
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P590_NEW_ID := trade_order_scheme.create_task(:P590_TASK);
+                :P590_NEW_KIND := regexp_substr(:P590_TASK, '[^-]+', 1, 1);
+                :P590_TASK := null;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @create-order
+        }
+        successMessage {
+            successMessage: Ордер створено за розпорядженням.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000443
+        }
+    )
+
+    branch to-receipt (
+        name: До ордера (RECEIPT)
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 561
+                clearCache: 561
+                items: {
+                    P561_ID: &P590_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 5
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST = 'CREATE_ORDER' and :P590_NEW_KIND = 'RECEIPT'
+        }
+    )
+
+    branch to-shipment (
+        name: До ордера (SHIPMENT)
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 571
+                clearCache: 571
+                items: {
+                    P571_ID: &P590_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 6
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST = 'CREATE_ORDER' and :P590_NEW_KIND = 'SHIPMENT'
+        }
+    )
+
+    branch stay (
+        name: Залишитися
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 590
+            }
+        }
+        execution {
+            sequence: 20
+            point: afterProcessing
+        }
+    )
+
+    region tasks (
+        name: Завдання: незакриті розпорядження
+        title: Завдання: незакриті розпорядження
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P590_WH
+            ]
+            sqlQuery:
+                ```sql
+                select b.direction_name, b.warehouse_name, b.basis_name,
+                       apex_page.get_url(p_page => b.basis_page_id, p_items => 'P' || b.basis_page_id || '_ID', p_values => b.basis_id) basis_url,
+                       apex_page.get_url(p_page => 590, p_items => 'P590_TASK', p_values => b.task_key) pick_url,
+                       b.basis_date, b.planned_qty, b.done_qty, b.remaining_qty, b.state_name
+                  from v_goods_order_basis b
+                 where b.remaining_qty > 0 and (:P590_WH is null or b.warehouse_id = :P590_WH)
+                 order by b.basis_date
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000444
+        }
+
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Завдання
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column BASIS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Розпорядження
+            }
+            layout {
+                sequence: 30
+            }
+            columnFormatting {
+                htmlExpression: <a href="#BASIS_URL#">#BASIS_NAME#</a>
+            }
+        )
+
+        column BASIS_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: URL
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column PICK_URL (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 50
+            }
+            columnFormatting {
+                htmlExpression: <a href="#PICK_URL#" title="Вибрати завдання"><span class="fa fa-hand-pointer-o" aria-hidden="true"></span> Вибрати</a>
+            }
+        )
+
+        column BASIS_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column PLANNED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: За документом
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column DONE_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Оформлено
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REMAINING_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column STATE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 100
+            }
+        )
+    )
+
+    region orders (
+        name: Ордери в роботі (чернетки): відкрийте ордер і скануйте товари
+        title: Ордери в роботі (чернетки)
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P590_WH
+            ]
+            sqlQuery:
+                ```sql
+                select d.kind, case d.kind when 'RECEIPT' then 'Прибутковий ордер' else 'Видатковий ордер' end kind_name,
+                       d.doc_number, d.occurred_at, d.warehouse_name, d.basis_name, d.total_qty,
+                       apex_page.get_url(p_page => case d.kind when 'RECEIPT' then 561 else 571 end,
+                                         p_items => case d.kind when 'RECEIPT' then 'P561_ID' else 'P571_ID' end, p_values => d.id) doc_url
+                  from v_goods_order_list d
+                 where d.status = 'DRAFT' and (:P590_WH is null or d.warehouse_id = :P590_WH)
+                 order by d.occurred_at
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000445
+        }
+
+
+        column KIND (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: kind
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Документ
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 30
+            }
+            columnFormatting {
+                htmlExpression: <a href="#DOC_URL#">#DOC_NUMBER#</a>
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column BASIS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Розпорядження
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column TOTAL_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column DOC_URL (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: url
+            }
+            layout {
+                sequence: 80
+            }
+        )
+    )
+)

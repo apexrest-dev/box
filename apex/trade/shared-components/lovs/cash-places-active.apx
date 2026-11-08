@@ -1,0 +1,18 @@
+lov cash-places-active (
+    name: CASH_PLACES_ACTIVE
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select p.place_kind_name || ': ' || p.name || ' (' || p.currency_code || ', ' || o.name || ')' d, p.place_id r
+              from v_cash_place p join ref_organization o on o.id = p.organization_id
+             where p.state = 'ACTIVE'
+             order by o.name, p.place_kind, p.name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

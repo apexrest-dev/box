@@ -1,0 +1,66 @@
+page 2 (
+    name: Розділ
+    alias: SECTION
+    title: &P2_SECTION_NAME.
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region function-panel (
+        name: Панель функцій розділу
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_ui.function_panel(:P2_SECTION);
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P2_SECTION (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @function-panel
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+        security {
+            sessionStateProtection: unrestricted
+        }
+    )
+
+    pageItem P2_SECTION_NAME (
+        type: hidden
+        layout {
+            sequence: 20
+            region: @function-panel
+            slot: regionBody
+        }
+        source {
+            type: sqlQuerySingleValue
+            sqlQuery:
+                ```sql
+                select name from sys_main_menu_section where tech_name = :P2_SECTION
+                ```
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+)

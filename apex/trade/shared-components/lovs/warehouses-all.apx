@@ -1,0 +1,17 @@
+lov warehouses-all (
+    name: WAREHOUSES_ALL
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name d, id r
+              from ref_warehouse
+             order by name
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

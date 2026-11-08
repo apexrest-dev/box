@@ -1,0 +1,1103 @@
+page 670 (
+    name: Імпорт довідників
+    alias: CATALOG-IMPORT
+    title: Імпорт довідників
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-admin
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Імпорт довідників</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region params (
+        name: 1. Файл і параметри
+        title: 1. Файл і параметри
+        type: staticContent
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P670_KIND (
+        type: selectList
+        label {
+            label: Що завантажувати
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @params
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @import-kinds
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: — виберіть довідник —
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P670_MODE (
+        type: selectList
+        label {
+            label: Режим
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @params
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @import-modes
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        default {
+            type: static
+            staticValue: CREATE_UPDATE
+        }
+        help {
+            helpText: Існуючі елементи шукаються за кодом, далі — за артикулом / штрихкодом (номенклатура), ЄДРПОУ (контрагенти), скороченням (одиниці), назвою в межах батьківської групи (групи). Порожня клітинка під час оновлення не змінює значення.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P670_CHARSET (
+        type: selectList
+        label {
+            label: Кодування CSV
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @params
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @import-charsets
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        default {
+            type: static
+            staticValue: AL32UTF8
+        }
+        help {
+            helpText: Для XLSX не має значення. CSV, збережений з Excel «CSV (роздільники — коми)», зазвичай у Windows-1251.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P670_PRICE_TYPE (
+        type: selectList
+        label {
+            label: Вид цін
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @params
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @price-types-active
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: — з колонки «Вид цін» —
+        }
+        help {
+            helpText: Для цін у файлі номенклатури та цін: створюється й проводиться документ «Встановлення цін» (окремий на кожен вид цін).
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P670_PRICE_DATE (
+        type: datePicker
+        label {
+            label: Дата цін
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @params
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+            valuePlaceholder: поточна дата
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P670_FILE (
+        type: fileUpload
+        label {
+            label: Файл (CSV, TXT, XLSX)
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @params
+            slot: regionBody
+            columnSpan: 8
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        display {
+            displayAs: inlineFileBrowse
+        }
+        storage {
+            type: appTempFiles
+            purgeFileAt: endOfRequest
+            allowMultipleFiles: false
+            fileTypes: .csv,.txt,.tsv,.xlsx
+        }
+        help {
+            helpText: Перший рядок — заголовки колонок, далі — дані (до 10 000 рядків). XLSX — перший аркуш. Роздільник CSV (; , табуляція) визначається автоматично.
+        }
+    )
+
+    pageItem P670_SESSION (
+        type: hidden
+        layout {
+            sequence: 70
+            region: @params
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P670_STATUS (
+        type: hidden
+        layout {
+            sequence: 71
+            region: @params
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button load (
+        buttonName: LOAD
+        label: Завантажити й перевірити
+        layout {
+            sequence: 80
+            region: @params
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-upload
+        }
+    )
+
+    button template (
+        buttonName: TEMPLATE
+        label: Шаблон CSV
+        layout {
+            sequence: 90
+            region: @params
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-download
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P670_KIND
+        }
+    )
+
+    button new (
+        buttonName: NEW
+        label: Новий імпорт
+        layout {
+            sequence: 100
+            region: @params
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P670_SESSION
+        }
+    )
+
+    dynamicAction change-kind (
+        name: Змінити довідник
+        when {
+            event: change
+            selectionType: items
+            items: P670_KIND
+        }
+        execution {
+            sequence: 10
+        }
+
+        action submit (
+            name: Оновити
+            action: submitPage
+            settings {
+                requestButtonName: KIND
+                showProcessing: true
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    region format (
+        name: Колонки файлу
+        title: Колонки файлу
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_import.fields_html(:P670_KIND);
+                ```
+        }
+        layout {
+            sequence: 15
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P670_KIND is not null and :P670_SESSION is null
+        }
+    )
+
+    region summary (
+        name: 2. Стан імпорту
+        title: 2. Стан імпорту
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_import.summary_html(:P670_SESSION);
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P670_SESSION
+        }
+    )
+
+    button apply (
+        buttonName: APPLY
+        label: Виконати імпорт
+        layout {
+            sequence: 10
+            region: @summary
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-check
+        }
+        behavior {
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Записати дані файлу в довідник? Рядки з помилками буде пропущено.
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P670_STATUS = 'CHECKED'
+        }
+    )
+
+    button errors (
+        buttonName: ERRORS
+        label: Звіт помилок (CSV)
+        layout {
+            sequence: 20
+            region: @summary
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-file-text-o
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P670_STATUS in ('CHECKED', 'APPLIED')
+        }
+    )
+
+    region mapping (
+        name: 3. Зіставлення колонок
+        title: 3. Зіставлення колонок
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_import.mapping_html(:P670_SESSION);
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P670_SESSION
+        }
+    )
+
+    button check (
+        buttonName: CHECK
+        label: Перевірити
+        layout {
+            sequence: 10
+            region: @mapping
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-search
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P670_STATUS in ('LOADED', 'CHECKED')
+        }
+    )
+
+    region rows (
+        name: 4. Рядки файлу (попередній перегляд і звіт помилок)
+        title: 4. Рядки файлу (попередній перегляд і звіт помилок)
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            pageItemsToSubmit: [
+                P670_SESSION
+            ]
+            sqlQuery:
+                ```sql
+                select ' ' icon, icon_class, row_no, action_name, key_text, match_by_name, result_name, message, row_text
+                  from v_import_row
+                 where session_id = :P670_SESSION
+                 order by row_no
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P670_SESSION
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000462
+        }
+
+
+        column ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 10
+            }
+            columnFormatting {
+                htmlExpression: <span class="fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column ROW_NO (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Рядок
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column ACTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Дія
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column KEY_TEXT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Ключ
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column MATCH_BY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Знайдено за
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column RESULT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Результат
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column MESSAGE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Повідомлення
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column ROW_TEXT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Дані рядка
+            }
+            layout {
+                sequence: 90
+            }
+        )
+    )
+
+    region history (
+        name: Історія імпорту
+        title: Історія імпорту
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, cast(created_at as date) created_at, created_by, kind_name, file_name, mode_name, status_name,
+                       total_rows, created_cnt, updated_cnt, price_cnt, skipped_cnt, error_cnt
+                  from v_import_session
+                 order by created_at desc
+                ```
+        }
+        layout {
+            sequence: 50
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 670
+                clearCache: 670
+                items: {
+                    P670_SESSION: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-folder-open-o" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000463
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column CREATED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Завантажено
+            }
+            layout {
+                sequence: 20
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column CREATED_BY (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Користувач
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column KIND_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Довідник
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column FILE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Файл
+            }
+            layout {
+                sequence: 50
+            }
+        )
+
+        column MODE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Режим
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column STATUS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column TOTAL_ROWS (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Рядків
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column CREATED_CNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Створено
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column UPDATED_CNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Оновлено
+            }
+            layout {
+                sequence: 100
+            }
+        )
+
+        column PRICE_CNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Цін
+            }
+            layout {
+                sequence: 110
+            }
+        )
+
+        column SKIPPED_CNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Пропущено
+            }
+            layout {
+                sequence: 120
+            }
+        )
+
+        column ERROR_CNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Помилок
+            }
+            layout {
+                sequence: 130
+            }
+        )
+    )
+
+    process init (
+        name: Параметри сеансу імпорту
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                for s in (select * from sys_import_session where id = :P670_SESSION) loop
+                  :P670_KIND := s.import_kind;
+                  :P670_MODE := s.import_mode;
+                  :P670_PRICE_TYPE := s.price_type_id;
+                  :P670_PRICE_DATE := to_char(s.price_date, 'DD.MM.YYYY');
+                  :P670_STATUS := s.status;
+                end loop;
+                if :P670_STATUS is null then
+                  :P670_SESSION := null;
+                end if;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000464
+        }
+    )
+
+    process kind (
+        name: Змінити довідник
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P670_SESSION := null;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('KIND')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000465
+        }
+    )
+
+    process load (
+        name: Завантажити файл
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                  l_blob blob;
+                  l_name varchar2(400);
+                begin
+                  select max(blob_content), max(filename) into l_blob, l_name from apex_application_temp_files where name = :P670_FILE;
+                  if l_blob is null then
+                    trade_nsi.fail('IMPORT_FILE_EMPTY', 'Виберіть файл для завантаження.');
+                  end if;
+                  :P670_SESSION := trade_import.load_file(:P670_KIND, :P670_MODE, l_name, l_blob, :P670_CHARSET,
+                                                       :P670_PRICE_TYPE, to_date(:P670_PRICE_DATE, 'DD.MM.YYYY'));
+                  begin
+                    trade_import.check_rows(:P670_SESSION);
+                  exception when others then
+                    null;   -- обов'язкові колонки не зіставлено: користувач зіставить вручну
+                  end;
+                end;
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LOAD')
+        }
+        successMessage {
+            successMessage: Файл завантажено. Перевірте зіставлення колонок і рядки, потім натисніть «Виконати імпорт».
+        }
+        advanced {
+            executionMappingIdentifier: 910000000466
+        }
+    )
+
+    process check (
+        name: Зіставлення й перевірка
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                for i in 1 .. apex_application.g_f02.count loop
+                  trade_import.set_mapping(:P670_SESSION, to_number(apex_application.g_f02(i)), apex_application.g_f01(i));
+                end loop;
+                trade_import.set_options(:P670_SESSION, :P670_MODE, :P670_PRICE_TYPE, to_date(:P670_PRICE_DATE, 'DD.MM.YYYY'));
+                trade_import.check_rows(:P670_SESSION);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CHECK')
+        }
+        successMessage {
+            successMessage: Перевірку виконано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000467
+        }
+    )
+
+    process apply (
+        name: Виконати імпорт
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_import.apply(:P670_SESSION);
+                ```
+        }
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('APPLY')
+        }
+        successMessage {
+            successMessage: Імпорт виконано. Результат кожного рядка — у таблиці «Рядки файлу».
+        }
+        advanced {
+            executionMappingIdentifier: 910000000468
+        }
+    )
+
+    process template (
+        name: Шаблон CSV
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_import.download_template(:P670_KIND);
+                ```
+        }
+        execution {
+            sequence: 50
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('TEMPLATE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000469
+        }
+    )
+
+    process errors (
+        name: Звіт помилок
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_import.download_errors(:P670_SESSION);
+                ```
+        }
+        execution {
+            sequence: 60
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('ERRORS')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000470
+        }
+    )
+
+    process new (
+        name: Новий імпорт
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P670_SESSION := null;
+                ```
+        }
+        execution {
+            sequence: 70
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('NEW')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000471
+        }
+    )
+
+    branch stay (
+        name: Залишитися
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 670
+            }
+        }
+        execution {
+            sequence: 10
+            point: afterProcessing
+        }
+    )
+)

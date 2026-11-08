@@ -1,0 +1,18 @@
+lov currencies (
+    name: CURRENCIES
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select code || ' — ' || name d, code r
+              from ref_currency
+             where state = 'ACTIVE'
+             order by case code when 'UAH' then 0 else 1 end, code
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

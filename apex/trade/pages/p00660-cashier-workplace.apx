@@ -1,0 +1,707 @@
+page 660 (
+    name: Робоче місце касира (РМК)
+    alias: CASHIER-WORKPLACE
+    title: Робоче місце касира (РМК)
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-sales-or-cashier
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Робоче місце касира (РМК)</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Каса ККМ
+        title: Каса ККМ
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P660_REGISTER (
+        type: selectList
+        label {
+            label: Каса ККМ
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @cash-registers-active
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: — виберіть касу ККМ —
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_retail.default_register
+        }
+        help {
+            helpText: Каса ККМ визначає організацію, склад, касу для готівки, роздрібні ціни й ПРРО. Незавершений чек користувача на касі відкривається автоматично.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P660_RECEIPT (
+        type: hidden
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P660_LAST (
+        type: hidden
+        layout {
+            sequence: 21
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P660_LINE (
+        type: hidden
+        layout {
+            sequence: 22
+            region: @bar
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P660_CHANGE (
+        type: hidden
+        layout {
+            sequence: 23
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    dynamicAction change-register (
+        name: Змінити касу ККМ
+        when {
+            event: change
+            selectionType: items
+            items: P660_REGISTER
+        }
+        execution {
+            sequence: 10
+        }
+
+        action submit (
+            name: Оновити
+            action: submitPage
+            settings {
+                requestButtonName: REGISTER
+                showProcessing: true
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    region scan (
+        name: Товар
+        title: Товар
+        type: staticContent
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P660_SCAN (
+        type: textField
+        label {
+            label: Штрихкод / артикул / код
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @scan
+            slot: regionBody
+            columnSpan: 8
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            valuePlaceholder: Відскануйте або введіть і натисніть Enter («3*код» — кількість 3)
+        }
+        advanced {
+            customAttributes: autocomplete="off" autofocus
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button scan (
+        buttonName: SCAN
+        label: Додати (Enter)
+        layout {
+            sequence: 20
+            region: @scan
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region cart (
+        name: Чек
+        title: Чек
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_retail.cart_html(:P660_RECEIPT);
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region pay (
+        name: Оплата
+        title: Оплата
+        type: staticContent
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P660_CASH (
+        type: textField
+        label {
+            label: Отримано готівкою, грн
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @pay
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            valuePlaceholder: порожньо — без решти
+        }
+        advanced {
+            customAttributes: autocomplete="off" inputmode="decimal"
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P660_CARD (
+        type: textField
+        label {
+            label: Карткою, грн
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @pay
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            valuePlaceholder: для змішаної оплати
+        }
+        advanced {
+            customAttributes: autocomplete="off" inputmode="decimal"
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button pay-cash (
+        buttonName: PAY_CASH
+        label: Оплата готівкою
+        layout {
+            sequence: 30
+            region: @pay
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P660_RECEIPT
+        }
+    )
+
+    button pay-card (
+        buttonName: PAY_CARD
+        label: Оплата карткою
+        layout {
+            sequence: 40
+            region: @pay
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P660_RECEIPT
+        }
+    )
+
+    button pay-mixed (
+        buttonName: PAY_MIXED
+        label: Змішана оплата
+        layout {
+            sequence: 50
+            region: @pay
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P660_RECEIPT
+        }
+    )
+
+    button cancel-receipt (
+        buttonName: CANCEL_RECEIPT
+        label: Скасувати чек
+        layout {
+            sequence: 60
+            region: @pay
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Видалити поточний (неоплачений) чек?
+            style: warning
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P660_RECEIPT
+        }
+    )
+
+    region last (
+        name: Останній чек
+        title: Останній чек
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_retail.last_html(:P660_LAST)
+                    || '<p style="margin-top:8px"><a class="t-Button t-Button--hot" href="'
+                    || apex_page.get_url(p_page => 900, p_items => 'P900_ID', p_values => :P660_LAST) || '">Друк чека</a> '
+                    || '<a class="t-Button" href="' || apex_page.get_url(p_page => 651, p_items => 'P651_ID', p_values => :P660_LAST)
+                    || '">Відкрити чек</a></p>';
+                ```
+        }
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P660_LAST
+        }
+    )
+
+    process init (
+        name: Відкрита чернетка
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                if :P660_RECEIPT is not null then
+                  select max(id) into :P660_RECEIPT from doc_retail_receipt where id = :P660_RECEIPT and status = 'DRAFT';
+                end if;
+                if :P660_RECEIPT is null and :P660_REGISTER is not null then
+                  :P660_RECEIPT := trade_retail.open_draft(:P660_REGISTER);
+                end if;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000452
+        }
+    )
+
+    process register (
+        name: Змінити касу ККМ
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P660_RECEIPT := trade_retail.open_draft(:P660_REGISTER);
+                :P660_LAST := null;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('REGISTER')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000453
+        }
+    )
+
+    process scan (
+        name: Сканер
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                if :P660_REGISTER is null then
+                  trade_nsi.fail('CASH_REGISTER_REQUIRED', 'Виберіть касу ККМ.');
+                end if;
+                :P660_RECEIPT := trade_retail.scan(:P660_REGISTER, :P660_RECEIPT, :P660_SCAN);
+                :P660_SCAN := null;
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SCAN')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000454
+        }
+    )
+
+    process line-inc (
+        name: Збільшити кількість
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_retail.change_qty(:P660_LINE, 1);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LINE_INC')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000455
+        }
+    )
+
+    process line-dec (
+        name: Зменшити кількість
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_retail.change_qty(:P660_LINE, -1);
+                ```
+        }
+        execution {
+            sequence: 31
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LINE_DEC')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000456
+        }
+    )
+
+    process line-del (
+        name: Видалити рядок
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_retail.delete_line(:P660_LINE);
+                ```
+        }
+        execution {
+            sequence: 32
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LINE_DEL')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000457
+        }
+    )
+
+    process pay-cash (
+        name: Оплата (PAY_CASH)
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                begin
+                  trade_warn.clear;
+                  trade_retail.pay(:P660_RECEIPT, trade_retail.parse_amount(:P660_CASH), null);
+                  :P660_LAST := :P660_RECEIPT;
+                  :P660_RECEIPT := null; :P660_CASH := null; :P660_CARD := null;
+                  select to_char(change_amount, 'FM999G999G990D00') into :P660_CHANGE from doc_retail_receipt where id = :P660_LAST;
+                  :TRADE_WARN := trade_warn.take;
+                end;
+                ```
+        }
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PAY_CASH')
+        }
+        successMessage {
+            successMessage: Чек оплачено. Решта: &P660_CHANGE. грн. &TRADE_WARN.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000458
+        }
+    )
+
+    process pay-card (
+        name: Оплата (PAY_CARD)
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                begin
+                  trade_warn.clear;
+                  trade_retail.pay(:P660_RECEIPT, null, trade_retail.receipt_total(:P660_RECEIPT));
+                  :P660_LAST := :P660_RECEIPT;
+                  :P660_RECEIPT := null; :P660_CASH := null; :P660_CARD := null;
+                  select to_char(change_amount, 'FM999G999G990D00') into :P660_CHANGE from doc_retail_receipt where id = :P660_LAST;
+                  :TRADE_WARN := trade_warn.take;
+                end;
+                ```
+        }
+        execution {
+            sequence: 41
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PAY_CARD')
+        }
+        successMessage {
+            successMessage: Чек оплачено. Решта: &P660_CHANGE. грн. &TRADE_WARN.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000459
+        }
+    )
+
+    process pay-mixed (
+        name: Оплата (PAY_MIXED)
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                begin
+                  trade_warn.clear;
+                  trade_retail.pay(:P660_RECEIPT, trade_retail.parse_amount(:P660_CASH), trade_retail.parse_amount(:P660_CARD));
+                  :P660_LAST := :P660_RECEIPT;
+                  :P660_RECEIPT := null; :P660_CASH := null; :P660_CARD := null;
+                  select to_char(change_amount, 'FM999G999G990D00') into :P660_CHANGE from doc_retail_receipt where id = :P660_LAST;
+                  :TRADE_WARN := trade_warn.take;
+                end;
+                ```
+        }
+        execution {
+            sequence: 42
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PAY_MIXED')
+        }
+        successMessage {
+            successMessage: Чек оплачено. Решта: &P660_CHANGE. грн. &TRADE_WARN.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000460
+        }
+    )
+
+    process cancel-receipt (
+        name: Скасувати чек
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_retail.cancel_receipt(:P660_RECEIPT);
+                :P660_RECEIPT := null;
+                ```
+        }
+        execution {
+            sequence: 50
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CANCEL_RECEIPT')
+        }
+        successMessage {
+            successMessage: Чек скасовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000461
+        }
+    )
+
+    branch stay (
+        name: Залишитися
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 660
+            }
+        }
+        execution {
+            sequence: 10
+            point: afterProcessing
+        }
+    )
+)

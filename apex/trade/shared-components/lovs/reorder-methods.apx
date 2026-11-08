@@ -1,0 +1,18 @@
+lov reorder-methods (
+    name: REORDER_METHODS
+    source {
+        location: staticValues
+    }
+
+    entry minmax (
+        sequence: 1
+        display: Мін/макс
+        return: MIN_MAX
+    )
+
+    entry none (
+        sequence: 2
+        display: Не поповнювати
+        return: NONE
+    )
+)

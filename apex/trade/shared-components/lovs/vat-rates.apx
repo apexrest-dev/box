@@ -1,0 +1,17 @@
+lov vat-rates (
+    name: VAT_RATES
+    source {
+        location: localDatabase
+        type: sqlQuery
+        sqlQuery:
+            ```sql
+            select name d, code r
+              from ref_vat_rate
+             order by sort_order
+            ```
+    }
+    columnMapping {
+        return: R
+        display: D
+    }
+)

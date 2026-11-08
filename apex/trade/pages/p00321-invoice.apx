@@ -1,0 +1,1772 @@
+page 321 (
+    name: Рахунок на оплату
+    alias: INVOICE
+    title: Рахунок на оплату
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-sales
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>&P321_FORM_TITLE.</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region actions (
+        name: Команди
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region header (
+        name: Рахунок на оплату
+        title: Рахунок на оплату
+        type: form
+        source {
+            location: localDatabase
+            type: tableView
+            tableName: DOC_INVOICE_FOR_PAYMENT
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P321_STATUS is not null and :P321_STATUS <> 'DRAFT'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+            ]
+            lostUpdateType: rowValues
+        }
+    )
+
+    pageItem P321_ID (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @header
+            slot: regionBody
+        }
+        source {
+            formRegion: @header
+            column: ID
+            dataType: varchar2
+            primaryKey: true
+        }
+    )
+
+    pageItem P321_DOC_NUMBER (
+        type: textField
+        label {
+            label: Номер
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 9
+        }
+        source {
+            formRegion: @header
+            column: DOC_NUMBER
+            dataType: varchar2
+        }
+        help {
+            helpText: Порожній номер буде призначено автоматично.
+        }
+    )
+
+    pageItem P321_OCCURRED_AT (
+        type: datePicker
+        label {
+            label: Дата
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY HH24:MI:SS
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: OCCURRED_AT
+            dataType: date
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY HH24:MI:SS')
+        }
+        settings {
+            displayAs: popup
+            showTime: true
+        }
+    )
+
+    pageItem P321_ORGANIZATION_ID (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 40
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: ORGANIZATION_ID
+            dataType: varchar2
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_org.default_org
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-active
+            displayExtraValues: true
+            displayNullValue: false
+        }
+        help {
+            helpText: Від імені якої організації оформлено документ. Документ на підставі отримує організацію підстави.
+        }
+    )
+
+    pageItem P321_CUSTOMER_ID (
+        type: popupLov
+        label {
+            label: Покупець
+            alignment: right
+        }
+        layout {
+            sequence: 50
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            valueRequired: true
+        }
+        source {
+            formRegion: @header
+            column: CUSTOMER_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @counterparties-active
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+    )
+
+    pageItem P321_CONTRACT_ID (
+        type: popupLov
+        label {
+            label: Договір
+            alignment: right
+        }
+        layout {
+            sequence: 60
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: CONTRACT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select c.name || case when c.contract_number is not null then ' № ' || c.contract_number end d, c.id r
+                  from ref_contract c
+                 where c.state = 'ACTIVE' and c.contract_kind = 'WITH_CUSTOMER'
+                   and c.owner_id = :P321_CUSTOMER_ID
+                 order by c.name
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P321_CUSTOMER_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: Список договорів обраного контрагента. Якщо договір один — підставляється автоматично.
+        }
+    )
+
+    pageItem P321_PAYMENT_DUE_DATE (
+        type: datePicker
+        label {
+            label: Сплатити до
+            alignment: right
+        }
+        layout {
+            sequence: 70
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        source {
+            formRegion: @header
+            column: PAYMENT_DUE_DATE
+            dataType: date
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+    )
+
+    pageItem P321_BASE_ORDER_ID (
+        type: displayOnly
+        label {
+            label: Замовлення-підстава
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: BASE_ORDER_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @recorders
+            displayExtraValues: true
+        }
+        settings {
+            basedOn: lov
+            sendOnPageSubmit: true
+        }
+    )
+
+    pageItem P321_PRICE_INCLUDES_VAT (
+        type: selectList
+        label {
+            label: Ціни
+            alignment: right
+        }
+        layout {
+            sequence: 90
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: PRICE_INCLUDES_VAT
+            dataType: varchar2
+        }
+        lov {
+            type: sharedComponent
+            lov: @vat-price-modes
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        help {
+            helpText: Ціна включає ПДВ або ПДВ зверху. Порожньо — за видом цін (інакше «включає»). Зміна перераховує ПДВ рядків.
+        }
+    )
+
+    pageItem P321_STATUS (
+        type: hidden
+        layout {
+            sequence: 100
+            region: @header
+            slot: regionBody
+        }
+        source {
+            formRegion: @header
+            column: STATUS
+            dataType: varchar2
+        }
+        settings {
+            valueProtected: true
+        }
+    )
+
+    pageItem P321_FORM_TITLE (
+        type: hidden
+        layout {
+            sequence: 110
+            region: @header
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P321_NEW_ID (
+        type: hidden
+        layout {
+            sequence: 120
+            region: @header
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    region scan (
+        name: Сканер
+        type: staticContent
+        layout {
+            sequence: 25
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P321_ID is not null and :P321_STATUS = 'DRAFT'
+        }
+    )
+
+    pageItem P321_SCAN (
+        type: textField
+        label {
+            label: Штрихкод / артикул
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @scan
+            slot: regionBody
+            columnSpan: 5
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            valuePlaceholder: Відскануйте або введіть і натисніть «Додати»
+        }
+        advanced {
+            customAttributes: autocomplete="off"
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button scan (
+        buttonName: SCAN
+        label: Додати
+        layout {
+            sequence: 20
+            region: @scan
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+    )
+
+    region lines (
+        name: Товари
+        title: Товари
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, document_id, line_number, product_id, quantity, price, amount, vat_rate_code, vat_amount, amount_with_vat
+                  from doc_invoice_for_payment_goods
+                 where document_id = :P321_ID
+                 order by line_number
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+            cssClasses: tx-tabpart
+        }
+        readOnly {
+            type: expression
+            language: plsql
+            plsqlExpression: :P321_STATUS is not null and :P321_STATUS <> 'DRAFT'
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                actionsMenu
+            ]
+            addButtonLabel: Додати рядок
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000281
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn LINE_NUMBER (
+                column: @LINE_NUMBER
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 50
+                }
+            )
+
+            displayColumn PRODUCT_ID (
+                column: @PRODUCT_ID
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 380
+                }
+            )
+
+            displayColumn QUANTITY (
+                column: @QUANTITY
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 130
+                }
+            )
+
+            displayColumn PRICE (
+                column: @PRICE
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 130
+                }
+            )
+
+            displayColumn AMOUNT (
+                column: @AMOUNT
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 140
+                }
+            )
+
+            displayColumn VAT_RATE_CODE (
+                column: @VAT_RATE_CODE
+                layout {
+                    sequence: 60
+                    show: true
+                    width: 130
+                }
+            )
+
+            displayColumn VAT_AMOUNT (
+                column: @VAT_AMOUNT
+                layout {
+                    sequence: 70
+                    show: true
+                    width: 110
+                }
+            )
+
+            displayColumn AMOUNT_WITH_VAT (
+                column: @AMOUNT_WITH_VAT
+                layout {
+                    sequence: 80
+                    show: true
+                    width: 120
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column DOCUMENT_ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: DOCUMENT_ID
+                dataType: varchar2
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column LINE_NUMBER (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: LINE_NUMBER
+                dataType: number
+            }
+            heading {
+                heading: N
+                alignment: end
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+        )
+
+        column PRODUCT_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: PRODUCT_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @products-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+        )
+
+        column QUANTITY (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: QUANTITY
+                dataType: number
+            }
+            heading {
+                heading: Кількість
+                alignment: end
+            }
+            layout {
+                sequence: 50
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column PRICE (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: PRICE
+                dataType: number
+            }
+            heading {
+                heading: Ціна
+                alignment: end
+            }
+            layout {
+                sequence: 60
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AMOUNT (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: AMOUNT
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: Сума
+                alignment: end
+            }
+            layout {
+                sequence: 70
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column VAT_RATE_CODE (
+            type: selectList
+            source {
+                type: databaseColumn
+                databaseColumn: VAT_RATE_CODE
+                dataType: varchar2
+            }
+            heading {
+                heading: Ставка ПДВ
+                alignment: start
+            }
+            layout {
+                sequence: 80
+            }
+            lov {
+                type: sharedComponent
+                lov: @vat-rates
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            help {
+                helpText: Порожньо — ставка товару (організація / постачальник не платник — «Без ПДВ»).
+            }
+        )
+
+        column VAT_AMOUNT (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: VAT_AMOUNT
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: Сума ПДВ
+                alignment: end
+            }
+            layout {
+                sequence: 90
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column AMOUNT_WITH_VAT (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: AMOUNT_WITH_VAT
+                dataType: number
+                queryOnly: true
+            }
+            heading {
+                heading: Всього
+                alignment: end
+            }
+            layout {
+                sequence: 100
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+    )
+
+    region invoice-payments (
+        name: Оплати за рахунком
+        title: Оплати за рахунком
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select doc_kind, doc_number, occurred_at, payment_form_name, amount,
+                       case status when 'POSTED' then 'Проведено' else 'Чернетка' end status_name
+                  from v_invoice_payment
+                 where invoice_id = :P321_ID
+                ```
+        }
+        layout {
+            sequence: 45
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000282
+        }
+
+
+        column DOC_KIND (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Документ
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 30
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column PAYMENT_FORM_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Форма оплати
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column STATUS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 60
+            }
+        )
+    )
+
+    region footer (
+        name: Підвал
+        type: staticContent
+        layout {
+            sequence: 40
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P321_VAT_AMOUNT (
+        type: displayOnly
+        label {
+            label: Сума ПДВ
+            alignment: right
+        }
+        layout {
+            sequence: 130
+            region: @footer
+            slot: regionBody
+            columnSpan: 3
+            column: 7
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G999G990D00
+        }
+        source {
+            formRegion: @header
+            column: VAT_AMOUNT
+            dataType: number
+        }
+    )
+
+    pageItem P321_TOTAL_AMOUNT (
+        type: displayOnly
+        label {
+            label: Всього
+            alignment: right
+        }
+        layout {
+            sequence: 140
+            region: @footer
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+            column: 10
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G999G999G990D00
+        }
+        source {
+            formRegion: @header
+            column: TOTAL_AMOUNT
+            dataType: number
+        }
+    )
+
+    pageItem P321_DOC_COMMENT (
+        type: textarea
+        label {
+            label: Коментар
+            alignment: right
+        }
+        layout {
+            sequence: 150
+            region: @footer
+            slot: regionBody
+            columnSpan: 12
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 1000
+        }
+        source {
+            formRegion: @header
+            column: DOC_COMMENT
+            dataType: varchar2
+        }
+        settings {
+            resizable: true
+            autoHeight: false
+            charCounter: true
+            trimSpaces: leadingAndTrailing
+        }
+    )
+
+    pageItem P321_CANCEL_TEXT (
+        type: textField
+        label {
+            label: Причина анулювання
+            alignment: right
+        }
+        layout {
+            sequence: 160
+            region: @footer
+            slot: regionBody
+            columnSpan: 8
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+        serverSideCondition {
+            type: item=value
+            item: P321_STATUS
+            value: ISSUED
+        }
+    )
+
+    process form-title (
+        name: Заголовок форми
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P321_FORM_TITLE := trade_ui.doc_title('Рахунок на оплату', :P321_DOC_NUMBER, :P321_OCCURRED_AT, :P321_STATUS);
+                ```
+        }
+        execution {
+            sequence: 20
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000283
+        }
+    )
+
+    button create-post-close (
+        buttonName: CREATE_POST_CLOSE
+        label: Видати і закрити
+        layout {
+            sequence: 10
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P321_ID
+        }
+    )
+
+    button post-close (
+        buttonName: POST_CLOSE
+        label: Видати і закрити
+        layout {
+            sequence: 11
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P321_ID is not null and :P321_STATUS = 'DRAFT'
+        }
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Записати
+        layout {
+            sequence: 20
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P321_ID
+        }
+    )
+
+    button save (
+        buttonName: SAVE
+        label: Записати
+        layout {
+            sequence: 21
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P321_ID is not null and :P321_STATUS = 'DRAFT'
+        }
+    )
+
+    button create-post (
+        buttonName: CREATE_POST
+        label: Видати
+        layout {
+            sequence: 30
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: insert
+        }
+        serverSideCondition {
+            type: itemIsNull
+            item: P321_ID
+        }
+    )
+
+    button post (
+        buttonName: POST
+        label: Видати
+        layout {
+            sequence: 31
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            databaseAction: update
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P321_ID is not null and :P321_STATUS = 'DRAFT'
+        }
+    )
+
+    button unpost (
+        buttonName: UNPOST
+        label: Повернути в чернетку
+        layout {
+            sequence: 40
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Повернути рахунок у чернетку?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P321_ID is not null and :P321_STATUS <> 'DRAFT'
+        }
+    )
+
+    button cmd-cancel-invoice (
+        buttonName: CANCEL_INVOICE
+        label: Анулювати
+        layout {
+            sequence: 41
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Анулювати рахунок?
+            style: warning
+        }
+        serverSideCondition {
+            type: item=value
+            item: P321_STATUS
+            value: ISSUED
+        }
+    )
+
+    button cmd-create-cash-receipt (
+        buttonName: CREATE_CASH_RECEIPT
+        label: Створити ПКО
+        layout {
+            sequence: 42
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: item=value
+            item: P321_STATUS
+            value: ISSUED
+        }
+        security {
+            authorizationScheme: @role-cashier
+        }
+    )
+
+    button cmd-create-customer-payment (
+        buttonName: CREATE_CUSTOMER_PAYMENT
+        label: Створити оплату від покупця
+        layout {
+            sequence: 43
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: item=value
+            item: P321_STATUS
+            value: ISSUED
+        }
+        security {
+            authorizationScheme: @role-sales-or-cashier
+        }
+    )
+
+    button cmd-print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 44
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P321_ID
+        }
+    )
+
+    button copy (
+        buttonName: COPY
+        label: Скопіювати (F9)
+        layout {
+            sequence: 50
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P321_ID
+        }
+    )
+
+    button close (
+        buttonName: CLOSE
+        label: Закрити
+        layout {
+            sequence: 60
+            region: @actions
+            slot: next
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 320
+            }
+        }
+    )
+
+    process init (
+        name: Ініціалізація форми
+        type: formInitialization
+        formRegion: @header
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000284
+        }
+    )
+
+    process dml (
+        name: Записати шапку
+        type: formAutoRowProcessing
+        formRegion: @header
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        successMessage {
+            successMessage: Документ записано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000285
+        }
+    )
+
+    process dml-lines (
+        name: Записати рядки
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @lines
+        target {
+            targetType: plsqlCode
+            dmlPlsqlCode:
+                ```plsql
+                case :APEX$ROW_STATUS
+                  when 'C' then
+                    insert into doc_invoice_for_payment_goods (document_id, line_number, product_id, quantity, price, vat_rate_code)
+                    values (:P321_ID, null,
+                            :PRODUCT_ID,
+                            to_number(:QUANTITY, 'FM999G999G999G990D000'),
+                            to_number(:PRICE, 'FM999G999G999G990D00'),
+                            :VAT_RATE_CODE)
+                    returning id into :ID;
+                  when 'U' then
+                    update doc_invoice_for_payment_goods
+                       set product_id = :PRODUCT_ID,
+                           quantity = to_number(:QUANTITY, 'FM999G999G999G990D000'),
+                           price = to_number(:PRICE, 'FM999G999G999G990D00'),
+                           vat_rate_code = :VAT_RATE_CODE
+                     where id = :ID and document_id = :P321_ID;
+                  when 'D' then
+                    delete from doc_invoice_for_payment_goods where id = :ID and document_id = :P321_ID;
+                end case;
+                ```
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000286
+        }
+    )
+
+    process post (
+        name: Провести
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_warn.clear;
+                trade_r3.issue_invoice(:P321_ID);
+                :TRADE_WARN := trade_warn.take;
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
+        }
+        successMessage {
+            successMessage: Рахунок видано. &TRADE_WARN.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000287
+        }
+    )
+
+    process unpost (
+        name: Скасувати проведення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_r3.invoice_to_draft(:P321_ID);
+                ```
+        }
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @unpost
+        }
+        successMessage {
+            successMessage: Проведення документа скасовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000288
+        }
+    )
+
+    process copy (
+        name: Скопіювати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                  l_src varchar2(32) := :P321_ID;
+                begin
+                  :P321_ID := trade_r3.copy_invoice(l_src);
+                  trade_vat.copy_lines('DocInvoiceForPayment', l_src, :P321_ID);
+                end;
+                ```
+        }
+        execution {
+            sequence: 50
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @copy
+        }
+        successMessage {
+            successMessage: Створено копію документа (чернетка).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000289
+        }
+    )
+
+    process cmd-cancel-invoice (
+        name: Анулювати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_r3.cancel_invoice(:P321_ID, :P321_CANCEL_TEXT);
+                ```
+        }
+        execution {
+            sequence: 60
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CANCEL_INVOICE')
+        }
+        successMessage {
+            successMessage: Рахунок анульовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000290
+        }
+    )
+
+    process cmd-create-cash-receipt (
+        name: Створити ПКО
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P321_NEW_ID := trade_cash_doc.receipt_from_invoice(:P321_ID);
+                ```
+        }
+        execution {
+            sequence: 61
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE_CASH_RECEIPT')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000291
+        }
+    )
+
+    branch to-create-cash-receipt (
+        name: До документа: Створити ПКО
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 371
+                clearCache: 371
+                items: {
+                    P371_ID: &P321_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 6
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE_CASH_RECEIPT')
+        }
+    )
+
+    process cmd-create-customer-payment (
+        name: Створити оплату від покупця
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P321_NEW_ID := trade_cust_pay.payment_from_invoice(:P321_ID);
+                ```
+        }
+        execution {
+            sequence: 62
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE_CUSTOMER_PAYMENT')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000292
+        }
+    )
+
+    branch to-create-customer-payment (
+        name: До документа: Створити оплату від покупця
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 121
+                clearCache: 121
+                items: {
+                    P121_ID: &P321_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 7
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE_CUSTOMER_PAYMENT')
+        }
+    )
+
+    process cmd-print (
+        name: Друк
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P321_NEW_ID := :P321_ID;
+                ```
+        }
+        execution {
+            sequence: 63
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PRINT')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000293
+        }
+    )
+
+    branch to-print (
+        name: До документа: Друк
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 900
+                clearCache: 900
+                items: {
+                    P900_ID: &P321_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 8
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('PRINT')
+        }
+    )
+
+    process scan (
+        name: Сканер штрихкодів
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_r3.add_by_barcode('INVOICE', :P321_ID, :P321_SCAN);
+                :P321_SCAN := null;
+                ```
+        }
+        execution {
+            sequence: 59
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SCAN')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000294
+        }
+    )
+
+    branch to-list (
+        name: До списку
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 320
+            }
+        }
+        execution {
+            sequence: 10
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('POST_CLOSE', 'CREATE_POST_CLOSE')
+        }
+    )
+
+    branch stay (
+        name: Залишитися в документі
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 321
+                clearCache: 321
+                items: {
+                    P321_ID: &P321_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 20
+            point: afterProcessing
+        }
+    )
+)

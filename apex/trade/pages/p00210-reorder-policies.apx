@@ -1,0 +1,571 @@
+page 210 (
+    name: Параметри забезпечення запасів
+    alias: REORDER-POLICIES
+    title: Параметри забезпечення запасів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-purchase
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Параметри забезпечення запасів</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region grid (
+        name: Параметри забезпечення запасів
+        title: Параметри забезпечення запасів
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, warehouse_id, product_id, min_quantity, max_quantity, reorder_method, preferred_supplier_id, lead_time_days
+                  from reg_reorder_policy
+                 order by warehouse_id, product_id
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                searchField
+                actionsMenu
+                saveButton
+            ]
+            addButtonLabel: Додати
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000410
+            regionDisplaySelector: true
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn WAREHOUSE_ID (
+                column: @WAREHOUSE_ID
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 180
+                }
+            )
+
+            displayColumn PRODUCT_ID (
+                column: @PRODUCT_ID
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 280
+                }
+            )
+
+            displayColumn MIN_QUANTITY (
+                column: @MIN_QUANTITY
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 140
+                }
+            )
+
+            displayColumn MAX_QUANTITY (
+                column: @MAX_QUANTITY
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 140
+                }
+            )
+
+            displayColumn REORDER_METHOD (
+                column: @REORDER_METHOD
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 140
+                }
+            )
+
+            displayColumn PREFERRED_SUPPLIER_ID (
+                column: @PREFERRED_SUPPLIER_ID
+                layout {
+                    sequence: 60
+                    show: true
+                    width: 200
+                }
+            )
+
+            displayColumn LEAD_TIME_DAYS (
+                column: @LEAD_TIME_DAYS
+                layout {
+                    sequence: 70
+                    show: true
+                    width: 140
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 5
+            }
+        )
+
+        column WAREHOUSE_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: WAREHOUSE_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+                alignment: start
+            }
+            layout {
+                sequence: 10
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @warehouses-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+        )
+
+        column PRODUCT_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: PRODUCT_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+                alignment: start
+            }
+            layout {
+                sequence: 20
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @products-goods
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+        )
+
+        column MIN_QUANTITY (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: MIN_QUANTITY
+                dataType: number
+            }
+            heading {
+                heading: Мін. запас
+                alignment: end
+            }
+            layout {
+                sequence: 30
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column MAX_QUANTITY (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: MAX_QUANTITY
+                dataType: number
+            }
+            heading {
+                heading: Макс. запас
+                alignment: end
+            }
+            layout {
+                sequence: 40
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column REORDER_METHOD (
+            type: selectList
+            source {
+                type: databaseColumn
+                databaseColumn: REORDER_METHOD
+                dataType: varchar2
+                }
+            heading {
+                heading: Спосіб
+                alignment: start
+            }
+            layout {
+                sequence: 50
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @reorder-methods
+                displayExtraValues: true
+                displayNullValue: true
+            }
+        )
+
+        column PREFERRED_SUPPLIER_ID (
+            type: popupLov
+            source {
+                type: databaseColumn
+                databaseColumn: PREFERRED_SUPPLIER_ID
+                dataType: varchar2
+            }
+            heading {
+                heading: Постачальник
+                alignment: start
+            }
+            layout {
+                sequence: 60
+            }
+            lov {
+                type: sharedComponent
+                lov: @counterparties-active
+                displayExtraValues: true
+                displayNullValue: true
+            }
+            settings {
+                displayAs: inlinePopup
+                initialFetch: auto
+                manualEntry: false
+            }
+        )
+
+        column LEAD_TIME_DAYS (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: LEAD_TIME_DAYS
+                dataType: number
+            }
+            heading {
+                heading: Термін постачання, дн.
+                alignment: end
+            }
+            layout {
+                sequence: 70
+                columnAlignment: end
+            }
+        )
+    )
+
+    process dml (
+        name: Записати
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @grid
+        target {
+            targetType: tableView
+            tableName: REG_REORDER_POLICY
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        advanced {
+            executionMappingIdentifier: 910000000411
+        }
+    )
+
+    region mode (
+        name: Режим
+        type: regionDisplaySelector
+        layout {
+            sequence: 5
+            slot: body
+        }
+        settings {
+            mode: viewSingleRegion
+            includeShowAll: false
+            rememberSelection: bySession
+        }
+        appearance {
+            template: @/buttons-container
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region need (
+        name: Потреба в закупівлі
+        title: Потреба в закупівлі
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select warehouse_name, product_name, unit_name, stock_qty, reserved_qty, on_order_qty, available_qty,
+                       min_quantity, max_quantity, need_qty, supplier_name
+                  from v_purchase_need
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: exclude
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            regionDisplaySelector: true
+            savedReportMappingIdentifier: 910000000412
+        }
+
+
+        column WAREHOUSE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column PRODUCT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Товар
+            }
+            layout {
+                sequence: 20
+            }
+        )
+
+        column UNIT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Од.
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column STOCK_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Залишок
+            }
+            layout {
+                sequence: 40
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column RESERVED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Резерв
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column ON_ORDER_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Замовлено
+            }
+            layout {
+                sequence: 60
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column AVAILABLE_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Доступно
+            }
+            layout {
+                sequence: 70
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column MIN_QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Мін.
+            }
+            layout {
+                sequence: 80
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column MAX_QUANTITY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Макс.
+            }
+            layout {
+                sequence: 90
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column NEED_QTY (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Потреба
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: FM999G999G999G990D000
+            }
+        )
+
+        column SUPPLIER_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Постачальник
+            }
+            layout {
+                sequence: 110
+            }
+        )
+    )
+)

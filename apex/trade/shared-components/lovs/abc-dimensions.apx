@@ -1,0 +1,18 @@
+lov abc-dimensions (
+    name: ABC_DIMENSIONS
+    source {
+        location: staticValues
+    }
+
+    entry product (
+        sequence: 1
+        display: Товари
+        return: PRODUCT
+    )
+
+    entry customer (
+        sequence: 2
+        display: Клієнти
+        return: CUSTOMER
+    )
+)

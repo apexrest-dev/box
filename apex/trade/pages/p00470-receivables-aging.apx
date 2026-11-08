@@ -1,0 +1,279 @@
+page 470 (
+    name: Дебіторка за термінами
+    alias: RECEIVABLES-AGING
+    title: Дебіторка за термінами
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Дебіторська заборгованість за термінами</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Параметри
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-print-bar
+        }
+    )
+
+    pageItem P470_DATE (
+        type: datePicker
+        label {
+            label: На дату
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P470_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 12
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P470_CP (
+        type: popupLov
+        label {
+            label: Контрагент
+            alignment: right
+        }
+        layout {
+            sequence: 14
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @counterparties-all
+            displayExtraValues: false
+            displayNullValue: true
+        }
+        settings {
+            displayAs: inlinePopup
+            initialFetch: auto
+            manualEntry: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P470_DETAIL (
+        type: selectList
+        label {
+            label: Деталізація
+            alignment: right
+        }
+        layout {
+            sequence: 16
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/required-above
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: static
+            staticValue: CONTRACT
+        }
+        lov {
+            type: sharedComponent
+            lov: @aging-detail
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P470_OVERDUE (
+        type: selectList
+        label {
+            label: Борг
+            alignment: right
+        }
+        layout {
+            sequence: 18
+            region: @bar
+            slot: regionBody
+            columnSpan: 2
+            startNewRow: false
+        }
+        appearance {
+            template: @/required-above
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: static
+            staticValue: N
+        }
+        lov {
+            type: sharedComponent
+            lov: @aging-filter
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button show (
+        buttonName: SHOW
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    region aging (
+        name: Дебіторка за термінами
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_ar_aging.aging_html(coalesce(to_date(:P470_DATE, 'DD.MM.YYYY'), trunc(sysdate)),
+                         :P470_ORG, :P470_CP, coalesce(:P470_DETAIL, 'CONTRACT'), coalesce(:P470_OVERDUE, 'N'));
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction print (
+        name: Друк
+        when {
+            event: click
+            selectionType: button
+            button: @print
+        }
+        execution {
+            sequence: 10
+        }
+
+        action print (
+            name: Друк
+            action: executeJsCode
+            settings {
+                jsCode: window.print();
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

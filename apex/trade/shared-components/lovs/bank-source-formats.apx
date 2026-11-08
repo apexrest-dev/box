@@ -1,0 +1,24 @@
+lov bank-source-formats (
+    name: BANK_SOURCE_FORMATS
+    source {
+        location: staticValues
+    }
+
+    entry manual (
+        sequence: 1
+        display: Введено вручну
+        return: MANUAL
+    )
+
+    entry csv (
+        sequence: 2
+        display: Імпорт CSV
+        return: CSV
+    )
+
+    entry 1c-client-bank (
+        sequence: 3
+        display: Імпорт 1CClientBankExchange
+        return: 1C_CLIENT_BANK
+    )
+)

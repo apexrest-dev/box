@@ -1,0 +1,215 @@
+page 130 (
+    name: Переміщення товарів
+    alias: GOODS-TRANSFERS
+    title: Переміщення товарів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-warehouse
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Переміщення товарів</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region list (
+        name: Переміщення товарів
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select d.id, case when d.status in ('POSTED', 'ISSUED') then 'fa-file-text-o tx-ico-posted' when d.status = 'CANCELLED' then 'fa-times tx-ico-marked' else 'fa-file-o tx-ico-draft' end icon_class, ' ' state_icon, (select o.name from ref_organization o where o.id = d.organization_id) organization_name, d.doc_number, d.occurred_at, wf.name warehouse_from_name, wt.name warehouse_to_name, case d.status when 'POSTED' then 'Проведено' else 'Чернетка' end status_name, d.doc_comment
+                  from doc_goods_transfer d
+                  join ref_warehouse wf on wf.id = d.warehouse_from_id
+                  join ref_warehouse wt on wt.id = d.warehouse_to_id
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 131
+                clearCache: 131
+                items: {
+                    P131_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-file-text-o" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000168
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column STATE_ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="tx-ico fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Номер
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column OCCURRED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI:SS
+            }
+        )
+
+        column ORGANIZATION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Організація
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column WAREHOUSE_FROM_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад-відправник
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column WAREHOUSE_TO_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Склад-отримувач
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column DOC_COMMENT (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Коментар
+            }
+            layout {
+                sequence: 90
+            }
+        )
+    )
+
+    button create (
+        buttonName: CREATE
+        label: Створити
+        layout {
+            sequence: 10
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 131
+                clearCache: 131
+            }
+        }
+    )
+)

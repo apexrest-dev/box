@@ -1,0 +1,477 @@
+page 690 (
+    name: Неліквіди й залежалі товари
+    alias: SLOW-MOVING-STOCK
+    title: Неліквіди й залежалі товари
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Неліквіди й залежалі товари</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Параметри
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-print-bar
+        }
+    )
+
+    pageItem P690_DATE (
+        type: datePicker
+        label {
+            label: На дату
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_DAYS (
+        type: numberField
+        label {
+            label: Днів
+            alignment: right
+        }
+        layout {
+            sequence: 12
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(trade_slow_stock.default_days)
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Товар залежалий, якщо без продажу (або без руху) не менше вказаної кількості днів. Порожньо — найменший поріг правил уцінки.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_BASIS (
+        type: selectList
+        label {
+            label: Ознака
+            alignment: right
+        }
+        layout {
+            sequence: 14
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: static
+            staticValue: SALE
+        }
+        lov {
+            type: sharedComponent
+            lov: @slow-stock-basis
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_SCOPE (
+        type: selectList
+        label {
+            label: Показати
+            alignment: right
+        }
+        layout {
+            sequence: 16
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: static
+            staticValue: Y
+        }
+        lov {
+            type: sharedComponent
+            lov: @slow-stock-scope
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_WH (
+        type: selectList
+        label {
+            label: Склад
+            alignment: right
+        }
+        layout {
+            sequence: 22
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @warehouses-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі склади
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_GROUP (
+        type: selectList
+        label {
+            label: Група номенклатури
+            alignment: right
+        }
+        layout {
+            sequence: 24
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @product-groups-active
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі групи
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_PRICE_TYPE (
+        type: selectList
+        label {
+            label: Вид цін
+            alignment: right
+        }
+        layout {
+            sequence: 26
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: trade_slow_stock.default_price_type
+        }
+        lov {
+            type: sharedComponent
+            lov: @price-types-active
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P690_NEW_ID (
+        type: hidden
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button show (
+        buttonName: SHOW
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    button markdown (
+        buttonName: CREATE_MARKDOWN
+        label: Створити документ уцінки
+        layout {
+            sequence: 60
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Створити документ «Встановлення цін» (чернетку) з рекомендованими цінами уцінки?
+            style: warning
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    process create-markdown (
+        name: Створити документ уцінки
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P690_NEW_ID := trade_slow_stock.create_price_setting(coalesce(to_date(:P690_DATE, 'DD.MM.YYYY'), trunc(sysdate)),
+                         trade_slow_stock.to_days(:P690_DAYS),
+                         coalesce(:P690_BASIS, 'SALE'), :P690_ORG, :P690_WH, :P690_GROUP, :P690_PRICE_TYPE);
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            whenButtonPressed: @markdown
+        }
+        successMessage {
+            successMessage: Створено документ «Встановлення цін» (чернетка).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000429
+        }
+    )
+
+    branch to-price-setting (
+        name: До документа уцінки
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 101
+                clearCache: 101
+                items: {
+                    P101_ID: &P690_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 5
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST = 'CREATE_MARKDOWN' and :P690_NEW_ID is not null
+        }
+    )
+
+    branch stay (
+        name: Залишитися
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 690
+            }
+        }
+        execution {
+            sequence: 20
+            point: afterProcessing
+        }
+    )
+
+    region slow (
+        name: Неліквіди й залежалі товари
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_slow_stock.slow_html(coalesce(to_date(:P690_DATE, 'DD.MM.YYYY'), trunc(sysdate)),
+                         trade_slow_stock.to_days(:P690_DAYS),
+                         coalesce(:P690_BASIS, 'SALE'), :P690_ORG, :P690_WH, :P690_GROUP, :P690_PRICE_TYPE,
+                         coalesce(:P690_SCOPE, 'Y'));
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction print (
+        name: Друк
+        when {
+            event: click
+            selectionType: button
+            button: @print
+        }
+        execution {
+            sequence: 10
+        }
+
+        action print (
+            name: Друк
+            action: executeJsCode
+            settings {
+                jsCode: window.print();
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

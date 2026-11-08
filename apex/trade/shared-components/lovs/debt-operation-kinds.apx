@@ -1,0 +1,36 @@
+lov debt-operation-kinds (
+    name: DEBT_OPERATION_KINDS
+    source {
+        location: staticValues
+    }
+
+    entry offset (
+        sequence: 1
+        display: Взаємозалік заборгованостей
+        return: OFFSET
+    )
+
+    entry write-off-receivable (
+        sequence: 2
+        display: Списання дебіторської заборгованості
+        return: WRITE_OFF_RECEIVABLE
+    )
+
+    entry write-off-payable (
+        sequence: 3
+        display: Списання кредиторської заборгованості
+        return: WRITE_OFF_PAYABLE
+    )
+
+    entry transfer-receivable (
+        sequence: 4
+        display: Перенесення дебіторської заборгованості
+        return: TRANSFER_RECEIVABLE
+    )
+
+    entry transfer-payable (
+        sequence: 5
+        display: Перенесення кредиторської заборгованості
+        return: TRANSFER_PAYABLE
+    )
+)

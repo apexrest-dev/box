@@ -1,0 +1,260 @@
+page 695 (
+    name: Правила уцінки неліквідів
+    alias: MARKDOWN-RULES
+    title: Правила уцінки неліквідів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-admin
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Правила уцінки неліквідів</h1></div>
+        }
+        layout {
+            sequence: 0
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region grid (
+        name: Правила уцінки неліквідів
+        type: interactiveGrid
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, idle_days_from, markdown_percent, action, note, updated_by
+                  from reg_markdown_rule
+                 order by idle_days_from
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        edit {
+            enabled: true
+            allowedOperations: [
+                add
+                update
+                delete
+            ]
+            lostUpdateType: rowValues
+        }
+        toolbar {
+            show: true
+            controls: [
+                searchField
+                actionsMenu
+                saveButton
+            ]
+            addButtonLabel: Додати
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000430
+        }
+
+        savedReport primary (
+            name: Основний
+            visibility: primary
+            view {
+                default: grid
+            }
+
+            displayColumn IDLE_DAYS_FROM (
+                column: @IDLE_DAYS_FROM
+                layout {
+                    sequence: 10
+                    show: true
+                    width: 180
+                }
+            )
+
+            displayColumn MARKDOWN_PERCENT (
+                column: @MARKDOWN_PERCENT
+                layout {
+                    sequence: 20
+                    show: true
+                    width: 120
+                }
+            )
+
+            displayColumn ACTION (
+                column: @ACTION
+                layout {
+                    sequence: 30
+                    show: true
+                    width: 160
+                }
+            )
+
+            displayColumn NOTE (
+                column: @NOTE
+                layout {
+                    sequence: 40
+                    show: true
+                    width: 320
+                }
+            )
+
+            displayColumn UPDATED_BY (
+                column: @UPDATED_BY
+                layout {
+                    sequence: 50
+                    show: true
+                    width: 140
+                }
+            )
+        )
+
+        column ID (
+            type: hidden
+            source {
+                type: databaseColumn
+                databaseColumn: ID
+                dataType: varchar2
+                primaryKey: true
+            }
+            layout {
+                sequence: 5
+            }
+        )
+
+        column IDLE_DAYS_FROM (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: IDLE_DAYS_FROM
+                dataType: number
+            }
+            heading {
+                heading: Без продажу / руху від, днів
+                alignment: end
+            }
+            layout {
+                sequence: 10
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+        )
+
+        column MARKDOWN_PERCENT (
+            type: numberField
+            source {
+                type: databaseColumn
+                databaseColumn: MARKDOWN_PERCENT
+                dataType: number
+            }
+            heading {
+                heading: Уцінка, %
+                alignment: end
+            }
+            layout {
+                sequence: 20
+                columnAlignment: end
+            }
+            validation {
+                valueRequired: true
+            }
+            appearance {
+                formatMask: FM990D00
+            }
+        )
+
+        column ACTION (
+            type: selectList
+            source {
+                type: databaseColumn
+                databaseColumn: ACTION
+                dataType: varchar2
+                }
+            heading {
+                heading: Дія
+                alignment: start
+            }
+            layout {
+                sequence: 30
+            }
+            validation {
+                valueRequired: true
+            }
+            lov {
+                type: sharedComponent
+                lov: @markdown-actions
+                displayExtraValues: true
+                displayNullValue: true
+            }
+        )
+
+        column NOTE (
+            type: textField
+            source {
+                type: databaseColumn
+                databaseColumn: NOTE
+                dataType: varchar2
+                }
+            heading {
+                heading: Примітка
+                alignment: start
+            }
+            layout {
+                sequence: 40
+            }
+        )
+
+        column UPDATED_BY (
+            type: displayOnly
+            source {
+                type: databaseColumn
+                databaseColumn: UPDATED_BY
+                dataType: varchar2
+                queryOnly: true
+            }
+            heading {
+                heading: Змінив
+                alignment: start
+            }
+            layout {
+                sequence: 50
+            }
+        )
+    )
+
+    process dml (
+        name: Записати
+        type: interactiveGridAutoRowProcessing
+        editableRegion: @grid
+        target {
+            targetType: tableView
+            tableName: REG_MARKDOWN_RULE
+        }
+        lockRow {
+            lockRow: true
+            preventLostUpdates: true
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        advanced {
+            executionMappingIdentifier: 910000000431
+        }
+    )
+)

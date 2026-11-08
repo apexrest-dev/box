@@ -1,0 +1,18 @@
+lov aging-filter (
+    name: AGING_FILTER
+    source {
+        location: staticValues
+    }
+
+    entry all (
+        sequence: 1
+        display: Уся заборгованість
+        return: N
+    )
+
+    entry overdue (
+        sequence: 2
+        display: Лише прострочена
+        return: Y
+    )
+)

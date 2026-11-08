@@ -1,0 +1,18 @@
+lov doc-statuses (
+    name: DOC_STATUSES
+    source {
+        location: staticValues
+    }
+
+    entry draft (
+        sequence: 1
+        display: Чернетка
+        return: DRAFT
+    )
+
+    entry posted (
+        sequence: 2
+        display: Проведено
+        return: POSTED
+    )
+)
