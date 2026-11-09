@@ -681,7 +681,7 @@ page 621 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000372
+            savedReportMappingIdentifier: 910000000381
         }
 
         savedReport primary (
@@ -1160,7 +1160,7 @@ page 621 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000373
+            executionMappingIdentifier: 910000000382
         }
     )
 
@@ -1495,7 +1495,7 @@ page 621 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000374
+            executionMappingIdentifier: 910000000383
         }
     )
 
@@ -1516,7 +1516,7 @@ page 621 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000375
+            executionMappingIdentifier: 910000000384
         }
     )
 
@@ -1569,7 +1569,7 @@ page 621 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000376
+            executionMappingIdentifier: 910000000385
         }
     )
 
@@ -1598,7 +1598,7 @@ page 621 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000377
+            executionMappingIdentifier: 910000000386
         }
     )
 
@@ -1623,7 +1623,7 @@ page 621 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000378
+            executionMappingIdentifier: 910000000387
         }
     )
 
@@ -1648,7 +1648,7 @@ page 621 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000379
+            executionMappingIdentifier: 910000000388
         }
     )
 
@@ -1675,7 +1675,7 @@ page 621 (
             successMessage: Позначено: податкову накладну надіслано на реєстрацію.
         }
         advanced {
-            executionMappingIdentifier: 910000000380
+            executionMappingIdentifier: 910000000389
         }
     )
 
@@ -1702,7 +1702,7 @@ page 621 (
             successMessage: Позначено: податкову накладну зареєстровано в ЄРПН.
         }
         advanced {
-            executionMappingIdentifier: 910000000381
+            executionMappingIdentifier: 910000000390
         }
     )
 
@@ -1729,7 +1729,7 @@ page 621 (
             successMessage: Позначено: реєстрацію відхилено.
         }
         advanced {
-            executionMappingIdentifier: 910000000382
+            executionMappingIdentifier: 910000000391
         }
     )
 
@@ -1753,7 +1753,7 @@ page 621 (
             plsqlExpression: :REQUEST in ('DOWNLOAD_XML')
         }
         advanced {
-            executionMappingIdentifier: 910000000383
+            executionMappingIdentifier: 910000000392
         }
     )
 
@@ -1777,7 +1777,7 @@ page 621 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000384
+            executionMappingIdentifier: 910000000393
         }
     )
 

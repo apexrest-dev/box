@@ -71,7 +71,7 @@ page 70 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000397
+            savedReportMappingIdentifier: 910000000406
         }
 
 
@@ -150,9 +150,11 @@ page 70 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -289,7 +291,7 @@ page 70 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000398
+            savedReportMappingIdentifier: 910000000407
         }
 
 
@@ -339,9 +341,11 @@ page 70 (
             }
             heading {
                 heading: Поч. залишок
+                alignment: end
             }
             layout {
                 sequence: 40
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -355,9 +359,11 @@ page 70 (
             }
             heading {
                 heading: Прихід
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -371,9 +377,11 @@ page 70 (
             }
             heading {
                 heading: Розхід
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -387,9 +395,11 @@ page 70 (
             }
             heading {
                 heading: Кін. залишок
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -427,7 +437,7 @@ page 70 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000399
+            savedReportMappingIdentifier: 910000000408
         }
 
 
@@ -522,9 +532,11 @@ page 70 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000

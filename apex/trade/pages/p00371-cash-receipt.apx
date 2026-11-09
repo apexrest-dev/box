@@ -725,7 +725,7 @@ page 371 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000296
+            executionMappingIdentifier: 910000000305
         }
     )
 
@@ -1022,7 +1022,7 @@ page 371 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000297
+            executionMappingIdentifier: 910000000306
         }
     )
 
@@ -1043,7 +1043,7 @@ page 371 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000298
+            executionMappingIdentifier: 910000000307
         }
     )
 
@@ -1072,7 +1072,7 @@ page 371 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000299
+            executionMappingIdentifier: 910000000308
         }
     )
 
@@ -1097,7 +1097,7 @@ page 371 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000300
+            executionMappingIdentifier: 910000000309
         }
     )
 
@@ -1122,7 +1122,7 @@ page 371 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000301
+            executionMappingIdentifier: 910000000310
         }
     )
 
@@ -1146,7 +1146,7 @@ page 371 (
             plsqlExpression: :REQUEST in ('CREATE_TAX_INVOICE')
         }
         advanced {
-            executionMappingIdentifier: 910000000302
+            executionMappingIdentifier: 910000000311
         }
     )
 
@@ -1193,7 +1193,7 @@ page 371 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000303
+            executionMappingIdentifier: 910000000312
         }
     )
 

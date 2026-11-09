@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe795"/>
+      <stop offset="1" stop-color="#f2c12e"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)" stroke="#c9a12f" stroke-width="1.5"/>
+  <!-- склад: три коробки -->
+  <g fill="#ffffff" stroke="#6b5310" stroke-width="2" stroke-linejoin="round">
+    <rect x="13" y="34" width="16" height="16" rx="2"/>
+    <rect x="31" y="34" width="16" height="16" rx="2"/>
+    <rect x="22" y="17" width="16" height="16" rx="2"/>
+  </g>
+  <g stroke="#6b5310" stroke-width="2" stroke-linecap="round">
+    <path d="M18 34v5M24 34v5M36 34v5M42 34v5M27 17v5M33 17v5"/>
+  </g>
+  <!-- зростання -->
+  <path d="M41 26l7-7m0 0h-6m6 0v6" fill="none" stroke="#4f9a33" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

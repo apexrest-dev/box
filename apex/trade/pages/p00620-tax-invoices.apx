@@ -61,7 +61,7 @@ page 620 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000371
+            savedReportMappingIdentifier: 910000000380
         }
 
 
@@ -221,9 +221,11 @@ page 620 (
             }
             heading {
                 heading: Без ПДВ
+                alignment: end
             }
             layout {
                 sequence: 120
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -237,9 +239,11 @@ page 620 (
             }
             heading {
                 heading: ПДВ
+                alignment: end
             }
             layout {
                 sequence: 130
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -253,9 +257,11 @@ page 620 (
             }
             heading {
                 heading: З ПДВ
+                alignment: end
             }
             layout {
                 sequence: 140
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

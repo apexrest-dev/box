@@ -459,7 +459,7 @@ page 291 (
             ]
         }
         advanced {
-            savedReportMappingIdentifier: 910000000243
+            savedReportMappingIdentifier: 910000000252
         }
 
         savedReport primary (
@@ -778,6 +778,30 @@ page 291 (
         )
     )
 
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocSupplierReturn', :P291_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P291_ID
+        }
+    )
+
     region footer (
         name: Підвал
         type: staticContent
@@ -889,7 +913,7 @@ page 291 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000244
+            executionMappingIdentifier: 910000000253
         }
     )
 
@@ -1178,7 +1202,7 @@ page 291 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000245
+            executionMappingIdentifier: 910000000254
         }
     )
 
@@ -1199,7 +1223,7 @@ page 291 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000246
+            executionMappingIdentifier: 910000000255
         }
     )
 
@@ -1240,7 +1264,7 @@ page 291 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000247
+            executionMappingIdentifier: 910000000256
         }
     )
 
@@ -1269,7 +1293,7 @@ page 291 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000248
+            executionMappingIdentifier: 910000000257
         }
     )
 
@@ -1294,7 +1318,7 @@ page 291 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000249
+            executionMappingIdentifier: 910000000258
         }
     )
 
@@ -1325,7 +1349,7 @@ page 291 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000250
+            executionMappingIdentifier: 910000000259
         }
     )
 
@@ -1349,7 +1373,7 @@ page 291 (
             plsqlExpression: :REQUEST in ('CREATE_CASH_RECEIPT')
         }
         advanced {
-            executionMappingIdentifier: 910000000251
+            executionMappingIdentifier: 910000000260
         }
     )
 
@@ -1396,7 +1420,7 @@ page 291 (
             plsqlExpression: :REQUEST in ('CREATE_ISSUE_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000252
+            executionMappingIdentifier: 910000000261
         }
     )
 
@@ -1443,7 +1467,7 @@ page 291 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000253
+            executionMappingIdentifier: 910000000262
         }
     )
 

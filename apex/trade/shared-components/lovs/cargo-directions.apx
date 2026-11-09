@@ -1,0 +1,24 @@
+lov cargo-directions (
+    name: CARGO_DIRECTIONS
+    source {
+        location: staticValues
+    }
+
+    entry out (
+        sequence: 1
+        display: Відвантаження
+        return: OUT
+    )
+
+    entry in (
+        sequence: 2
+        display: Надходження
+        return: IN
+    )
+
+    entry move (
+        sequence: 3
+        display: Переміщення
+        return: MOVE
+    )
+)

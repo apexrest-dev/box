@@ -1,0 +1,396 @@
+page 720 (
+    name: Вага й об'єм документів
+    alias: CARGO-WEIGHT-VOLUME
+    title: Вага й об'єм документів
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>Вага й об'єм документів</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region bar (
+        name: Параметри
+        type: staticContent
+        layout {
+            sequence: 5
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-print-bar
+        }
+    )
+
+    pageItem P720_FROM (
+        type: datePicker
+        label {
+            label: З
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_TO (
+        type: datePicker
+        label {
+            label: По
+            alignment: right
+        }
+        layout {
+            sequence: 11
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        default {
+            type: expression
+            language: plsql
+            plsqlExpression: to_char(sysdate + 7, 'DD.MM.YYYY')
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_DIRECTION (
+        type: selectList
+        label {
+            label: Напрям
+            alignment: right
+        }
+        layout {
+            sequence: 14
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @cargo-directions
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі напрями
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_DOC_TYPE (
+        type: selectList
+        label {
+            label: Документи
+            alignment: right
+        }
+        layout {
+            sequence: 16
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @cargo-doc-types
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі види
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_ORG (
+        type: selectList
+        label {
+            label: Організація
+            alignment: right
+        }
+        layout {
+            sequence: 20
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @organizations-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі організації
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_WH (
+        type: selectList
+        label {
+            label: Склад
+            alignment: right
+        }
+        layout {
+            sequence: 22
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        lov {
+            type: sharedComponent
+            lov: @warehouses-all
+            displayExtraValues: false
+            displayNullValue: true
+            nullDisplayValue: Усі склади
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_POSTED (
+        type: selectList
+        label {
+            label: Статус
+            alignment: right
+        }
+        layout {
+            sequence: 24
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/required
+            templateOptions: #DEFAULT#
+        }
+        default {
+            type: static
+            staticValue: N
+        }
+        lov {
+            type: sharedComponent
+            lov: @cargo-status
+            displayExtraValues: false
+            displayNullValue: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_CAP_KG (
+        type: numberField
+        label {
+            label: Вантажопідйомність, кг
+            alignment: right
+        }
+        layout {
+            sequence: 30
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Вантажопідйомність транспорту — % завантаження за вагою.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P720_CAP_M3 (
+        type: numberField
+        label {
+            label: Об'єм кузова, м³
+            alignment: right
+        }
+        layout {
+            sequence: 31
+            region: @bar
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Корисний об'єм транспорту — % завантаження за об'ємом.
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    button show (
+        buttonName: SHOW
+        label: Сформувати
+        layout {
+            sequence: 40
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: true
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    button print (
+        buttonName: PRINT
+        label: Друк
+        layout {
+            sequence: 50
+            region: @bar
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: definedByDynamicAction
+        }
+    )
+
+    region cargo (
+        name: Вага й об'єм документів
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.cargo_html(
+                         coalesce(to_date(:P720_FROM, 'DD.MM.YYYY'), trunc(sysdate)),
+                         coalesce(to_date(:P720_TO, 'DD.MM.YYYY'), trunc(sysdate) + 7),
+                         :P720_DIRECTION, :P720_DOC_TYPE, :P720_ORG, :P720_WH, coalesce(:P720_POSTED, 'N'),
+                         trade_cargo.to_num(:P720_CAP_KG), trade_cargo.to_num(:P720_CAP_M3));
+                ```
+        }
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    dynamicAction print (
+        name: Друк
+        when {
+            event: click
+            selectionType: button
+            button: @print
+        }
+        execution {
+            sequence: 10
+        }
+
+        action print (
+            name: Друк
+            action: executeJsCode
+            settings {
+                jsCode: window.print();
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+)

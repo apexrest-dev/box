@@ -605,7 +605,7 @@ page 51 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000106
+            savedReportMappingIdentifier: 910000000112
         }
 
         savedReport primary (
@@ -973,6 +973,30 @@ page 51 (
         )
     )
 
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocGoodsReceipt', :P51_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P51_ID
+        }
+    )
+
     region footer (
         name: Підвал
         type: staticContent
@@ -1084,7 +1108,7 @@ page 51 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000107
+            executionMappingIdentifier: 910000000113
         }
     )
 
@@ -1449,7 +1473,7 @@ page 51 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000108
+            executionMappingIdentifier: 910000000114
         }
     )
 
@@ -1470,7 +1494,7 @@ page 51 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000109
+            executionMappingIdentifier: 910000000115
         }
     )
 
@@ -1521,7 +1545,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000110
+            executionMappingIdentifier: 910000000116
         }
     )
 
@@ -1550,7 +1574,7 @@ page 51 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000111
+            executionMappingIdentifier: 910000000117
         }
     )
 
@@ -1575,7 +1599,7 @@ page 51 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000112
+            executionMappingIdentifier: 910000000118
         }
     )
 
@@ -1606,7 +1630,7 @@ page 51 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000113
+            executionMappingIdentifier: 910000000119
         }
     )
 
@@ -1630,7 +1654,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('CREATE_SUPPLIER_RETURN')
         }
         advanced {
-            executionMappingIdentifier: 910000000114
+            executionMappingIdentifier: 910000000120
         }
     )
 
@@ -1677,7 +1701,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('CREATE_CASH_PAYMENT')
         }
         advanced {
-            executionMappingIdentifier: 910000000115
+            executionMappingIdentifier: 910000000121
         }
     )
 
@@ -1724,7 +1748,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('CREATE_SUPPLIER_PAYMENT')
         }
         advanced {
-            executionMappingIdentifier: 910000000116
+            executionMappingIdentifier: 910000000122
         }
     )
 
@@ -1771,7 +1795,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('CREATE_RECEIPT_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000117
+            executionMappingIdentifier: 910000000123
         }
     )
 
@@ -1818,7 +1842,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('CREATE_RECEIVED_TAX_INVOICE')
         }
         advanced {
-            executionMappingIdentifier: 910000000118
+            executionMappingIdentifier: 910000000124
         }
     )
 
@@ -1865,7 +1889,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000119
+            executionMappingIdentifier: 910000000125
         }
     )
 
@@ -1913,7 +1937,7 @@ page 51 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000120
+            executionMappingIdentifier: 910000000126
         }
     )
 

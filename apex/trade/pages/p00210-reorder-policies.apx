@@ -67,7 +67,7 @@ page 210 (
             addButtonLabel: Додати
         }
         advanced {
-            savedReportMappingIdentifier: 910000000410
+            savedReportMappingIdentifier: 910000000419
             regionDisplaySelector: true
         }
 
@@ -348,7 +348,7 @@ page 210 (
             point: afterSubmit
         }
         advanced {
-            executionMappingIdentifier: 910000000411
+            executionMappingIdentifier: 910000000420
         }
     )
 
@@ -400,7 +400,7 @@ page 210 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000412
+            savedReportMappingIdentifier: 910000000421
         }
 
 
@@ -450,9 +450,11 @@ page 210 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 40
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -466,9 +468,11 @@ page 210 (
             }
             heading {
                 heading: Резерв
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -482,9 +486,11 @@ page 210 (
             }
             heading {
                 heading: Замовлено
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -498,9 +504,11 @@ page 210 (
             }
             heading {
                 heading: Доступно
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -514,9 +522,11 @@ page 210 (
             }
             heading {
                 heading: Мін.
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -530,9 +540,11 @@ page 210 (
             }
             heading {
                 heading: Макс.
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -546,9 +558,11 @@ page 210 (
             }
             heading {
                 heading: Потреба
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000

@@ -61,7 +61,7 @@ page 650 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000385
+            savedReportMappingIdentifier: 910000000394
         }
 
 
@@ -182,9 +182,11 @@ page 650 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -198,9 +200,11 @@ page 650 (
             }
             heading {
                 heading: ПДВ
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -214,9 +218,11 @@ page 650 (
             }
             heading {
                 heading: Готівкою
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -230,9 +236,11 @@ page 650 (
             }
             heading {
                 heading: Карткою
+                alignment: end
             }
             layout {
                 sequence: 120
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -246,9 +254,11 @@ page 650 (
             }
             heading {
                 heading: Решта
+                alignment: end
             }
             layout {
                 sequence: 130
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

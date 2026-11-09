@@ -146,8 +146,9 @@ def title_region(text, seq=1):
 def ir_column(name, heading, seq, dtype="varchar2", hidden=False, extra=""):
     b = f"type: {'hidden' if hidden else 'plainText'}\n"
     b += block("source", f"dataType: {dtype}") + "\n"
-    b += block("heading", f"heading: {heading}") + "\n"
-    b += block("layout", f"sequence: {seq}") + "\n"
+    num = dtype == "number" and not hidden
+    b += block("heading", f"heading: {heading}" + ("\nalignment: end" if num else "")) + "\n"
+    b += block("layout", f"sequence: {seq}" + ("\ncolumnAlignment: end" if num else "")) + "\n"
     b += extra
     return comp("column", name, b)
 
@@ -329,7 +330,44 @@ def catalog_list_page(c):
         col for col in c["columns"] if col[0] != "STATE_NAME"]
     body = page_header(p, c["title"], c["alias"], c["title"])
     body += "\n" + title_region(c["title"])
-    body += "\n" + ir_region("list", c["title"], sql, cols, link=link)
+    tree = c.get("tree")
+    if tree:
+        # Ієрархічний довідник як у 1С: дерево груп ліворуч, список вибраної групи праворуч (F-UI-07, APE-286)
+        gcol = tree["group_col"]
+        sql += (f" where trade_tree.in_group({gcol}, :P{p}_GROUP, nvl(:P{p}_SUB, 'Y')) = 'Y'")
+        tb = "name: Групи\ntype: dynamicContent\n"
+        tb += block("source", "language: plsql\nplsqlFunctionBody:" + code("plsql",
+            f"return '<div class=\"tx-tree-bar\"><label class=\"tx-tree-sub\"><input type=\"checkbox\" data-item=\"P{p}_SUB\"'\n"
+            f"    || case when nvl(:P{p}_SUB, 'Y') = 'Y' then ' checked' end || '> З підгрупами</label></div>'\n"
+            f"    || {tree['html_fn']}(:P{p}_GROUP, 'P{p}_GROUP');")
+            + f"\npageItemsToSubmit: [\n    P{p}_GROUP\n    P{p}_SUB\n]") + "\n"
+        tb += block("layout", "sequence: 5\nslot: body\ncolumnSpan: 3") + "\n"
+        tb += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#\ncssClasses: tx-tree-region")
+        body += "\n" + comp("region", "tree", tb)
+        for it, dflt in (("GROUP", None), ("SUB", "Y")):
+            hb = "type: hidden\n" + block("layout", f"sequence: {10 if it == 'GROUP' else 20}\nregion: @tree\nslot: regionBody") + "\n"
+            hb += block("settings", "valueProtected: false") + "\n"
+            if dflt:
+                hb += block("default", f"type: static\nstaticValue: {dflt}") + "\n"
+            hb += block("sessionState", "dataType: varchar2\nstorage: session")
+            body += "\n" + comp("pageItem", f"P{p}_{it}", hb)
+        lr = ir_region("list", c["title"], sql, cols, link=link)
+        lr = lr.replace("        sqlQuery:", f"        pageItemsToSubmit: [\n            P{p}_GROUP\n            P{p}_SUB\n        ]\n        sqlQuery:", 1)
+        lr = lr.replace("        sequence: 10\n        slot: body\n", "        sequence: 10\n        slot: body\n        columnSpan: 9\n        startNewRow: false\n", 1)
+        assert "columnSpan: 9" in lr
+        body += "\n" + lr
+        for it in ("GROUP", "SUB"):
+            da = f"name: Фільтр {it}\n" + block("when", f"event: change\nselectionType: items\nitems: P{p}_{it}") + "\n" + block("execution", f"sequence: {30 if it == 'GROUP' else 40}") + "\n\n"
+            da += comp("action", "refresh", "name: Оновити список\naction: refresh\n" + block("affectedElements", "selectionType: region\nregion: @list") + "\n" + block("execution", "sequence: 10\nfireOnInit: false"))
+            body += "\n" + comp("dynamicAction", f"filter-{it.lower()}", da)
+        gp = tree["group_form"]
+        body += "\n" + button("create-group", "CREATE_GROUP", "Створити групу", 20, "list", slot="rightOfInteractiveReportSearchBar",
+                              action="redirectThisApp", target=f"{{\n    page: {gp}\n    clearCache: {gp}\n}}", auth=tree.get("auth", "role-admin"))
+        da = "name: Оновити дерево після діалогу\n" + block("when", "event: apexafterclosedialog\nselectionType: region\nregion: @list") + "\n" + block("execution", "sequence: 20") + "\n\n"
+        da += comp("action", "refresh", "name: Оновити дерево\naction: refresh\n" + block("affectedElements", "selectionType: region\nregion: @tree") + "\n" + block("execution", "sequence: 10\nfireOnInit: false"))
+        body += "\n" + comp("dynamicAction", "refresh-tree", da)
+    else:
+        body += "\n" + ir_region("list", c["title"], sql, cols, link=link)
     body += "\n" + button("create", "CREATE", "Створити", 10, "list", slot="rightOfInteractiveReportSearchBar", hot=True,
                           action="redirectThisApp", target=f"{{\n    page: {fp}\n    clearCache: {fp}\n}}", auth=c.get("edit_auth", "role-admin"))
     # Оновлення списку після закриття діалогу
@@ -725,6 +763,15 @@ def document_pages(d):
     # Додаткові регіони тільки для читання (розшифровка платежу, оплати за рахунком …)
     for i, (ident, ttl, sql, cols) in enumerate(d.get("extra_regions", [])):
         body += "\n" + ir_region(ident, ttl, sql.replace("#PAGE#", str(p)), cols, seq=45 + i, title=ttl)
+    # r6 F-WH-26: «Вага й об'єм для доставки» (trade_cargo.summary_html)
+    if d.get("cargo"):
+        cb = "name: Вага й об'єм\ntype: dynamicContent\n"
+        cb += block("source", "language: plsql\nplsqlFunctionBody:" + code("plsql",
+            f"return trade_cargo.summary_html('{d['cargo']}', :P{p}_ID);")) + "\n"
+        cb += block("layout", "sequence: 38\nslot: body") + "\n"
+        cb += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#") + "\n"
+        cb += block("serverSideCondition", doc_conditions(p, d)["exists"])
+        body += "\n" + comp("region", "cargo", cb)
     # Підвал: «Всього» праворуч і «Коментар» — як у формах 1С
     fb = "name: Підвал\ntype: staticContent\n" + block("layout", "sequence: 40\nslot: body") + "\n"
     fb += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#")
@@ -1134,6 +1181,7 @@ def r3_specs():
         if c["table"] == "REF_PRODUCT":
             c["title"] = "Номенклатура"
             c["state_col"] = "p.state"
+            c["tree"] = dict(group_col="p.group_id", html_fn="trade_tree.product_groups_html", group_form=171)
             c["list_sql"] = ("select p.id, p.code, p.article, p.name, case p.product_kind when 'SERVICE' then 'Послуга' else 'Товар' end kind_name, "
                              "g.full_path group_path, u.short_name unit_name, "
                              + STATE_SQL.replace("state", "p.state", 1)
@@ -1370,11 +1418,28 @@ def add_pick_settings():
 def pick_page():
     """Форма підбору товарів (F-SRV-02): вільний залишок, ціна, кількість → рядки документа."""
     p = 950
-    body = page_header(p, "Підбір товарів", "pick", "Підбір товарів", modal=True).replace("width: 720", "width: 1000", 1)
+    body = page_header(p, "Підбір товарів", "pick", "Підбір товарів", modal=True).replace("width: 720", "width: 1200", 1)
     for i, it in enumerate(["KIND", "ID", "WH", "PT", "SUP"]):
         ib = "type: hidden\n" + block("layout", f"sequence: {i + 1}\nregion: @goods\nslot: regionBody") + "\n"
         ib += block("sessionState", "dataType: varchar2\nstorage: session")
         body += "\n" + comp("pageItem", f"P950_{it}", ib)
+    # Дерево груп ліворуч, як у формі підбору 1С (F-UI-07 етап 2, APE-286)
+    tb = "name: Групи\ntype: dynamicContent\n"
+    tb += block("source", "language: plsql\nplsqlFunctionBody:" + code("plsql",
+        "return '<div class=\"tx-tree-bar\"><label class=\"tx-tree-sub\"><input type=\"checkbox\" data-item=\"P950_SUB\"'\n"
+        "    || case when nvl(:P950_SUB, 'Y') = 'Y' then ' checked' end || '> З підгрупами</label></div>'\n"
+        "    || trade_tree.product_groups_html(:P950_GROUP, 'P950_GROUP');")
+        + "\npageItemsToSubmit: [\n    P950_GROUP\n    P950_SUB\n]") + "\n"
+    tb += block("layout", "sequence: 5\nslot: contentBody\ncolumnSpan: 3") + "\n"
+    tb += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#\ncssClasses: tx-tree-region")
+    body += "\n" + comp("region", "tree", tb)
+    for it, dflt in (("GROUP", None), ("SUB", "Y")):
+        hb = "type: hidden\n" + block("layout", f"sequence: {10 if it == 'GROUP' else 20}\nregion: @tree\nslot: regionBody") + "\n"
+        hb += block("settings", "valueProtected: false") + "\n"
+        if dflt:
+            hb += block("default", f"type: static\nstaticValue: {dflt}") + "\n"
+        hb += block("sessionState", "dataType: varchar2\nstorage: session")
+        body += "\n" + comp("pageItem", f"P950_{it}", hb)
     sql = ("select p.id product_id, p.code, p.article, p.name product_name, u.short_name unit_name, g.full_path group_path,\n"
            "       (select f.free_qty from v_free_stock f where f.warehouse_id = :P950_WH and f.product_id = p.id) free_qty,\n"
            "       coalesce(case when :P950_PT is not null then trade_lines.get_price(:P950_PT, p.id, sysdate) end,\n"
@@ -1383,12 +1448,13 @@ def pick_page():
            "  from ref_product p\n  join ref_unit_of_measure u on u.id = p.unit_of_measure_id\n"
            "  left join v_product_group_path g on g.id = p.group_id\n"
            " where p.state = 'ACTIVE'\n"
+           "   and trade_tree.in_group(p.group_id, :P950_GROUP, nvl(:P950_SUB, 'Y')) = 'Y'\n"
            "   and (p.product_kind = 'GOODS' or :P950_KIND in ('SALE', 'RECEIPT', 'CUSTOMER_ORDER', 'SUPPLIER_ORDER', 'INVOICE'))\n"
            " order by g.full_path nulls last, p.name")
     gb = "name: Товари\ntype: interactiveGrid\n"
     gb += block("source", "location: localDatabase\ntype: sqlQuery\nsqlQuery:" + code("sql", sql)
-                + "\npageItemsToSubmit: [\n    P950_WH\n    P950_PT\n    P950_SUP\n    P950_KIND\n]") + "\n"
-    gb += block("layout", "sequence: 10\nslot: contentBody") + "\n"
+                + "\npageItemsToSubmit: [\n    P950_WH\n    P950_PT\n    P950_SUP\n    P950_KIND\n    P950_GROUP\n    P950_SUB\n]") + "\n"
+    gb += block("layout", "sequence: 10\nslot: contentBody\ncolumnSpan: 9\nstartNewRow: false") + "\n"
     gb += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#") + "\n"
     gb += block("edit", "enabled: true\nallowedOperations: [\n    update\n]\nlostUpdateType: rowValues") + "\n"
     gb += block("toolbar", "show: true\ncontrols: [\n    searchField\n]") + "\n"
@@ -1431,7 +1497,22 @@ end if;"""
     body += "\n" + process("add-lines", "Перенести в документ", "interactiveGridAutoRowProcessing", 10,
                             "editableRegion: @goods\n" + block("target", "targetType: plsqlCode\ndmlPlsqlCode:" + code("plsql", dml)) + "\n"
                             + block("lockRow", "lockRow: false\npreventLostUpdates: false") + "\n",
-                            point="afterSubmit", when_button="add")
+                            point="afterSubmit")
+    # Зміна групи: введені кількості спершу зберігаються в документ (як «кошик» підбору), потім список оновлюється
+    for it in ("GROUP", "SUB"):
+        da = f"name: Фільтр {it}\n" + block("when", f"event: change\nselectionType: items\nitems: P950_{it}") + "\n" + block("execution", f"sequence: {30 if it == 'GROUP' else 40}") + "\n\n"
+        da += comp("action", "refresh", "name: Зберегти й оновити\naction: executeJsCode\n"
+                   + block("settings", "jsCode:" + code("javascript",
+                       "var r = apex.region(this.affectedElements[0].id),\n"
+                       "    m = r.call('getViews', 'grid').model;\n"
+                       "if (m.isChanged()) {\n"
+                       "  r.widget().one('interactivegridsave', function () { r.refresh(); });\n"
+                       "  r.call('getActions').invoke('save');\n"
+                       "} else {\n"
+                       "  r.refresh();\n"
+                       "}")) + "\n"
+                   + block("affectedElements", "selectionType: region\nregion: @goods") + "\n" + block("execution", "sequence: 10\nfireOnInit: false"))
+        body += "\n" + comp("dynamicAction", f"filter-{it.lower()}", da)
     body += "\n" + process("close", "Закрити діалог", "closeDialog", 20, point="afterSubmit", when_button="add")
     write(PAGES / "p00950-pick.apx", comp("page", str(p), body))
 
@@ -4065,11 +4146,284 @@ def catalog_import_page():
     write(PAGES / f"p{p:05d}-catalog-import.apx", comp("page", str(p), body))
 
 
+# =============================================================================
+# r7 — F-INT-04 «EDI з торговими мережами» (trade_edi, db/47): GLN, точки доставки, журнал EDI (сторінка 700)
+EDI_ORDER_COMMANDS = {261: [("EDI_ORDRSP", "EDI: підтвердження ORDRSP", "trade_edi.ordrsp_from_order(#ID#)", "posted")],
+                      111: [("EDI_DESADV", "EDI: відвантаження DESADV", "trade_edi.desadv_from_sale(#ID#)", "posted"),
+                            ("EDI_INVOIC", "EDI: рахунок INVOIC", "trade_edi.invoic_from_sale(#ID#)", "posted")]}
+
+
+def r7_edi_specs():
+    gln_help = ("Глобальний номер розташування GS1 (13 цифр, остання — контрольна). За ним EDI-повідомлення мереж "
+                "зіставляються з довідниками.")
+    for c in CATALOGS:
+        if c["table"] == "REF_COUNTERPARTY":
+            c["list_sql"] = c["list_sql"].replace("select id, code, name,", "select id, code, name, gln,", 1)
+            c["columns"] = [x for x in c["columns"] if x[0] != "STATE_NAME"] + [("GLN", "GLN"), ("STATE_NAME", "Стан")]
+            c["fields"] = c["fields"] + [dict(col="GLN", label="GLN (EDI)", type="text", max=13, span=4, help=gln_help)]
+        elif c["table"] == "REF_ORGANIZATION":
+            c["fields"] = c["fields"] + [dict(col="GLN", label="GLN (EDI)", type="text", max=13, span=6,
+                                              help=gln_help + " Для організації — GLN постачальника в повідомленнях мереж.")]
+    CATALOGS.append(dict(list_page=710, form_page=711, alias="delivery-points", table="REF_DELIVERY_POINT",
+         title="Точки доставки (GLN)", item_title="Точка доставки", edit_auth="role-sales", dialog_width=900,
+         list_sql=("select id, code, name, gln, counterparty_name, counterparty_gln, address, warehouse_name, price_type_name, "
+                   + STATE_SQL + " from v_delivery_point_list"),
+         columns=[("CODE", "Код"), ("NAME", "Найменування"), ("GLN", "GLN"), ("COUNTERPARTY_NAME", "Контрагент (мережа)"),
+                  ("COUNTERPARTY_GLN", "GLN мережі"), ("ADDRESS", "Адреса"), ("WAREHOUSE_NAME", "Склад відвантаження"),
+                  ("PRICE_TYPE_NAME", "Вид цін"), ("STATE_NAME", "Стан")],
+         fields=[dict(col="CODE", label="Код", type="text", max=9, span=3, help="Порожній код буде призначено автоматично."),
+                 dict(col="NAME", label="Найменування", type="text", max=255, required=True, span=9, newcol=True,
+                      help="Магазин або розподільчий центр мережі."),
+                 dict(col="COUNTERPARTY_ID", label="Контрагент (мережа)", type="ref", lov="COUNTERPARTIES_ACTIVE", required=True, span=6),
+                 dict(col="GLN", label="GLN точки доставки", type="text", max=13, required=True, span=6, newcol=True,
+                      help="DELIVERYPLACE у повідомленнях ORDERS / DESADV / INVOIC / RECADV. 13 цифр з контрольною цифрою."),
+                 dict(col="ADDRESS", label="Адреса", type="text", max=500, span=12),
+                 dict(col="WAREHOUSE_ID", label="Склад відвантаження", type="ref", lov="WAREHOUSES_ACTIVE", required=False, span=6,
+                      help="Склад нових замовлень клієнта з EDI для цієї точки. Порожньо — перший активний склад."),
+                 dict(col="PRICE_TYPE_ID", label="Вид цін", type="ref", lov="PRICE_TYPES_ACTIVE", required=False, span=6, newcol=True,
+                      help="Ціни замовлень з EDI. Порожньо — вид цін договору, інакше ціна з файлу мережі."),
+                 dict(col="NOTE", label="Коментар", type="textarea", max=1000, span=12)]))
+    dp_lov = ("select name || ' (' || gln || ')' d, id r\n  from ref_delivery_point\n"
+              " where state = 'ACTIVE' and counterparty_id = :P#PAGE#_CUSTOMER_ID\n order by name")
+    by_page = {d["page"]: d for d in DOCUMENTS}
+    o = by_page[261]
+    o["fields"] = o["fields"] + [
+        dict(col="DELIVERY_POINT_ID", label="Точка доставки", type="ref", span=6, required=False, cascade="CUSTOMER_ID",
+             lov_sql=dp_lov, help="Магазин / РЦ мережі (GLN) — DELIVERYPLACE у повідомленнях EDI."),
+        dict(col="EXT_ORDER_NUMBER", label="№ замовлення мережі", type="text", max=35, span=3,
+             help="Номер замовлення покупця (ORDERS), повертається в ORDRSP / DESADV / INVOIC."),
+        dict(col="EXT_ORDER_DATE", label="Дата замовлення мережі", type="date", dtype="date", format="DD.MM.YYYY", date_only=True,
+             span=3)]
+    for pg, cmds in EDI_ORDER_COMMANDS.items():
+        x = by_page[pg]
+        names = [c[0] for c in cmds]
+        x["commands"] = [c for c in x.get("commands", []) if c["name"] not in names] + [
+            cmd(name, label, plsql, when, target=700, auth="role-sales") for name, label, plsql, when in cmds]
+
+
+
+def edi_page():
+    """F-INT-04: «EDI: обмін з торговими мережами» — завантаження вхідних, картка повідомлення, дії, журнал."""
+    p = 700
+    title = "EDI: обмін з торговими мережами"
+    body = page_header(p, title, "edi-exchange", title)
+    body += "\n" + title_region(title)
+    has_id = f"type: itemIsNotNull\nitem: P{p}_ID"
+
+    def region(ident, name, seq, rtype="staticContent", source="", cond=None):
+        b = f"name: {name}\ntitle: {name}\ntype: {rtype}\n" + source
+        b += block("layout", f"sequence: {seq}\nslot: body") + "\n"
+        b += block("appearance", "template: @/standard\ntemplateOptions: #DEFAULT#") + "\n"
+        if cond:
+            b += block("serverSideCondition", cond) + "\n"
+        return "\n" + comp("region", ident, b)
+
+    def expr(e):
+        return f"type: expression\nplsqlExpression: {e}"
+
+    body += region("upload", "Вхідний файл (ORDERS, RECADV)", 10)
+    b = "type: fileUpload\n" + block("label", "label: XML-файл від мережі / провайдера\nalignment: right") + "\n"
+    b += block("layout", "sequence: 10\nregion: @upload\nslot: regionBody\ncolumnSpan: 8") + "\n"
+    b += block("appearance", "template: @/optional-above\ntemplateOptions: #DEFAULT#") + "\n"
+    b += block("display", "displayAs: inlineFileBrowse") + "\n"
+    b += block("storage", "type: appTempFiles\npurgeFileAt: endOfRequest\nallowMultipleFiles: false\nfileTypes: .xml") + "\n"
+    b += block("help", "helpText: Формат EDI-XML (структура EDIN / Вчасно.EDI): корінь ORDER (замовлення) або RECADV "
+               "(повідомлення про приймання). Покупець, точка доставки й постачальник зіставляються за GLN, товари — за "
+               "штрихкодом (упаковка — кількість × кратність), далі за кодом постачальника (артикул / код).")
+    body += "\n" + comp("pageItem", f"P{p}_FILE", b)
+    for i, nm in enumerate(["ID", "STATUS", "DIR", "TYPE", "NEW_ID"]):
+        hb = "type: hidden\n" + block("layout", f"sequence: {20 + i}\nregion: @upload\nslot: regionBody") + "\n"
+        hb += block("settings", "valueProtected: false") + "\n"
+        hb += block("sessionState", f"dataType: varchar2\nstorage: {'session' if nm == 'ID' else 'request'}")
+        body += "\n" + comp("pageItem", f"P{p}_{nm}", hb)
+    body += "\n" + button("load", "LOAD", "Завантажити", 30, "upload", slot="regionBody", hot=True, icon="fa-upload")
+    body += "\n" + button("sample", "SAMPLE_ORDERS", "Демо-файл ORDERS", 40, "upload", slot="regionBody", icon="fa-flask")
+
+    body += region("message", "Повідомлення", 20, "dynamicContent",
+                   block("source", "language: plsql\nplsqlFunctionBody:" + code("plsql", f"return trade_edi.message_html(:P{p}_ID);")) + "\n",
+                   cond=has_id)
+    acts = [("create-order", "CREATE_ORDER", "Створити замовлення клієнта", True, "fa-plus",
+             f":P{p}_DIR = 'IN' and :P{p}_TYPE = 'ORDERS' and :P{p}_STATUS = 'NEW'", None),
+            ("reprocess", "REPROCESS", "Повторити зіставлення", False, "fa-refresh",
+             f":P{p}_DIR = 'IN' and :P{p}_STATUS in ('NEW', 'ERROR')", None),
+            ("send", "SEND", "Надіслати провайдеру", True, "fa-paper-plane",
+             f":P{p}_DIR = 'OUT' and :P{p}_STATUS = 'GENERATED'", "Надіслати повідомлення через провайдера EDI?"),
+            ("download", "DOWNLOAD", "Вивантажити XML", False, "fa-download", f":P{p}_ID is not null", None),
+            ("sample-recadv", "SAMPLE_RECADV", "Імітувати RECADV мережі", False, "fa-flask",
+             f":P{p}_DIR = 'OUT' and :P{p}_TYPE = 'DESADV' and :P{p}_STATUS in ('GENERATED', 'SENT')", None),
+            ("cancel", "CANCEL", "Скасувати", False, "fa-ban", f":P{p}_STATUS in ('NEW', 'ERROR', 'GENERATED')",
+             "Скасувати повідомлення? Скасоване не обробляється й не надсилається."),
+            ("close", "CLOSE", "Закрити", False, None, f":P{p}_ID is not null", None)]
+    for i, (ident, name, label, hot, icon, cond, confirm) in enumerate(acts):
+        body += "\n" + button(ident, name, label, 10 + i * 10, "message", slot="regionBody", hot=hot, icon=icon,
+                              condition=expr(cond), confirm=confirm)
+
+    icon = block("columnFormatting", "htmlExpression: <span class=\"fa #ICON_CLASS#\" aria-hidden=\"true\"></span>") + "\n"
+    link = (f"linkColumn: customTarget\ntarget: {{\n    page: {p}\n    clearCache: {p}\n    items: {{\n        P{p}_ID: #ID#\n    }}\n}}\n"
+            "linkIcon: <span class=\"fa fa-folder-open-o\" aria-hidden=\"true\" title=\"Відкрити\"></span>")
+    dt = block("appearance", "formatMask: DD.MM.YYYY HH24:MI") + "\n"
+    d1 = block("appearance", "formatMask: DD.MM.YYYY") + "\n"
+    cols = [("ID", "ID", "varchar2", True), ("ICON", "​", "varchar2", False, icon), ("ICON_CLASS", "icon", "varchar2", True),
+            ("MSG_NO", "№", "number"), ("CREATED_AT", "Створено", "date", False, dt), ("DIRECTION_NAME", "Напрям"),
+            ("MSG_TYPE", "Тип"), ("STATUS_NAME", "Стан"), ("DOC_NUMBER", "№ документа"), ("DOC_DATE", "Дата", "date", False, d1),
+            ("ORDER_NUMBER", "№ замовлення мережі"), ("COUNTERPARTY_NAME", "Контрагент"), ("DELIVERY_POINT_NAME", "Точка доставки"),
+            ("CUSTOMER_ORDER_NUMBER", "Замовлення клієнта"), ("SALE_NUMBER", "Реалізація"), ("LINE_COUNT", "Рядків", "number"),
+            ("ERROR_COUNT", "Помилок", "number"), ("DIFF_COUNT", "Розбіжностей", "number"), money_col("TOTAL_AMOUNT", "Сума"),
+            ("PROVIDER_CODE", "Провайдер"), ("FILE_NAME", "Файл"), ("CREATED_BY", "Користувач")]
+    sql = ("select id, ' ' icon, icon_class, msg_no, created_at, direction_name, msg_type, status_name, doc_number, doc_date,\n"
+           "       order_number, counterparty_name, delivery_point_name, customer_order_number, sale_number, line_count,\n"
+           "       error_count, diff_count, total_amount, provider_code, file_name, created_by\n"
+           "  from v_edi_message\n order by msg_no desc")
+    body += "\n" + ir_region("journal", "Журнал EDI-повідомлень", sql, cols, seq=30, link=link, title="Журнал EDI-повідомлень")
+
+    def proc(ident, name, seq, plsql, req, success=None, point="afterSubmit"):
+        return "\n" + process(ident, name, "executeCode", seq, block("source", "language: plsql\nplsqlCode:" + code("plsql", plsql)) + "\n",
+                              point=point, when_request_in=req, success=success)
+    body += "\n" + process("init", "Стан повідомлення", "executeCode", 10,
+                           block("source", "language: plsql\nplsqlCode:" + code("plsql",
+                               f":P{p}_STATUS := null;\n:P{p}_DIR := null;\n:P{p}_TYPE := null;\n"
+                               f"for m in (select status, direction, msg_type from sys_edi_message where id = :P{p}_ID) loop\n"
+                               f"  :P{p}_STATUS := m.status;\n  :P{p}_DIR := m.direction;\n  :P{p}_TYPE := m.msg_type;\nend loop;\n"
+                               f"if :P{p}_STATUS is null then\n  :P{p}_ID := null;\nend if;")) + "\n",
+                           point="beforeHeader")
+    body += proc("load", "Завантажити файл", 10,
+                 "declare\n  l_blob blob;\n  l_name varchar2(400);\nbegin\n"
+                 f"  select max(blob_content), max(filename) into l_blob, l_name from apex_application_temp_files where name = :P{p}_FILE;\n"
+                 "  if l_blob is null then\n    trade_nsi.fail('EDI_FILE_EMPTY', 'Виберіть XML-файл для завантаження.');\n  end if;\n"
+                 f"  :P{p}_ID := trade_edi.load_file(l_name, l_blob);\nend;",
+                 "LOAD", success="Файл завантажено й зіставлено з довідниками. Перевірте стан повідомлення.")
+    body += proc("sample", "Демо-файл ORDERS", 20, f":P{p}_ID := trade_edi.load_sample('ORDERS');", "SAMPLE_ORDERS",
+                 success="Завантажено демо-замовлення мережі (ORDERS).")
+    body += proc("create-order", "Створити замовлення клієнта", 30, f":P{p}_NEW_ID := trade_edi.create_order(:P{p}_ID);",
+                 "CREATE_ORDER", success="Створено замовлення клієнта (чернетка). Перевірте й проведіть його.")
+    body += proc("reprocess", "Повторити зіставлення", 40, f"trade_edi.reprocess(:P{p}_ID);", "REPROCESS",
+                 success="Повідомлення зіставлено повторно.")
+    body += proc("send", "Надіслати", 50, f"trade_edi.send(:P{p}_ID);", "SEND", success="Повідомлення надіслано провайдеру EDI.")
+    body += proc("download", "Вивантажити XML", 60, f"trade_edi.download(:P{p}_ID);", "DOWNLOAD")
+    body += proc("sample-recadv", "Імітувати RECADV", 70, f":P{p}_ID := trade_edi.load_sample('RECADV', :P{p}_ID);", "SAMPLE_RECADV",
+                 success="Завантажено RECADV (імітація: нестача 1 од. першої позиції).")
+    body += proc("cancel", "Скасувати", 80, f"trade_edi.cancel(:P{p}_ID);", "CANCEL", success="Повідомлення скасовано.")
+    body += proc("close", "Закрити", 90, f":P{p}_ID := null;", "CLOSE")
+    body += "\n" + branch("to-order", "До замовлення клієнта", 10,
+                          f"{{\n    page: 261\n    clearCache: 261\n    items: {{\n        P261_ID: &P{p}_NEW_ID.\n    }}\n}}",
+                          when_request_in="CREATE_ORDER")
+    body += "\n" + branch("stay", "Залишитися", 20, f"{{\n    page: {p}\n}}")
+    write(PAGES / f"p{p:05d}-edi-exchange.apx", comp("page", str(p), body))
+
+
+
+# ===========================================================================
+# r6 — F-WH-26 «Ваги й габарити товарів» (trade_cargo, db/48): вага, об'єм, габарити номенклатури,
+# підсумок у формах документів, звіт «Вага й об'єм документів» (сторінка 720)
+# ===========================================================================
+CARGO_DOCS = {111: "DocGoodsSale", 261: "DocCustomerOrder", 321: "DocInvoiceForPayment", 131: "DocGoodsTransfer",
+              51: "DocGoodsReceipt", 271: "DocSupplierOrder", 281: "DocCustomerReturn", 291: "DocSupplierReturn",
+              571: "DocGoodsIssueOrder"}
+
+
+def r6_weights_specs():
+    for c in CATALOGS:
+        if c["table"] == "REF_PRODUCT":
+            fl = c["fields"]
+            i = next(n for n, f in enumerate(fl) if f["col"] == "WEIGHT_KG")
+            fl[i] = dict(fl[i], help="Вага одиниці товару (базової одиниці виміру). Для одиниць «кг», «г», «т» без значення "
+                                     "береться з одиниці виміру.")
+            fl[i + 1:i + 1] = [
+                dict(col="VOLUME_M3", label="Об'єм, м³", type="number", dtype="number", format="FM999G990D000000", span=4,
+                     newcol=True, help="Об'єм одиниці товару. Якщо задано всі три габарити, розраховується автоматично "
+                                       "(Д × Ш × В / 1 000 000); для «л», «м3» без значення — з одиниці виміру."),
+                dict(col="LENGTH_CM", label="Довжина, см", type="number", dtype="number", format="FM999G990D0", span=4),
+                dict(col="WIDTH_CM", label="Ширина, см", type="number", dtype="number", format="FM999G990D0", span=4, newcol=True),
+                dict(col="HEIGHT_CM", label="Висота, см", type="number", dtype="number", format="FM999G990D0", span=4, newcol=True)]
+            marker = " from ref_product p join"
+            assert c["list_sql"].count(marker) == 1
+            c["list_sql"] = c["list_sql"].replace(marker, ", p.weight_kg, p.volume_m3" + marker)
+            cols = [x for x in c["columns"] if x[0] != "STATE_NAME"]
+            c["columns"] = cols + [("WEIGHT_KG", "Вага, кг"), ("VOLUME_M3", "Об'єм, м³")] + \
+                [x for x in c["columns"] if x[0] == "STATE_NAME"]
+    for d in DOCUMENTS:
+        if d["page"] in CARGO_DOCS:
+            d["cargo"] = CARGO_DOCS[d["page"]]
+
+
+def cargo_lovs():
+    static_lov("cargo-directions", "CARGO_DIRECTIONS",
+               [("OUT", "Відвантаження"), ("IN", "Надходження"), ("MOVE", "Переміщення")])
+    static_lov("cargo-doc-types", "CARGO_DOC_TYPES",
+               [("DocGoodsSale", "Реалізація товарів"), ("DocCustomerOrder", "Замовлення клієнта"),
+                ("DocGoodsIssueOrder", "Видатковий ордер на товари"), ("DocSupplierReturn", "Повернення постачальнику"),
+                ("DocGoodsTransfer", "Переміщення товарів"), ("DocGoodsReceipt", "Прибуткова накладна"),
+                ("DocSupplierOrder", "Замовлення постачальнику"), ("DocCustomerReturn", "Повернення від клієнта"),
+                ("DocInvoiceForPayment", "Рахунок на оплату")])
+    static_lov("cargo-status", "CARGO_STATUS", [("N", "Усі (з чернетками)"), ("Y", "Лише проведені")])
+
+
+def cargo_page():
+    """F-WH-26: вага й об'єм документів за період для планування доставки, завантаження транспорту; друк."""
+    p = 720
+    body = page_header(p, "Вага й об'єм документів", "cargo-weight-volume", "Вага й об'єм документів")
+    body += "\n" + title_region("Вага й об'єм документів")
+    bar = "name: Параметри\ntype: staticContent\n" + block("layout", "sequence: 5\nslot: body") + "\n"
+    bar += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#\ncssClasses: tx-print-bar")
+    body += "\n" + comp("region", "bar", bar)
+
+    def sel(it, lbl, lov, seq, span, new_row, dflt=None, null_disp=None):
+        b = "type: selectList\n" + block("label", f"label: {lbl}\nalignment: right") + "\n"
+        b += block("layout", f"sequence: {seq}\nregion: @bar\nslot: regionBody\ncolumnSpan: {span}" + ("" if new_row else "\nstartNewRow: false")) + "\n"
+        b += block("appearance", f"template: @/{'optional' if null_disp else 'required'}\ntemplateOptions: #DEFAULT#") + "\n"
+        if dflt:
+            b += block("default", f"type: static\nstaticValue: {dflt}") + "\n"
+        lv = f"type: sharedComponent\nlov: @{lov}\ndisplayExtraValues: false\n"
+        lv += f"displayNullValue: true\nnullDisplayValue: {null_disp}" if null_disp else "displayNullValue: false"
+        b += block("lov", lv) + "\n"
+        b += block("sessionState", "dataType: varchar2\nstorage: session")
+        return "\n" + comp("pageItem", f"P{p}_{it}", b)
+
+    for i, (it, lbl, dflt) in enumerate([("FROM", "З", "to_char(sysdate, 'DD.MM.YYYY')"),
+                                         ("TO", "По", "to_char(sysdate + 7, 'DD.MM.YYYY')")]):
+        b = "type: datePicker\n" + block("label", f"label: {lbl}\nalignment: right") + "\n"
+        b += block("layout", f"sequence: {10 + i}\nregion: @bar\nslot: regionBody\ncolumnSpan: 3" + ("\nstartNewRow: false" if i else "")) + "\n"
+        b += block("appearance", "template: @/optional\ntemplateOptions: #DEFAULT#\nformatMask: DD.MM.YYYY") + "\n"
+        b += block("default", f"type: expression\nlanguage: plsql\nplsqlExpression: {dflt}") + "\n"
+        b += block("settings", "displayAs: popup\nshowTime: false") + "\n"
+        b += block("sessionState", "dataType: varchar2\nstorage: session")
+        body += "\n" + comp("pageItem", f"P{p}_{it}", b)
+    body += sel("DIRECTION", "Напрям", "cargo-directions", 14, 3, False, null_disp="Усі напрями")
+    body += sel("DOC_TYPE", "Документи", "cargo-doc-types", 16, 3, False, null_disp="Усі види")
+    body += "\n" + org_filter_item(p, "bar", 20, span=3, new_row=True)
+    body += sel("WH", "Склад", "warehouses-all", 22, 3, False, null_disp="Усі склади")
+    body += sel("POSTED", "Статус", "cargo-status", 24, 3, False, "N")
+    for i, (it, lbl, hlp) in enumerate([("CAP_KG", "Вантажопідйомність, кг", "Вантажопідйомність транспорту — % завантаження за вагою."),
+                                        ("CAP_M3", "Об'єм кузова, м³", "Корисний об'єм транспорту — % завантаження за об'ємом.")]):
+        b = "type: numberField\n" + block("label", f"label: {lbl}\nalignment: right") + "\n"
+        b += block("layout", f"sequence: {30 + i}\nregion: @bar\nslot: regionBody\ncolumnSpan: 3" + ("\nstartNewRow: false" if i else "")) + "\n"
+        b += block("appearance", "template: @/optional\ntemplateOptions: #DEFAULT#") + "\n"
+        b += block("settings", "numberAlignment: end\nvirtualKeyboard: decimal") + "\n"
+        b += block("help", f"helpText: {hlp}") + "\n"
+        b += block("sessionState", "dataType: varchar2\nstorage: session")
+        body += "\n" + comp("pageItem", f"P{p}_{it}", b)
+    body += "\n" + button("show", "SHOW", "Сформувати", 40, "bar", slot="regionBody", hot=True)
+    body += "\n" + button("print", "PRINT", "Друк", 50, "bar", slot="regionBody", action="definedByDynamicAction")
+    pb = "name: Вага й об'єм документів\ntype: dynamicContent\n"
+    pb += block("source", "language: plsql\nplsqlFunctionBody:" + code("plsql",
+        f"return trade_cargo.cargo_html(\n"
+        f"         coalesce(to_date(:P{p}_FROM, 'DD.MM.YYYY'), trunc(sysdate)),\n"
+        f"         coalesce(to_date(:P{p}_TO, 'DD.MM.YYYY'), trunc(sysdate) + 7),\n"
+        f"         :P{p}_DIRECTION, :P{p}_DOC_TYPE, :P{p}_ORG, :P{p}_WH, coalesce(:P{p}_POSTED, 'N'),\n"
+        f"         trade_cargo.to_num(:P{p}_CAP_KG), trade_cargo.to_num(:P{p}_CAP_M3));")) + "\n"
+    pb += block("layout", "sequence: 10\nslot: body") + "\n"
+    pb += block("appearance", "template: @/blank-with-attributes\ntemplateOptions: #DEFAULT#")
+    body += "\n" + comp("region", "cargo", pb)
+    da = "name: Друк\n" + block("when", "event: click\nselectionType: button\nbutton: @print") + "\n" + block("execution", "sequence: 10") + "\n\n"
+    da += comp("action", "print", "name: Друк\naction: executeJsCode\n" + block("settings", "jsCode: window.print();") + "\n" + block("execution", "sequence: 10\nfireOnInit: false"))
+    body += "\n" + comp("dynamicAction", "print", da)
+    write(PAGES / f"p{p:05d}-cargo-weight-volume.apx", comp("page", str(p), body))
+
 def set_page_auth():
     rules = {"role-purchase": [270, 271, 290, 291, 210],
              "role-purchase-or-cashier": [60, 61],
              "role-warehouse-or-purchase": [50, 51],
-             "role-sales": [110, 111, 260, 261, 280, 281, 320, 321],
+             "role-sales": [110, 111, 260, 261, 280, 281, 320, 321, 700, 710, 711],   # 700–711: r7 F-INT-04
              "role-sales-or-cashier": [120, 121, 640, 641, 650, 651, 660],   # 640–660: r5 F-RET-01
              "role-warehouse": [130, 131, 140, 141, 300, 301, 310, 311, 190, 440, 441, 560, 561, 570, 571, 590],
              "role-admin": [100, 101, 480, 530, 670, 695],   # 670: r5 F-SRV-06; 695: r5 F-WH-25
@@ -4097,6 +4451,8 @@ def main():
     r5_currency_specs()
     r5_vat_specs()
     r5_retail_specs()
+    r7_edi_specs()
+    r6_weights_specs()
     add_pick_settings()
     add_print_commands()
     lovs()
@@ -4121,6 +4477,7 @@ def main():
     r5_vat_lovs()
     r5_retail_lovs()
     r5_import_lovs()
+    cargo_lovs()
     for c in CATALOGS:
         catalog_list_page(c)
         catalog_form_page(c)
@@ -4148,6 +4505,8 @@ def main():
     tax_register_page()
     cashier_workplace_page()
     catalog_import_page()
+    edi_page()
+    cargo_page()
     pick_page()
 
 if __name__ == "__main__":

@@ -128,7 +128,7 @@ page 80 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000400
+            savedReportMappingIdentifier: 910000000409
         }
 
 
@@ -204,9 +204,11 @@ page 80 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -346,7 +348,7 @@ page 80 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000401
+            savedReportMappingIdentifier: 910000000410
         }
 
 
@@ -409,9 +411,11 @@ page 80 (
             }
             heading {
                 heading: Поч. залишок
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -425,9 +429,11 @@ page 80 (
             }
             heading {
                 heading: Виникло
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -441,9 +447,11 @@ page 80 (
             }
             heading {
                 heading: Погашено
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -457,9 +465,11 @@ page 80 (
             }
             heading {
                 heading: Кін. залишок
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -498,7 +508,7 @@ page 80 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000402
+            savedReportMappingIdentifier: 910000000411
         }
 
 
@@ -606,9 +616,11 @@ page 80 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

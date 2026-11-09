@@ -643,7 +643,7 @@ page 111 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000140
+            savedReportMappingIdentifier: 910000000146
         }
 
         savedReport primary (
@@ -1159,6 +1159,30 @@ page 111 (
         )
     )
 
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocGoodsSale', :P111_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P111_ID
+        }
+    )
+
     region footer (
         name: Підвал
         type: staticContent
@@ -1296,7 +1320,7 @@ page 111 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000141
+            executionMappingIdentifier: 910000000147
         }
     )
 
@@ -1653,11 +1677,63 @@ page 111 (
         }
     )
 
+    button cmd-edi-desadv (
+        buttonName: EDI_DESADV
+        label: EDI: відвантаження DESADV
+        layout {
+            sequence: 49
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: item=value
+            item: P111_STATUS
+            value: POSTED
+        }
+        security {
+            authorizationScheme: @role-sales
+        }
+    )
+
+    button cmd-edi-invoic (
+        buttonName: EDI_INVOIC
+        label: EDI: рахунок INVOIC
+        layout {
+            sequence: 50
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: item=value
+            item: P111_STATUS
+            value: POSTED
+        }
+        security {
+            authorizationScheme: @role-sales
+        }
+    )
+
     button cmd-print (
         buttonName: PRINT
         label: Друк
         layout {
-            sequence: 49
+            sequence: 51
             region: @actions
             slot: close
         }
@@ -1727,7 +1803,7 @@ page 111 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000142
+            executionMappingIdentifier: 910000000148
         }
     )
 
@@ -1748,7 +1824,7 @@ page 111 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000143
+            executionMappingIdentifier: 910000000149
         }
     )
 
@@ -1801,7 +1877,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000144
+            executionMappingIdentifier: 910000000150
         }
     )
 
@@ -1830,7 +1906,7 @@ page 111 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000145
+            executionMappingIdentifier: 910000000151
         }
     )
 
@@ -1855,7 +1931,7 @@ page 111 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000146
+            executionMappingIdentifier: 910000000152
         }
     )
 
@@ -1887,7 +1963,7 @@ page 111 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000147
+            executionMappingIdentifier: 910000000153
         }
     )
 
@@ -1911,7 +1987,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('CREATE_CUSTOMER_RETURN')
         }
         advanced {
-            executionMappingIdentifier: 910000000148
+            executionMappingIdentifier: 910000000154
         }
     )
 
@@ -1958,7 +2034,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('CREATE_CASH_RECEIPT')
         }
         advanced {
-            executionMappingIdentifier: 910000000149
+            executionMappingIdentifier: 910000000155
         }
     )
 
@@ -2005,7 +2081,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('CREATE_CUSTOMER_PAYMENT')
         }
         advanced {
-            executionMappingIdentifier: 910000000150
+            executionMappingIdentifier: 910000000156
         }
     )
 
@@ -2055,7 +2131,7 @@ page 111 (
             successMessage: Серії підібрано за FEFO (першим спливає — першим відвантажено). Перевірте рядки без серії.
         }
         advanced {
-            executionMappingIdentifier: 910000000151
+            executionMappingIdentifier: 910000000157
         }
     )
 
@@ -2082,7 +2158,7 @@ page 111 (
             successMessage: Автоматичні знижки розраховано за умовами довідника «Знижки та акції».
         }
         advanced {
-            executionMappingIdentifier: 910000000152
+            executionMappingIdentifier: 910000000158
         }
     )
 
@@ -2109,7 +2185,7 @@ page 111 (
             successMessage: Ручну знижку встановлено в усіх рядках документа.
         }
         advanced {
-            executionMappingIdentifier: 910000000153
+            executionMappingIdentifier: 910000000159
         }
     )
 
@@ -2133,7 +2209,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('CREATE_ISSUE_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000154
+            executionMappingIdentifier: 910000000160
         }
     )
 
@@ -2180,7 +2256,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('CREATE_TAX_INVOICE')
         }
         advanced {
-            executionMappingIdentifier: 910000000155
+            executionMappingIdentifier: 910000000161
         }
     )
 
@@ -2207,6 +2283,100 @@ page 111 (
         }
     )
 
+    process cmd-edi-desadv (
+        name: EDI: відвантаження DESADV
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P111_NEW_ID := trade_edi.desadv_from_sale(:P111_ID);
+                ```
+        }
+        execution {
+            sequence: 68
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('EDI_DESADV')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000162
+        }
+    )
+
+    branch to-edi-desadv (
+        name: До документа: EDI: відвантаження DESADV
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 700
+                clearCache: 700
+                items: {
+                    P700_ID: &P111_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 13
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('EDI_DESADV')
+        }
+    )
+
+    process cmd-edi-invoic (
+        name: EDI: рахунок INVOIC
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P111_NEW_ID := trade_edi.invoic_from_sale(:P111_ID);
+                ```
+        }
+        execution {
+            sequence: 69
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('EDI_INVOIC')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000163
+        }
+    )
+
+    branch to-edi-invoic (
+        name: До документа: EDI: рахунок INVOIC
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 700
+                clearCache: 700
+                items: {
+                    P700_ID: &P111_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 14
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('EDI_INVOIC')
+        }
+    )
+
     process cmd-print (
         name: Друк
         type: executeCode
@@ -2218,7 +2388,7 @@ page 111 (
                 ```
         }
         execution {
-            sequence: 68
+            sequence: 70
             point: afterSubmit
         }
         serverSideCondition {
@@ -2227,7 +2397,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000156
+            executionMappingIdentifier: 910000000164
         }
     )
 
@@ -2244,7 +2414,7 @@ page 111 (
             }
         }
         execution {
-            sequence: 13
+            sequence: 15
             point: afterProcessing
         }
         serverSideCondition {
@@ -2275,7 +2445,7 @@ page 111 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000157
+            executionMappingIdentifier: 910000000165
         }
     )
 

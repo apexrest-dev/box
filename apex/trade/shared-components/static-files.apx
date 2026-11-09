@@ -18,16 +18,17 @@ file "icons/app-icon-32.png" (
     charSet: utf-8
 )
 
+file "icons/trade-logo.svg" (
+    mimeType: image/svg+xml
+    charSet: utf-8
+)
+
 file "icons/app-icon-512.png" (
     mimeType: image/png
     charSet: utf-8
 )
 
 
-file "css/trade-taxi.css" (
-    mimeType: text/css
-    charSet: utf-8
-)
 
 file "js/trade-taxi.js" (
     mimeType: application/javascript

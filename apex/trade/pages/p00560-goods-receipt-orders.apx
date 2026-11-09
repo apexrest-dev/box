@@ -62,7 +62,7 @@ page 560 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000347
+            savedReportMappingIdentifier: 910000000356
         }
 
 
@@ -209,9 +209,11 @@ page 560 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000

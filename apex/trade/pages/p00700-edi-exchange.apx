@@ -1,0 +1,1026 @@
+page 700 (
+    name: EDI: обмін з торговими мережами
+    alias: EDI-EXCHANGE
+    title: EDI: обмін з торговими мережами
+    appearance {
+        pageTemplate: @/standard
+        templateOptions: #DEFAULT#
+    }
+    security {
+        authorizationScheme: @role-sales
+    }
+
+    region form-title (
+        name: Заголовок форми
+        type: staticContent
+        source {
+            htmlCode: <div class="tx-form-title"><span class="tx-nav-btn tx-nav-back" title="Назад" role="button">&#8592;</span><span class="tx-nav-btn tx-nav-forward" title="Вперед" role="button">&#8594;</span><span class="tx-star fa fa-star-o" title="Додати в обране" role="button"></span><h1>EDI: обмін з торговими мережами</h1></div>
+        }
+        layout {
+            sequence: 1
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    region upload (
+        name: Вхідний файл (ORDERS, RECADV)
+        title: Вхідний файл (ORDERS, RECADV)
+        type: staticContent
+        layout {
+            sequence: 10
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+    )
+
+    pageItem P700_FILE (
+        type: fileUpload
+        label {
+            label: XML-файл від мережі / провайдера
+            alignment: right
+        }
+        layout {
+            sequence: 10
+            region: @upload
+            slot: regionBody
+            columnSpan: 8
+        }
+        appearance {
+            template: @/optional-above
+            templateOptions: #DEFAULT#
+        }
+        display {
+            displayAs: inlineFileBrowse
+        }
+        storage {
+            type: appTempFiles
+            purgeFileAt: endOfRequest
+            allowMultipleFiles: false
+            fileTypes: .xml
+        }
+        help {
+            helpText: Формат EDI-XML (структура EDIN / Вчасно.EDI): корінь ORDER (замовлення) або RECADV (повідомлення про приймання). Покупець, точка доставки й постачальник зіставляються за GLN, товари — за штрихкодом (упаковка — кількість × кратність), далі за кодом постачальника (артикул / код).
+        }
+    )
+
+    pageItem P700_ID (
+        type: hidden
+        layout {
+            sequence: 20
+            region: @upload
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P700_STATUS (
+        type: hidden
+        layout {
+            sequence: 21
+            region: @upload
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P700_DIR (
+        type: hidden
+        layout {
+            sequence: 22
+            region: @upload
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P700_TYPE (
+        type: hidden
+        layout {
+            sequence: 23
+            region: @upload
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    pageItem P700_NEW_ID (
+        type: hidden
+        layout {
+            sequence: 24
+            region: @upload
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: request
+        }
+    )
+
+    button load (
+        buttonName: LOAD
+        label: Завантажити
+        layout {
+            sequence: 30
+            region: @upload
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-upload
+        }
+    )
+
+    button sample (
+        buttonName: SAMPLE_ORDERS
+        label: Демо-файл ORDERS
+        layout {
+            sequence: 40
+            region: @upload
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-flask
+        }
+    )
+
+    region message (
+        name: Повідомлення
+        title: Повідомлення
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_edi.message_html(:P700_ID);
+                ```
+        }
+        layout {
+            sequence: 20
+            slot: body
+        }
+        appearance {
+            template: @/standard
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P700_ID
+        }
+    )
+
+    button create-order (
+        buttonName: CREATE_ORDER
+        label: Створити замовлення клієнта
+        layout {
+            sequence: 10
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-plus
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_DIR = 'IN' and :P700_TYPE = 'ORDERS' and :P700_STATUS = 'NEW'
+        }
+    )
+
+    button reprocess (
+        buttonName: REPROCESS
+        label: Повторити зіставлення
+        layout {
+            sequence: 20
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-refresh
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_DIR = 'IN' and :P700_STATUS in ('NEW', 'ERROR')
+        }
+    )
+
+    button send (
+        buttonName: SEND
+        label: Надіслати провайдеру
+        layout {
+            sequence: 30
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: true
+            templateOptions: #DEFAULT#
+            icon: fa-paper-plane
+        }
+        behavior {
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Надіслати повідомлення через провайдера EDI?
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_DIR = 'OUT' and :P700_STATUS = 'GENERATED'
+        }
+    )
+
+    button download (
+        buttonName: DOWNLOAD
+        label: Вивантажити XML
+        layout {
+            sequence: 40
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-download
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_ID is not null
+        }
+    )
+
+    button sample-recadv (
+        buttonName: SAMPLE_RECADV
+        label: Імітувати RECADV мережі
+        layout {
+            sequence: 50
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-flask
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_DIR = 'OUT' and :P700_TYPE = 'DESADV' and :P700_STATUS in ('GENERATED', 'SENT')
+        }
+    )
+
+    button cancel (
+        buttonName: CANCEL
+        label: Скасувати
+        layout {
+            sequence: 60
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text-with-icon
+            hot: false
+            templateOptions: #DEFAULT#
+            icon: fa-ban
+        }
+        behavior {
+            requiresConfirmation: true
+        }
+        confirmation {
+            message: Скасувати повідомлення? Скасоване не обробляється й не надсилається.
+            style: warning
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_STATUS in ('NEW', 'ERROR', 'GENERATED')
+        }
+    )
+
+    button close (
+        buttonName: CLOSE
+        label: Закрити
+        layout {
+            sequence: 70
+            region: @message
+            slot: regionBody
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: expression
+            plsqlExpression: :P700_ID is not null
+        }
+    )
+
+    region journal (
+        name: Журнал EDI-повідомлень
+        title: Журнал EDI-повідомлень
+        type: interactiveReport
+        source {
+            location: localDatabase
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select id, ' ' icon, icon_class, msg_no, created_at, direction_name, msg_type, status_name, doc_number, doc_date,
+                       order_number, counterparty_name, delivery_point_name, customer_order_number, sale_number, line_count,
+                       error_count, diff_count, total_amount, provider_code, file_name, created_by
+                  from v_edi_message
+                 order by msg_no desc
+                ```
+        }
+        layout {
+            sequence: 30
+            slot: body
+        }
+        appearance {
+            template: @/interactive-report
+            templateOptions: #DEFAULT#
+        }
+        link {
+            linkColumn: customTarget
+            target: {
+                page: 700
+                clearCache: 700
+                items: {
+                    P700_ID: #ID#
+                }
+            }
+            linkIcon: <span class="fa fa-folder-open-o" aria-hidden="true" title="Відкрити"></span>
+        }
+        pagination {
+            type: rowRangesXToYOfZ
+        }
+        advanced {
+            savedReportMappingIdentifier: 910000000481
+        }
+
+
+        column ID (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ID
+            }
+            layout {
+                sequence: 10
+            }
+        )
+
+        column ICON (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: ​
+            }
+            layout {
+                sequence: 20
+            }
+            columnFormatting {
+                htmlExpression: <span class="fa #ICON_CLASS#" aria-hidden="true"></span>
+            }
+        )
+
+        column ICON_CLASS (
+            type: hidden
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: icon
+            }
+            layout {
+                sequence: 30
+            }
+        )
+
+        column MSG_NO (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: №
+                alignment: end
+            }
+            layout {
+                sequence: 40
+                columnAlignment: end
+            }
+        )
+
+        column CREATED_AT (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Створено
+            }
+            layout {
+                sequence: 50
+            }
+            appearance {
+                formatMask: DD.MM.YYYY HH24:MI
+            }
+        )
+
+        column DIRECTION_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Напрям
+            }
+            layout {
+                sequence: 60
+            }
+        )
+
+        column MSG_TYPE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Тип
+            }
+            layout {
+                sequence: 70
+            }
+        )
+
+        column STATUS_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Стан
+            }
+            layout {
+                sequence: 80
+            }
+        )
+
+        column DOC_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: № документа
+            }
+            layout {
+                sequence: 90
+            }
+        )
+
+        column DOC_DATE (
+            type: plainText
+            source {
+                dataType: date
+            }
+            heading {
+                heading: Дата
+            }
+            layout {
+                sequence: 100
+            }
+            appearance {
+                formatMask: DD.MM.YYYY
+            }
+        )
+
+        column ORDER_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: № замовлення мережі
+            }
+            layout {
+                sequence: 110
+            }
+        )
+
+        column COUNTERPARTY_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Контрагент
+            }
+            layout {
+                sequence: 120
+            }
+        )
+
+        column DELIVERY_POINT_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Точка доставки
+            }
+            layout {
+                sequence: 130
+            }
+        )
+
+        column CUSTOMER_ORDER_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Замовлення клієнта
+            }
+            layout {
+                sequence: 140
+            }
+        )
+
+        column SALE_NUMBER (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Реалізація
+            }
+            layout {
+                sequence: 150
+            }
+        )
+
+        column LINE_COUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Рядків
+                alignment: end
+            }
+            layout {
+                sequence: 160
+                columnAlignment: end
+            }
+        )
+
+        column ERROR_COUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Помилок
+                alignment: end
+            }
+            layout {
+                sequence: 170
+                columnAlignment: end
+            }
+        )
+
+        column DIFF_COUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Розбіжностей
+                alignment: end
+            }
+            layout {
+                sequence: 180
+                columnAlignment: end
+            }
+        )
+
+        column TOTAL_AMOUNT (
+            type: plainText
+            source {
+                dataType: number
+            }
+            heading {
+                heading: Сума
+                alignment: end
+            }
+            layout {
+                sequence: 190
+                columnAlignment: end
+            }
+            appearance {
+                formatMask: FM999G999G999G990D00
+            }
+        )
+
+        column PROVIDER_CODE (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Провайдер
+            }
+            layout {
+                sequence: 200
+            }
+        )
+
+        column FILE_NAME (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Файл
+            }
+            layout {
+                sequence: 210
+            }
+        )
+
+        column CREATED_BY (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Користувач
+            }
+            layout {
+                sequence: 220
+            }
+        )
+    )
+
+    process init (
+        name: Стан повідомлення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P700_STATUS := null;
+                :P700_DIR := null;
+                :P700_TYPE := null;
+                for m in (select status, direction, msg_type from sys_edi_message where id = :P700_ID) loop
+                  :P700_STATUS := m.status;
+                  :P700_DIR := m.direction;
+                  :P700_TYPE := m.msg_type;
+                end loop;
+                if :P700_STATUS is null then
+                  :P700_ID := null;
+                end if;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: beforeHeader
+        }
+        advanced {
+            executionMappingIdentifier: 910000000482
+        }
+    )
+
+    process load (
+        name: Завантажити файл
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                declare
+                  l_blob blob;
+                  l_name varchar2(400);
+                begin
+                  select max(blob_content), max(filename) into l_blob, l_name from apex_application_temp_files where name = :P700_FILE;
+                  if l_blob is null then
+                    trade_nsi.fail('EDI_FILE_EMPTY', 'Виберіть XML-файл для завантаження.');
+                  end if;
+                  :P700_ID := trade_edi.load_file(l_name, l_blob);
+                end;
+                ```
+        }
+        execution {
+            sequence: 10
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('LOAD')
+        }
+        successMessage {
+            successMessage: Файл завантажено й зіставлено з довідниками. Перевірте стан повідомлення.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000483
+        }
+    )
+
+    process sample (
+        name: Демо-файл ORDERS
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P700_ID := trade_edi.load_sample('ORDERS');
+                ```
+        }
+        execution {
+            sequence: 20
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAMPLE_ORDERS')
+        }
+        successMessage {
+            successMessage: Завантажено демо-замовлення мережі (ORDERS).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000484
+        }
+    )
+
+    process create-order (
+        name: Створити замовлення клієнта
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P700_NEW_ID := trade_edi.create_order(:P700_ID);
+                ```
+        }
+        execution {
+            sequence: 30
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE_ORDER')
+        }
+        successMessage {
+            successMessage: Створено замовлення клієнта (чернетка). Перевірте й проведіть його.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000485
+        }
+    )
+
+    process reprocess (
+        name: Повторити зіставлення
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_edi.reprocess(:P700_ID);
+                ```
+        }
+        execution {
+            sequence: 40
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('REPROCESS')
+        }
+        successMessage {
+            successMessage: Повідомлення зіставлено повторно.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000486
+        }
+    )
+
+    process send (
+        name: Надіслати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_edi.send(:P700_ID);
+                ```
+        }
+        execution {
+            sequence: 50
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SEND')
+        }
+        successMessage {
+            successMessage: Повідомлення надіслано провайдеру EDI.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000487
+        }
+    )
+
+    process download (
+        name: Вивантажити XML
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_edi.download(:P700_ID);
+                ```
+        }
+        execution {
+            sequence: 60
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('DOWNLOAD')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000488
+        }
+    )
+
+    process sample-recadv (
+        name: Імітувати RECADV
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P700_ID := trade_edi.load_sample('RECADV', :P700_ID);
+                ```
+        }
+        execution {
+            sequence: 70
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('SAMPLE_RECADV')
+        }
+        successMessage {
+            successMessage: Завантажено RECADV (імітація: нестача 1 од. першої позиції).
+        }
+        advanced {
+            executionMappingIdentifier: 910000000489
+        }
+    )
+
+    process cancel (
+        name: Скасувати
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                trade_edi.cancel(:P700_ID);
+                ```
+        }
+        execution {
+            sequence: 80
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CANCEL')
+        }
+        successMessage {
+            successMessage: Повідомлення скасовано.
+        }
+        advanced {
+            executionMappingIdentifier: 910000000490
+        }
+    )
+
+    process close (
+        name: Закрити
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P700_ID := null;
+                ```
+        }
+        execution {
+            sequence: 90
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CLOSE')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000491
+        }
+    )
+
+    branch to-order (
+        name: До замовлення клієнта
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 261
+                clearCache: 261
+                items: {
+                    P261_ID: &P700_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 10
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('CREATE_ORDER')
+        }
+    )
+
+    branch stay (
+        name: Залишитися
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 700
+            }
+        }
+        execution {
+            sequence: 20
+            point: afterProcessing
+        }
+    )
+)

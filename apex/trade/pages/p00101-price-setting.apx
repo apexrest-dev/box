@@ -282,7 +282,7 @@ page 101 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000130
+            savedReportMappingIdentifier: 910000000136
         }
 
         savedReport primary (
@@ -476,7 +476,7 @@ page 101 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000131
+            executionMappingIdentifier: 910000000137
         }
     )
 
@@ -714,7 +714,7 @@ page 101 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000132
+            executionMappingIdentifier: 910000000138
         }
     )
 
@@ -735,7 +735,7 @@ page 101 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000133
+            executionMappingIdentifier: 910000000139
         }
     )
 
@@ -778,7 +778,7 @@ page 101 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000134
+            executionMappingIdentifier: 910000000140
         }
     )
 
@@ -807,7 +807,7 @@ page 101 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000135
+            executionMappingIdentifier: 910000000141
         }
     )
 
@@ -832,7 +832,7 @@ page 101 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000136
+            executionMappingIdentifier: 910000000142
         }
     )
 
@@ -857,7 +857,7 @@ page 101 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000137
+            executionMappingIdentifier: 910000000143
         }
     )
 
@@ -881,7 +881,7 @@ page 101 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000138
+            executionMappingIdentifier: 910000000144
         }
     )
 

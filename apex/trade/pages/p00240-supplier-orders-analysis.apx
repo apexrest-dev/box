@@ -70,7 +70,7 @@ page 240 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000417
+            savedReportMappingIdentifier: 910000000426
         }
 
 
@@ -165,9 +165,11 @@ page 240 (
             }
             heading {
                 heading: Замовлено
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -181,9 +183,11 @@ page 240 (
             }
             heading {
                 heading: Отримано
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -197,9 +201,11 @@ page 240 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -213,9 +219,11 @@ page 240 (
             }
             heading {
                 heading: Сума залишку
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

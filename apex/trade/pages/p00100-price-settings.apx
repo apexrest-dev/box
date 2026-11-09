@@ -62,7 +62,7 @@ page 100 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000129
+            savedReportMappingIdentifier: 910000000135
         }
 
 
@@ -157,9 +157,11 @@ page 100 (
             }
             heading {
                 heading: Рядків
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
         )
 

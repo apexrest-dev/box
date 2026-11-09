@@ -206,7 +206,7 @@ page 540 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000436
+            savedReportMappingIdentifier: 910000000445
         }
 
 
@@ -314,9 +314,11 @@ page 540 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -330,9 +332,11 @@ page 540 (
             }
             heading {
                 heading: Ціна до знижки
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -346,9 +350,11 @@ page 540 (
             }
             heading {
                 heading: Ціна зі знижкою
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -362,9 +368,11 @@ page 540 (
             }
             heading {
                 heading: Сума без знижки
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -378,9 +386,11 @@ page 540 (
             }
             heading {
                 heading: Знижка, %
+                alignment: end
             }
             layout {
                 sequence: 120
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM990D00
@@ -394,9 +404,11 @@ page 540 (
             }
             heading {
                 heading: Ручна, %
+                alignment: end
             }
             layout {
                 sequence: 130
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM990D00
@@ -410,9 +422,11 @@ page 540 (
             }
             heading {
                 heading: Авт., %
+                alignment: end
             }
             layout {
                 sequence: 140
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM990D00
@@ -439,9 +453,11 @@ page 540 (
             }
             heading {
                 heading: Сума знижки
+                alignment: end
             }
             layout {
                 sequence: 160
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -455,9 +471,11 @@ page 540 (
             }
             heading {
                 heading: у т. ч. автоматична
+                alignment: end
             }
             layout {
                 sequence: 170
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -471,9 +489,11 @@ page 540 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 180
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

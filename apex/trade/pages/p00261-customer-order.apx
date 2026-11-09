@@ -393,10 +393,113 @@ page 261 (
         }
     )
 
+    pageItem P261_DELIVERY_POINT_ID (
+        type: popupLov
+        label {
+            label: Точка доставки
+            alignment: right
+        }
+        layout {
+            sequence: 110
+            region: @header
+            slot: regionBody
+            columnSpan: 6
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        source {
+            formRegion: @header
+            column: DELIVERY_POINT_ID
+            dataType: varchar2
+        }
+        lov {
+            type: sqlQuery
+            sqlQuery:
+                ```sql
+                select name || ' (' || gln || ')' d, id r
+                  from ref_delivery_point
+                 where state = 'ACTIVE' and counterparty_id = :P261_CUSTOMER_ID
+                 order by name
+                ```
+            displayExtraValues: true
+            displayNullValue: true
+        }
+        cascadingLov {
+            parentItems: [
+                P261_CUSTOMER_ID
+            ]
+            parentRequired: false
+        }
+        help {
+            helpText: Магазин / РЦ мережі (GLN) — DELIVERYPLACE у повідомленнях EDI.
+        }
+    )
+
+    pageItem P261_EXT_ORDER_NUMBER (
+        type: textField
+        label {
+            label: № замовлення мережі
+            alignment: right
+        }
+        layout {
+            sequence: 120
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 35
+        }
+        source {
+            formRegion: @header
+            column: EXT_ORDER_NUMBER
+            dataType: varchar2
+        }
+        help {
+            helpText: Номер замовлення покупця (ORDERS), повертається в ORDRSP / DESADV / INVOIC.
+        }
+    )
+
+    pageItem P261_EXT_ORDER_DATE (
+        type: datePicker
+        label {
+            label: Дата замовлення мережі
+            alignment: right
+        }
+        layout {
+            sequence: 130
+            region: @header
+            slot: regionBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: DD.MM.YYYY
+        }
+        source {
+            formRegion: @header
+            column: EXT_ORDER_DATE
+            dataType: date
+        }
+        settings {
+            displayAs: popup
+            showTime: false
+        }
+    )
+
     pageItem P261_STATUS (
         type: hidden
         layout {
-            sequence: 110
+            sequence: 140
             region: @header
             slot: regionBody
         }
@@ -413,7 +516,7 @@ page 261 (
     pageItem P261_FORM_TITLE (
         type: hidden
         layout {
-            sequence: 120
+            sequence: 150
             region: @header
             slot: regionBody
         }
@@ -426,7 +529,7 @@ page 261 (
     pageItem P261_NEW_ID (
         type: hidden
         layout {
-            sequence: 130
+            sequence: 160
             region: @header
             slot: regionBody
         }
@@ -596,7 +699,7 @@ page 261 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000196
+            savedReportMappingIdentifier: 910000000204
         }
 
         savedReport primary (
@@ -1024,6 +1127,30 @@ page 261 (
         )
     )
 
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocCustomerOrder', :P261_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P261_ID
+        }
+    )
+
     region footer (
         name: Підвал
         type: staticContent
@@ -1044,7 +1171,7 @@ page 261 (
             alignment: right
         }
         layout {
-            sequence: 140
+            sequence: 170
             region: @footer
             slot: regionBody
             columnSpan: 3
@@ -1069,7 +1196,7 @@ page 261 (
             alignment: right
         }
         layout {
-            sequence: 150
+            sequence: 180
             region: @footer
             slot: regionBody
             columnSpan: 12
@@ -1101,7 +1228,7 @@ page 261 (
             alignment: right
         }
         layout {
-            sequence: 160
+            sequence: 190
             region: @footer
             slot: regionBody
             columnSpan: 4
@@ -1135,7 +1262,7 @@ page 261 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000197
+            executionMappingIdentifier: 910000000205
         }
     )
 
@@ -1463,11 +1590,37 @@ page 261 (
         }
     )
 
+    button cmd-edi-ordrsp (
+        buttonName: EDI_ORDRSP
+        label: EDI: підтвердження ORDRSP
+        layout {
+            sequence: 48
+            region: @actions
+            slot: close
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            executeValidations: false
+        }
+        serverSideCondition {
+            type: item=value
+            item: P261_STATUS
+            value: POSTED
+        }
+        security {
+            authorizationScheme: @role-sales
+        }
+    )
+
     button cmd-print (
         buttonName: PRINT
         label: Друк
         layout {
-            sequence: 48
+            sequence: 49
             region: @actions
             slot: close
         }
@@ -1537,7 +1690,7 @@ page 261 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000198
+            executionMappingIdentifier: 910000000206
         }
     )
 
@@ -1558,7 +1711,7 @@ page 261 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000199
+            executionMappingIdentifier: 910000000207
         }
     )
 
@@ -1611,7 +1764,7 @@ page 261 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000200
+            executionMappingIdentifier: 910000000208
         }
     )
 
@@ -1640,7 +1793,7 @@ page 261 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000201
+            executionMappingIdentifier: 910000000209
         }
     )
 
@@ -1665,7 +1818,7 @@ page 261 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000202
+            executionMappingIdentifier: 910000000210
         }
     )
 
@@ -1696,7 +1849,7 @@ page 261 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000203
+            executionMappingIdentifier: 910000000211
         }
     )
 
@@ -1720,7 +1873,7 @@ page 261 (
             plsqlExpression: :REQUEST in ('CREATE_SALE')
         }
         advanced {
-            executionMappingIdentifier: 910000000204
+            executionMappingIdentifier: 910000000212
         }
     )
 
@@ -1767,7 +1920,7 @@ page 261 (
             plsqlExpression: :REQUEST in ('CREATE_INVOICE')
         }
         advanced {
-            executionMappingIdentifier: 910000000205
+            executionMappingIdentifier: 910000000213
         }
     )
 
@@ -1817,7 +1970,7 @@ page 261 (
             successMessage: Замовлення закрито.
         }
         advanced {
-            executionMappingIdentifier: 910000000206
+            executionMappingIdentifier: 910000000214
         }
     )
 
@@ -1844,7 +1997,7 @@ page 261 (
             successMessage: Замовлення відкрито.
         }
         advanced {
-            executionMappingIdentifier: 910000000207
+            executionMappingIdentifier: 910000000215
         }
     )
 
@@ -1868,7 +2021,7 @@ page 261 (
             plsqlExpression: :REQUEST in ('CREATE_CUSTOMER_PAYMENT')
         }
         advanced {
-            executionMappingIdentifier: 910000000208
+            executionMappingIdentifier: 910000000216
         }
     )
 
@@ -1918,7 +2071,7 @@ page 261 (
             successMessage: Автоматичні знижки розраховано за умовами довідника «Знижки та акції».
         }
         advanced {
-            executionMappingIdentifier: 910000000209
+            executionMappingIdentifier: 910000000217
         }
     )
 
@@ -1945,7 +2098,54 @@ page 261 (
             successMessage: Ручну знижку встановлено в усіх рядках документа.
         }
         advanced {
-            executionMappingIdentifier: 910000000210
+            executionMappingIdentifier: 910000000218
+        }
+    )
+
+    process cmd-edi-ordrsp (
+        name: EDI: підтвердження ORDRSP
+        type: executeCode
+        source {
+            language: plsql
+            plsqlCode:
+                ```plsql
+                :P261_NEW_ID := trade_edi.ordrsp_from_order(:P261_ID);
+                ```
+        }
+        execution {
+            sequence: 67
+            point: afterSubmit
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('EDI_ORDRSP')
+        }
+        advanced {
+            executionMappingIdentifier: 910000000219
+        }
+    )
+
+    branch to-edi-ordrsp (
+        name: До документа: EDI: підтвердження ORDRSP
+        behavior {
+            type: pageOrUrl
+            target: {
+                page: 700
+                clearCache: 700
+                items: {
+                    P700_ID: &P261_NEW_ID.
+                }
+            }
+        }
+        execution {
+            sequence: 12
+            point: afterProcessing
+        }
+        serverSideCondition {
+            type: expression
+            language: plsql
+            plsqlExpression: :REQUEST in ('EDI_ORDRSP')
         }
     )
 
@@ -1960,7 +2160,7 @@ page 261 (
                 ```
         }
         execution {
-            sequence: 67
+            sequence: 68
             point: afterSubmit
         }
         serverSideCondition {
@@ -1969,7 +2169,7 @@ page 261 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000211
+            executionMappingIdentifier: 910000000220
         }
     )
 
@@ -1986,7 +2186,7 @@ page 261 (
             }
         }
         execution {
-            sequence: 12
+            sequence: 13
             point: afterProcessing
         }
         serverSideCondition {
@@ -2017,7 +2217,7 @@ page 261 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000212
+            executionMappingIdentifier: 910000000221
         }
     )
 

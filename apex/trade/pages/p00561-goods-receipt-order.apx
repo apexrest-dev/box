@@ -472,7 +472,7 @@ page 561 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000348
+            savedReportMappingIdentifier: 910000000357
         }
 
         savedReport primary (
@@ -813,7 +813,7 @@ page 561 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000349
+            executionMappingIdentifier: 910000000358
         }
     )
 
@@ -1078,7 +1078,7 @@ page 561 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000350
+            executionMappingIdentifier: 910000000359
         }
     )
 
@@ -1099,7 +1099,7 @@ page 561 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000351
+            executionMappingIdentifier: 910000000360
         }
     )
 
@@ -1148,7 +1148,7 @@ page 561 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000352
+            executionMappingIdentifier: 910000000361
         }
     )
 
@@ -1177,7 +1177,7 @@ page 561 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000353
+            executionMappingIdentifier: 910000000362
         }
     )
 
@@ -1202,7 +1202,7 @@ page 561 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000354
+            executionMappingIdentifier: 910000000363
         }
     )
 
@@ -1227,7 +1227,7 @@ page 561 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000355
+            executionMappingIdentifier: 910000000364
         }
     )
 
@@ -1254,7 +1254,7 @@ page 561 (
             successMessage: Рядки заповнено за розпорядженням.
         }
         advanced {
-            executionMappingIdentifier: 910000000356
+            executionMappingIdentifier: 910000000365
         }
     )
 
@@ -1278,7 +1278,7 @@ page 561 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000357
+            executionMappingIdentifier: 910000000366
         }
     )
 
@@ -1326,7 +1326,7 @@ page 561 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000358
+            executionMappingIdentifier: 910000000367
         }
     )
 

@@ -463,7 +463,7 @@ page 401 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000313
+            savedReportMappingIdentifier: 910000000322
         }
 
         savedReport primary (
@@ -974,7 +974,7 @@ page 401 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000314
+            executionMappingIdentifier: 910000000323
         }
     )
 
@@ -1278,7 +1278,7 @@ page 401 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000315
+            executionMappingIdentifier: 910000000324
         }
     )
 
@@ -1299,7 +1299,7 @@ page 401 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000316
+            executionMappingIdentifier: 910000000325
         }
     )
 
@@ -1360,7 +1360,7 @@ page 401 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000317
+            executionMappingIdentifier: 910000000326
         }
     )
 
@@ -1389,7 +1389,7 @@ page 401 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000318
+            executionMappingIdentifier: 910000000327
         }
     )
 
@@ -1414,7 +1414,7 @@ page 401 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000319
+            executionMappingIdentifier: 910000000328
         }
     )
 
@@ -1439,7 +1439,7 @@ page 401 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000320
+            executionMappingIdentifier: 910000000329
         }
     )
 
@@ -1466,7 +1466,7 @@ page 401 (
             successMessage: Контрагентів знайдено за ЄДРПОУ / IBAN (рядки без контрагента).
         }
         advanced {
-            executionMappingIdentifier: 910000000321
+            executionMappingIdentifier: 910000000330
         }
     )
 
@@ -1493,7 +1493,7 @@ page 401 (
             successMessage: Рядки внесення / зняття готівки зіставлено з проведеними касовими ордерами.
         }
         advanced {
-            executionMappingIdentifier: 910000000322
+            executionMappingIdentifier: 910000000331
         }
     )
 
@@ -1520,7 +1520,7 @@ page 401 (
             successMessage: Рядки оплат зіставлено з проведеними безготівковими документами оплати.
         }
         advanced {
-            executionMappingIdentifier: 910000000323
+            executionMappingIdentifier: 910000000332
         }
     )
 
@@ -1544,7 +1544,7 @@ page 401 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000324
+            executionMappingIdentifier: 910000000333
         }
     )
 

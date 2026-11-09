@@ -523,7 +523,7 @@ page 670 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000462
+            savedReportMappingIdentifier: 910000000471
         }
 
 
@@ -563,9 +563,11 @@ page 670 (
             }
             heading {
                 heading: Рядок
+                alignment: end
             }
             layout {
                 sequence: 30
+                columnAlignment: end
             }
         )
 
@@ -686,7 +688,7 @@ page 670 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000463
+            savedReportMappingIdentifier: 910000000472
         }
 
 
@@ -791,9 +793,11 @@ page 670 (
             }
             heading {
                 heading: Рядків
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
         )
 
@@ -804,9 +808,11 @@ page 670 (
             }
             heading {
                 heading: Створено
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
         )
 
@@ -817,9 +823,11 @@ page 670 (
             }
             heading {
                 heading: Оновлено
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
         )
 
@@ -830,9 +838,11 @@ page 670 (
             }
             heading {
                 heading: Цін
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
         )
 
@@ -843,9 +853,11 @@ page 670 (
             }
             heading {
                 heading: Пропущено
+                alignment: end
             }
             layout {
                 sequence: 120
+                columnAlignment: end
             }
         )
 
@@ -856,9 +868,11 @@ page 670 (
             }
             heading {
                 heading: Помилок
+                alignment: end
             }
             layout {
                 sequence: 130
+                columnAlignment: end
             }
         )
     )
@@ -887,7 +901,7 @@ page 670 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000464
+            executionMappingIdentifier: 910000000473
         }
     )
 
@@ -911,7 +925,7 @@ page 670 (
             plsqlExpression: :REQUEST in ('KIND')
         }
         advanced {
-            executionMappingIdentifier: 910000000465
+            executionMappingIdentifier: 910000000474
         }
     )
 
@@ -953,7 +967,7 @@ page 670 (
             successMessage: Файл завантажено. Перевірте зіставлення колонок і рядки, потім натисніть «Виконати імпорт».
         }
         advanced {
-            executionMappingIdentifier: 910000000466
+            executionMappingIdentifier: 910000000475
         }
     )
 
@@ -984,7 +998,7 @@ page 670 (
             successMessage: Перевірку виконано.
         }
         advanced {
-            executionMappingIdentifier: 910000000467
+            executionMappingIdentifier: 910000000476
         }
     )
 
@@ -1011,7 +1025,7 @@ page 670 (
             successMessage: Імпорт виконано. Результат кожного рядка — у таблиці «Рядки файлу».
         }
         advanced {
-            executionMappingIdentifier: 910000000468
+            executionMappingIdentifier: 910000000477
         }
     )
 
@@ -1035,7 +1049,7 @@ page 670 (
             plsqlExpression: :REQUEST in ('TEMPLATE')
         }
         advanced {
-            executionMappingIdentifier: 910000000469
+            executionMappingIdentifier: 910000000478
         }
     )
 
@@ -1059,7 +1073,7 @@ page 670 (
             plsqlExpression: :REQUEST in ('ERRORS')
         }
         advanced {
-            executionMappingIdentifier: 910000000470
+            executionMappingIdentifier: 910000000479
         }
     )
 
@@ -1083,7 +1097,7 @@ page 670 (
             plsqlExpression: :REQUEST in ('NEW')
         }
         advanced {
-            executionMappingIdentifier: 910000000471
+            executionMappingIdentifier: 910000000480
         }
     )
 

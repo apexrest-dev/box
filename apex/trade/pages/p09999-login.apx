@@ -27,7 +27,7 @@ page 9999 (
             templateOptions: #DEFAULT#
         }
         image {
-            fileUrl: #APP_FILES#icons/app-icon-512.png
+            fileUrl: #APP_FILES#icons/trade-logo.svg
         }
     )
 

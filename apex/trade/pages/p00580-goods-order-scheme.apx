@@ -73,7 +73,7 @@ page 580 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000437
+            savedReportMappingIdentifier: 910000000446
         }
 
 
@@ -142,9 +142,11 @@ page 580 (
             }
             heading {
                 heading: За документом
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -158,9 +160,11 @@ page 580 (
             }
             heading {
                 heading: Прийнято
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -174,9 +178,11 @@ page 580 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -229,7 +235,7 @@ page 580 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000438
+            savedReportMappingIdentifier: 910000000447
         }
 
 
@@ -298,9 +304,11 @@ page 580 (
             }
             heading {
                 heading: За документом
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -314,9 +322,11 @@ page 580 (
             }
             heading {
                 heading: Відвантажено
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -330,9 +340,11 @@ page 580 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -385,7 +397,7 @@ page 580 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000439
+            savedReportMappingIdentifier: 910000000448
         }
 
 
@@ -487,9 +499,11 @@ page 580 (
             }
             heading {
                 heading: За документами
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -503,9 +517,11 @@ page 580 (
             }
             heading {
                 heading: Оформлено ордерами
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -519,9 +535,11 @@ page 580 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -559,7 +577,7 @@ page 580 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000440
+            savedReportMappingIdentifier: 910000000449
         }
 
 
@@ -648,9 +666,11 @@ page 580 (
             }
             heading {
                 heading: За обліком
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -664,9 +684,11 @@ page 580 (
             }
             heading {
                 heading: До надходження
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -680,9 +702,11 @@ page 580 (
             }
             heading {
                 heading: До відвантаження
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -696,9 +720,11 @@ page 580 (
             }
             heading {
                 heading: Фактично на складі
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -736,7 +762,7 @@ page 580 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000441
+            savedReportMappingIdentifier: 910000000450
         }
 
 
@@ -838,9 +864,11 @@ page 580 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -879,7 +907,7 @@ page 580 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000442
+            savedReportMappingIdentifier: 910000000451
         }
 
 
@@ -1026,9 +1054,11 @@ page 580 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000

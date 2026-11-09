@@ -62,7 +62,7 @@ page 300 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000254
+            savedReportMappingIdentifier: 910000000263
         }
 
 
@@ -183,9 +183,11 @@ page 300 (
             }
             heading {
                 heading: Надлишки
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -199,9 +201,11 @@ page 300 (
             }
             heading {
                 heading: Недостачі
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

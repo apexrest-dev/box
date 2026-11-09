@@ -703,7 +703,7 @@ page 121 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000159
+            savedReportMappingIdentifier: 910000000167
         }
 
 
@@ -714,9 +714,11 @@ page 121 (
             }
             heading {
                 heading: №
+                alignment: end
             }
             layout {
                 sequence: 10
+                columnAlignment: end
             }
         )
 
@@ -756,9 +758,11 @@ page 121 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 40
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -826,7 +830,7 @@ page 121 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000160
+            executionMappingIdentifier: 910000000168
         }
     )
 
@@ -1120,7 +1124,7 @@ page 121 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000161
+            executionMappingIdentifier: 910000000169
         }
     )
 
@@ -1141,7 +1145,7 @@ page 121 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000162
+            executionMappingIdentifier: 910000000170
         }
     )
 
@@ -1170,7 +1174,7 @@ page 121 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000163
+            executionMappingIdentifier: 910000000171
         }
     )
 
@@ -1195,7 +1199,7 @@ page 121 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000164
+            executionMappingIdentifier: 910000000172
         }
     )
 
@@ -1220,7 +1224,7 @@ page 121 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000165
+            executionMappingIdentifier: 910000000173
         }
     )
 
@@ -1244,7 +1248,7 @@ page 121 (
             plsqlExpression: :REQUEST in ('CREATE_TAX_INVOICE')
         }
         advanced {
-            executionMappingIdentifier: 910000000166
+            executionMappingIdentifier: 910000000174
         }
     )
 
@@ -1291,7 +1295,7 @@ page 121 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000167
+            executionMappingIdentifier: 910000000175
         }
     )
 

@@ -283,6 +283,127 @@ page 21 (
             numberAlignment: end
             virtualKeyboard: decimal
         }
+        help {
+            helpText: Вага одиниці товару (базової одиниці виміру). Для одиниць «кг», «г», «т» без значення береться з одиниці виміру.
+        }
+    )
+
+    pageItem P21_VOLUME_M3 (
+        type: numberField
+        label {
+            label: Об'єм, м³
+            alignment: right
+        }
+        layout {
+            sequence: 90
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G990D000000
+        }
+        source {
+            formRegion: @form
+            column: VOLUME_M3
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+        help {
+            helpText: Об'єм одиниці товару. Якщо задано всі три габарити, розраховується автоматично (Д × Ш × В / 1 000 000); для «л», «м3» без значення — з одиниці виміру.
+        }
+    )
+
+    pageItem P21_LENGTH_CM (
+        type: numberField
+        label {
+            label: Довжина, см
+            alignment: right
+        }
+        layout {
+            sequence: 100
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G990D0
+        }
+        source {
+            formRegion: @form
+            column: LENGTH_CM
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+    )
+
+    pageItem P21_WIDTH_CM (
+        type: numberField
+        label {
+            label: Ширина, см
+            alignment: right
+        }
+        layout {
+            sequence: 110
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G990D0
+        }
+        source {
+            formRegion: @form
+            column: WIDTH_CM
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
+    )
+
+    pageItem P21_HEIGHT_CM (
+        type: numberField
+        label {
+            label: Висота, см
+            alignment: right
+        }
+        layout {
+            sequence: 120
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+            startNewRow: false
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+            formatMask: FM999G990D0
+        }
+        source {
+            formRegion: @form
+            column: HEIGHT_CM
+            dataType: number
+        }
+        settings {
+            numberAlignment: end
+            virtualKeyboard: decimal
+        }
     )
 
     pageItem P21_DESCRIPTION (
@@ -292,7 +413,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 90
+            sequence: 130
             region: @form
             slot: regionBody
             columnSpan: 12
@@ -324,7 +445,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 100
+            sequence: 140
             region: @form
             slot: regionBody
             columnSpan: 4
@@ -357,7 +478,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 110
+            sequence: 150
             region: @form
             slot: regionBody
             columnSpan: 4
@@ -391,7 +512,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 120
+            sequence: 160
             region: @form
             slot: regionBody
             columnSpan: 4
@@ -422,7 +543,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 130
+            sequence: 170
             region: @form
             slot: regionBody
             columnSpan: 6
@@ -461,7 +582,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 140
+            sequence: 180
             region: @form
             slot: regionBody
             columnSpan: 6
@@ -491,7 +612,7 @@ page 21 (
             alignment: right
         }
         layout {
-            sequence: 150
+            sequence: 190
             region: @form
             slot: regionBody
             columnSpan: 6

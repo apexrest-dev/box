@@ -716,7 +716,7 @@ page 61 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000122
+            executionMappingIdentifier: 910000000128
         }
     )
 
@@ -985,7 +985,7 @@ page 61 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000123
+            executionMappingIdentifier: 910000000129
         }
     )
 
@@ -1006,7 +1006,7 @@ page 61 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000124
+            executionMappingIdentifier: 910000000130
         }
     )
 
@@ -1035,7 +1035,7 @@ page 61 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000125
+            executionMappingIdentifier: 910000000131
         }
     )
 
@@ -1060,7 +1060,7 @@ page 61 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000126
+            executionMappingIdentifier: 910000000132
         }
     )
 
@@ -1085,7 +1085,7 @@ page 61 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000127
+            executionMappingIdentifier: 910000000133
         }
     )
 
@@ -1109,7 +1109,7 @@ page 61 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000128
+            executionMappingIdentifier: 910000000134
         }
     )
 

@@ -102,3 +102,17 @@ textMessage APEX.WARN_ON_UNSAVED_CHANGES (
         language: uk
     }
 )
+
+textMessage INVALID_CREDENTIALS (
+    message {
+        text: Невірне ім'я користувача або пароль.
+        language: uk
+    }
+)
+
+textMessage APEX.AUTHENTICATION.LOGIN_THROTTLE.COUNTER (
+    message {
+        text: Наступна спроба входу можлива через <span id="apex_login_throttle_sec">%0</span> с.
+        language: uk
+    }
+)

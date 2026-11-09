@@ -61,7 +61,7 @@ page 400 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000312
+            savedReportMappingIdentifier: 910000000321
         }
 
 
@@ -169,9 +169,11 @@ page 400 (
             }
             heading {
                 heading: Надходження
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -185,9 +187,11 @@ page 400 (
             }
             heading {
                 heading: Списання
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -214,9 +218,11 @@ page 400 (
             }
             heading {
                 heading: Операцій
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
         )
 
@@ -227,9 +233,11 @@ page 400 (
             }
             heading {
                 heading: Без контрагента
+                alignment: end
             }
             layout {
                 sequence: 120
+                columnAlignment: end
             }
         )
 

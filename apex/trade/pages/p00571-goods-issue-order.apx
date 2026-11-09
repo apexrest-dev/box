@@ -427,7 +427,7 @@ page 571 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000360
+            savedReportMappingIdentifier: 910000000369
         }
 
         savedReport primary (
@@ -738,6 +738,30 @@ page 571 (
         )
     )
 
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocGoodsIssueOrder', :P571_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P571_ID
+        }
+    )
+
     region footer (
         name: Підвал
         type: staticContent
@@ -798,7 +822,7 @@ page 571 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000361
+            executionMappingIdentifier: 910000000370
         }
     )
 
@@ -1063,7 +1087,7 @@ page 571 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000362
+            executionMappingIdentifier: 910000000371
         }
     )
 
@@ -1084,7 +1108,7 @@ page 571 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000363
+            executionMappingIdentifier: 910000000372
         }
     )
 
@@ -1133,7 +1157,7 @@ page 571 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000364
+            executionMappingIdentifier: 910000000373
         }
     )
 
@@ -1162,7 +1186,7 @@ page 571 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000365
+            executionMappingIdentifier: 910000000374
         }
     )
 
@@ -1187,7 +1211,7 @@ page 571 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000366
+            executionMappingIdentifier: 910000000375
         }
     )
 
@@ -1212,7 +1236,7 @@ page 571 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000367
+            executionMappingIdentifier: 910000000376
         }
     )
 
@@ -1239,7 +1263,7 @@ page 571 (
             successMessage: Рядки заповнено за розпорядженням. Комірки підібрано за залишками.
         }
         advanced {
-            executionMappingIdentifier: 910000000368
+            executionMappingIdentifier: 910000000377
         }
     )
 
@@ -1263,7 +1287,7 @@ page 571 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000369
+            executionMappingIdentifier: 910000000378
         }
     )
 
@@ -1311,7 +1335,7 @@ page 571 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000370
+            executionMappingIdentifier: 910000000379
         }
     )
 

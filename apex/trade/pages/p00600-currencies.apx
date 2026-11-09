@@ -188,9 +188,11 @@ page 600 (
             }
             heading {
                 heading: Курс сьогодні
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G990D0000

@@ -61,7 +61,7 @@ page 410 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000325
+            savedReportMappingIdentifier: 910000000334
         }
 
 
@@ -195,9 +195,11 @@ page 410 (
             }
             heading {
                 heading: Сума, UAH
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

@@ -88,6 +88,12 @@ begin
                  f.item_name, l_id);
       end if;
     end loop;
+    -- EDI (F-INT-04): сторінка 700 з карткою останнього повідомлення кожного типу
+    if p.page_id = 700 then
+      for m in (select msg_type, max(id) keep (dense_rank last order by msg_no) id from sys_edi_message group by msg_type order by 1) loop
+        add_case(p.page_id, p.page_name || ' /' || m.msg_type || ' P700_ID=' || m.id, false, 'P700_ID', m.id);
+      end loop;
+    end if;
   end loop;
 
   l_names(1) := 'REQUEST_METHOD';   l_vals(1) := 'GET';

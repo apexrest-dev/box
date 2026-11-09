@@ -47,3 +47,6 @@ whenever sqlerror exit failure
 @@44_r5_catalog_import.sql
 @@45_r5_inventory_turnover.sql
 @@46_r5_slow_moving_stock.sql
+@@47_r7_edi.sql
+@@48_r6_weights_dimensions.sql
+@@49_ui_product_tree.sql

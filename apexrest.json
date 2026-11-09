@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "projectId": "trade",
+  "application": {
+    "sourceDir": "apex/trade",
+    "alias": "trade"
+  },
+  "database": {
+    "migrationsDir": "db",
+    "packagesDir": "db"
+  },
+  "toolchain": {
+    "lockFile": "apexrest.toolchain.lock.json",
+    "profile": "26.2"
+  },
+  "environments": {
+    "dev": {
+      "kind": "dev",
+      "readConnectionRef": "trade-local",
+      "deployConnectionRef": "trade-local",
+      "workspace": "TRADE",
+      "parsingSchema": "TRADE",
+      "applicationId": 100,
+      "baseUrl": "http://localhost:8181/ords/r/trade/trade/",
+      "databaseIdentity": {
+        "dbUniqueName": "FREE",
+        "serviceName": "freepdb1"
+      },
+      "allowedOrigins": []
+    }
+  },
+  "artifacts": {
+    "directory": ".apexrest/artifacts",
+    "retentionDays": 7
+  }
+}

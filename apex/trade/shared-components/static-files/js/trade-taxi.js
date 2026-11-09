@@ -79,10 +79,10 @@
     var homeUrl = apex.env.APP_URL || ("home?session=" + apex.env.APP_SESSION);
     var $bar = $('<nav class="tx-open-tabs" aria-label="Відкриті форми"></nav>');
     $bar.append(
-      $('<a class="tx-open-tab" title="Начальна сторінка"></a>')
+      $('<a class="tx-open-tab" title="Початкова сторінка"></a>')
         .toggleClass("is-active", home)
         .attr("href", location.pathname.replace(/[^/]+$/, "home") + "?session=" + apex.env.APP_SESSION)
-        .append('<span class="fa fa-home" aria-hidden="true"></span><span class="tx-tab-title">Начальна сторінка</span>')
+        .append('<span class="fa fa-home" aria-hidden="true"></span><span class="tx-tab-title">Початкова сторінка</span>')
     );
     tabs.forEach(function (t) {
       var $a = $('<a class="tx-open-tab"></a>').attr("href", withSession(t.url)).attr("title", t.title)
@@ -245,5 +245,28 @@
       });
     });
     obs.observe(document.body, { childList: true, subtree: true });
+  });
+})(apex.jQuery);
+
+/* Ієрархічний довідник (F-UI-07): дерево груп ліворуч, список праворуч */
+(function ($) {
+  $(document).on("click", ".tx-tree-toggle", function (e) {
+    e.preventDefault();
+    $(this).closest("li").toggleClass("is-open");
+  });
+  $(document).on("click", ".tx-tree-label", function (e) {
+    e.preventDefault();
+    var $tree = $(this).closest(".tx-tree"), $li = $(this).closest("li");
+    $tree.find("li.is-current").removeClass("is-current");
+    $li.addClass("is-current");
+    if ($li.hasClass("has-children")) { $li.addClass("is-open"); }
+    apex.item($tree.attr("data-item")).setValue($(this).attr("data-id") || "");
+  });
+  $(document).on("dblclick", ".tx-tree-label", function (e) {
+    e.preventDefault();
+    $(this).closest("li").toggleClass("is-open");
+  });
+  $(document).on("change", ".tx-tree-sub input", function () {
+    apex.item($(this).attr("data-item")).setValue(this.checked ? "Y" : "N");
   });
 })(apex.jQuery);

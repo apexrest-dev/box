@@ -505,7 +505,7 @@ page 441 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000334
+            savedReportMappingIdentifier: 910000000343
         }
 
         savedReport primary (
@@ -837,7 +837,7 @@ page 441 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000335
+            executionMappingIdentifier: 910000000344
         }
     )
 
@@ -1176,7 +1176,7 @@ page 441 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000336
+            executionMappingIdentifier: 910000000345
         }
     )
 
@@ -1197,7 +1197,7 @@ page 441 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000337
+            executionMappingIdentifier: 910000000346
         }
     )
 
@@ -1244,7 +1244,7 @@ page 441 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000338
+            executionMappingIdentifier: 910000000347
         }
     )
 
@@ -1273,7 +1273,7 @@ page 441 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000339
+            executionMappingIdentifier: 910000000348
         }
     )
 
@@ -1298,7 +1298,7 @@ page 441 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000340
+            executionMappingIdentifier: 910000000349
         }
     )
 
@@ -1328,7 +1328,7 @@ page 441 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000341
+            executionMappingIdentifier: 910000000350
         }
     )
 
@@ -1355,7 +1355,7 @@ page 441 (
             successMessage: Комплектуючі заповнено за специфікацією.
         }
         advanced {
-            executionMappingIdentifier: 910000000342
+            executionMappingIdentifier: 910000000351
         }
     )
 
@@ -1382,7 +1382,7 @@ page 441 (
             successMessage: Серії підібрано за FEFO (першим спливає — першим відвантажено). Перевірте рядки без серії.
         }
         advanced {
-            executionMappingIdentifier: 910000000343
+            executionMappingIdentifier: 910000000352
         }
     )
 
@@ -1406,7 +1406,7 @@ page 441 (
             plsqlExpression: :REQUEST in ('CREATE_RECEIPT_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000344
+            executionMappingIdentifier: 910000000353
         }
     )
 
@@ -1453,7 +1453,7 @@ page 441 (
             plsqlExpression: :REQUEST in ('CREATE_ISSUE_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000345
+            executionMappingIdentifier: 910000000354
         }
     )
 
@@ -1500,7 +1500,7 @@ page 441 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000346
+            executionMappingIdentifier: 910000000355
         }
     )
 

@@ -61,7 +61,7 @@ page 60 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000121
+            savedReportMappingIdentifier: 910000000127
         }
 
 
@@ -195,9 +195,11 @@ page 60 (
             }
             heading {
                 heading: Сума оплати
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

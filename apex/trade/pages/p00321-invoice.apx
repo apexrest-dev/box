@@ -520,7 +520,7 @@ page 321 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000281
+            savedReportMappingIdentifier: 910000000290
         }
 
         savedReport primary (
@@ -840,7 +840,7 @@ page 321 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000282
+            savedReportMappingIdentifier: 910000000291
         }
 
 
@@ -906,9 +906,11 @@ page 321 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -927,6 +929,30 @@ page 321 (
                 sequence: 60
             }
         )
+    )
+
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocInvoiceForPayment', :P321_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P321_ID
+        }
     )
 
     region footer (
@@ -1067,7 +1093,7 @@ page 321 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000283
+            executionMappingIdentifier: 910000000292
         }
     )
 
@@ -1384,7 +1410,7 @@ page 321 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000284
+            executionMappingIdentifier: 910000000293
         }
     )
 
@@ -1405,7 +1431,7 @@ page 321 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000285
+            executionMappingIdentifier: 910000000294
         }
     )
 
@@ -1452,7 +1478,7 @@ page 321 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000286
+            executionMappingIdentifier: 910000000295
         }
     )
 
@@ -1481,7 +1507,7 @@ page 321 (
             successMessage: Рахунок видано. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000287
+            executionMappingIdentifier: 910000000296
         }
     )
 
@@ -1506,7 +1532,7 @@ page 321 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000288
+            executionMappingIdentifier: 910000000297
         }
     )
 
@@ -1536,7 +1562,7 @@ page 321 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000289
+            executionMappingIdentifier: 910000000298
         }
     )
 
@@ -1563,7 +1589,7 @@ page 321 (
             successMessage: Рахунок анульовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000290
+            executionMappingIdentifier: 910000000299
         }
     )
 
@@ -1587,7 +1613,7 @@ page 321 (
             plsqlExpression: :REQUEST in ('CREATE_CASH_RECEIPT')
         }
         advanced {
-            executionMappingIdentifier: 910000000291
+            executionMappingIdentifier: 910000000300
         }
     )
 
@@ -1634,7 +1660,7 @@ page 321 (
             plsqlExpression: :REQUEST in ('CREATE_CUSTOMER_PAYMENT')
         }
         advanced {
-            executionMappingIdentifier: 910000000292
+            executionMappingIdentifier: 910000000301
         }
     )
 
@@ -1681,7 +1707,7 @@ page 321 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000293
+            executionMappingIdentifier: 910000000302
         }
     )
 
@@ -1729,7 +1755,7 @@ page 321 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000294
+            executionMappingIdentifier: 910000000303
         }
     )
 

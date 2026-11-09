@@ -588,7 +588,7 @@ page 411 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000326
+            executionMappingIdentifier: 910000000335
         }
     )
 
@@ -856,7 +856,7 @@ page 411 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000327
+            executionMappingIdentifier: 910000000336
         }
     )
 
@@ -877,7 +877,7 @@ page 411 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000328
+            executionMappingIdentifier: 910000000337
         }
     )
 
@@ -906,7 +906,7 @@ page 411 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000329
+            executionMappingIdentifier: 910000000338
         }
     )
 
@@ -931,7 +931,7 @@ page 411 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000330
+            executionMappingIdentifier: 910000000339
         }
     )
 
@@ -956,7 +956,7 @@ page 411 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000331
+            executionMappingIdentifier: 910000000340
         }
     )
 
@@ -980,7 +980,7 @@ page 411 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000332
+            executionMappingIdentifier: 910000000341
         }
     )
 

@@ -194,7 +194,7 @@ page 630 (
             whenButtonPressed: @generate
         }
         advanced {
-            executionMappingIdentifier: 910000000449
+            executionMappingIdentifier: 910000000458
         }
     )
 
@@ -259,7 +259,7 @@ page 630 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000450
+            savedReportMappingIdentifier: 910000000459
         }
 
 
@@ -406,9 +406,11 @@ page 630 (
             }
             heading {
                 heading: Без ПДВ
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -422,9 +424,11 @@ page 630 (
             }
             heading {
                 heading: ПДВ
+                alignment: end
             }
             layout {
                 sequence: 120
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -438,9 +442,11 @@ page 630 (
             }
             heading {
                 heading: З ПДВ
+                alignment: end
             }
             layout {
                 sequence: 130
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -570,7 +576,7 @@ page 630 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000451
+            savedReportMappingIdentifier: 910000000460
         }
 
 
@@ -665,9 +671,11 @@ page 630 (
             }
             heading {
                 heading: Сума події
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -681,9 +689,11 @@ page 630 (
             }
             heading {
                 heading: Зобов'язання (перша подія)
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -697,9 +707,11 @@ page 630 (
             }
             heading {
                 heading: Оформлено ПН
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -713,9 +725,11 @@ page 630 (
             }
             heading {
                 heading: Без ПН
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

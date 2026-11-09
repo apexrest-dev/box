@@ -508,7 +508,7 @@ page 301 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000255
+            savedReportMappingIdentifier: 910000000264
         }
 
         savedReport primary (
@@ -819,7 +819,7 @@ page 301 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000256
+            executionMappingIdentifier: 910000000265
         }
     )
 
@@ -1125,7 +1125,7 @@ page 301 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000257
+            executionMappingIdentifier: 910000000266
         }
     )
 
@@ -1146,7 +1146,7 @@ page 301 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000258
+            executionMappingIdentifier: 910000000267
         }
     )
 
@@ -1189,7 +1189,7 @@ page 301 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000259
+            executionMappingIdentifier: 910000000268
         }
     )
 
@@ -1218,7 +1218,7 @@ page 301 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000260
+            executionMappingIdentifier: 910000000269
         }
     )
 
@@ -1243,7 +1243,7 @@ page 301 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000261
+            executionMappingIdentifier: 910000000270
         }
     )
 
@@ -1268,7 +1268,7 @@ page 301 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000262
+            executionMappingIdentifier: 910000000271
         }
     )
 
@@ -1295,7 +1295,7 @@ page 301 (
             successMessage: Заповнено обліковими залишками.
         }
         advanced {
-            executionMappingIdentifier: 910000000263
+            executionMappingIdentifier: 910000000272
         }
     )
 
@@ -1319,7 +1319,7 @@ page 301 (
             plsqlExpression: :REQUEST in ('CREATE_SURPLUS')
         }
         advanced {
-            executionMappingIdentifier: 910000000264
+            executionMappingIdentifier: 910000000273
         }
     )
 
@@ -1366,7 +1366,7 @@ page 301 (
             plsqlExpression: :REQUEST in ('CREATE_WRITE_OFF')
         }
         advanced {
-            executionMappingIdentifier: 910000000265
+            executionMappingIdentifier: 910000000274
         }
     )
 
@@ -1413,7 +1413,7 @@ page 301 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000266
+            executionMappingIdentifier: 910000000275
         }
     )
 
@@ -1461,7 +1461,7 @@ page 301 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000267
+            executionMappingIdentifier: 910000000276
         }
     )
 

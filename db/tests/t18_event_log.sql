@@ -211,7 +211,7 @@ begin
     join sys_metadata_object o on o.id = f.object_id where s.tech_name = 'Reference' and o.tech_name = 'EventLog' and f.group_name = 'Сервіс';
   eq('Панель функцій «НСІ та адміністрування → Сервіс»', l_n, 1);
   select count(*) into l_n from user_triggers where trigger_name like '%\_EVLOG' escape '\' and status = 'ENABLED';
-  eq('Тригери журналу на 23 документах і 17 довідниках (r5: характеристики, серії, знижки, ордери, комірки, валюти, ПН, чеки й каси ККМ)', l_n, 40);
+  eq('Тригери журналу на 23 документах і 18 довідниках (r5: характеристики, серії, знижки, ордери, комірки, валюти, ПН, чеки й каси ККМ; r7: точки доставки)', l_n, 41);
 
   rollback;
 exception when others then

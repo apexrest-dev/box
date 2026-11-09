@@ -492,7 +492,7 @@ page 311 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000269
+            savedReportMappingIdentifier: 910000000278
         }
 
         savedReport primary (
@@ -851,7 +851,7 @@ page 311 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000270
+            executionMappingIdentifier: 910000000279
         }
     )
 
@@ -1115,7 +1115,7 @@ page 311 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000271
+            executionMappingIdentifier: 910000000280
         }
     )
 
@@ -1136,7 +1136,7 @@ page 311 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000272
+            executionMappingIdentifier: 910000000281
         }
     )
 
@@ -1185,7 +1185,7 @@ page 311 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000273
+            executionMappingIdentifier: 910000000282
         }
     )
 
@@ -1214,7 +1214,7 @@ page 311 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000274
+            executionMappingIdentifier: 910000000283
         }
     )
 
@@ -1239,7 +1239,7 @@ page 311 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000275
+            executionMappingIdentifier: 910000000284
         }
     )
 
@@ -1269,7 +1269,7 @@ page 311 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000276
+            executionMappingIdentifier: 910000000285
         }
     )
 
@@ -1293,7 +1293,7 @@ page 311 (
             plsqlExpression: :REQUEST in ('CREATE_RECEIPT_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000277
+            executionMappingIdentifier: 910000000286
         }
     )
 
@@ -1340,7 +1340,7 @@ page 311 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000278
+            executionMappingIdentifier: 910000000287
         }
     )
 
@@ -1388,7 +1388,7 @@ page 311 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000279
+            executionMappingIdentifier: 910000000288
         }
     )
 

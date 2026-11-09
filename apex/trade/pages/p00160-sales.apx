@@ -193,7 +193,7 @@ page 160 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000405
+            savedReportMappingIdentifier: 910000000414
         }
 
 
@@ -230,9 +230,11 @@ page 160 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 30
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -246,9 +248,11 @@ page 160 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 40
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -262,9 +266,11 @@ page 160 (
             }
             heading {
                 heading: Середня ціна
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -308,7 +314,7 @@ page 160 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000406
+            savedReportMappingIdentifier: 910000000415
         }
 
 
@@ -332,9 +338,11 @@ page 160 (
             }
             heading {
                 heading: Документів
+                alignment: end
             }
             layout {
                 sequence: 20
+                columnAlignment: end
             }
         )
 
@@ -345,9 +353,11 @@ page 160 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 30
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -391,7 +401,7 @@ page 160 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000407
+            savedReportMappingIdentifier: 910000000416
         }
 
 
@@ -512,9 +522,11 @@ page 160 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -528,9 +540,11 @@ page 160 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

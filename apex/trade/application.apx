@@ -26,9 +26,6 @@ app TRADE (
         listTemplate: @/navigation-bar
         templateOptions: #DEFAULT#
     }
-    css {
-        fileUrls: #APP_FILES#css/trade-taxi.css
-    }
     javaScript {
         fileUrls: #APP_FILES#js/trade-taxi.js
     }

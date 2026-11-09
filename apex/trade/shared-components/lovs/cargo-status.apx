@@ -1,0 +1,18 @@
+lov cargo-status (
+    name: CARGO_STATUS
+    source {
+        location: staticValues
+    }
+
+    entry n (
+        sequence: 1
+        display: Усі (з чернетками)
+        return: N
+    )
+
+    entry y (
+        sequence: 2
+        display: Лише проведені
+        return: Y
+    )
+)

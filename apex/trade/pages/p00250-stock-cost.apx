@@ -185,7 +185,7 @@ page 250 (
             successMessage: Собівартість перераховано.
         }
         advanced {
-            executionMappingIdentifier: 910000000418
+            executionMappingIdentifier: 910000000427
         }
     )
 
@@ -236,7 +236,7 @@ page 250 (
             successMessage: Знімки залишків сформовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000419
+            executionMappingIdentifier: 910000000428
         }
     )
 
@@ -295,7 +295,7 @@ page 250 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000420
+            savedReportMappingIdentifier: 910000000429
         }
 
 
@@ -332,9 +332,11 @@ page 250 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 30
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -348,9 +350,11 @@ page 250 (
             }
             heading {
                 heading: Виручка
+                alignment: end
             }
             layout {
                 sequence: 40
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -364,9 +368,11 @@ page 250 (
             }
             heading {
                 heading: Собівартість
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -380,9 +386,11 @@ page 250 (
             }
             heading {
                 heading: Валовий прибуток
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -396,9 +404,11 @@ page 250 (
             }
             heading {
                 heading: Рентабельність, %
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -442,7 +452,7 @@ page 250 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000421
+            savedReportMappingIdentifier: 910000000430
         }
 
 
@@ -537,9 +547,11 @@ page 250 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -553,9 +565,11 @@ page 250 (
             }
             heading {
                 heading: Виручка
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -569,9 +583,11 @@ page 250 (
             }
             heading {
                 heading: Собівартість
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -585,9 +601,11 @@ page 250 (
             }
             heading {
                 heading: Прибуток
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -629,7 +647,7 @@ page 250 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000422
+            savedReportMappingIdentifier: 910000000431
         }
 
 
@@ -692,9 +710,11 @@ page 250 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -708,9 +728,11 @@ page 250 (
             }
             heading {
                 heading: Вартість
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -724,9 +746,11 @@ page 250 (
             }
             heading {
                 heading: Середня собівартість
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -770,7 +794,7 @@ page 250 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000423
+            savedReportMappingIdentifier: 910000000432
         }
 
 

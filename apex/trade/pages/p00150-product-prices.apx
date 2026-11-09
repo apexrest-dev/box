@@ -70,7 +70,7 @@ page 150 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000403
+            savedReportMappingIdentifier: 910000000412
         }
 
 
@@ -133,9 +133,11 @@ page 150 (
             }
             heading {
                 heading: Ціна
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -189,7 +191,7 @@ page 150 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000404
+            savedReportMappingIdentifier: 910000000413
         }
 
 
@@ -284,9 +286,11 @@ page 150 (
             }
             heading {
                 heading: Ціна
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

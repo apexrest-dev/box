@@ -62,7 +62,7 @@ page 370 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000295
+            savedReportMappingIdentifier: 910000000304
         }
 
 
@@ -209,9 +209,11 @@ page 370 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 110
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

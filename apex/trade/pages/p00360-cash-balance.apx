@@ -131,7 +131,7 @@ page 360 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000426
+            savedReportMappingIdentifier: 910000000435
         }
 
 
@@ -207,9 +207,11 @@ page 360 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -223,9 +225,11 @@ page 360 (
             }
             heading {
                 heading: Курс НБУ
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G990D0000
@@ -255,9 +259,11 @@ page 360 (
             }
             heading {
                 heading: Еквівалент, грн
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -395,7 +401,7 @@ page 360 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000427
+            savedReportMappingIdentifier: 910000000436
         }
 
 
@@ -458,9 +464,11 @@ page 360 (
             }
             heading {
                 heading: Поч. залишок
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -474,9 +482,11 @@ page 360 (
             }
             heading {
                 heading: Надходження
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -490,9 +500,11 @@ page 360 (
             }
             heading {
                 heading: Витрата
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -506,9 +518,11 @@ page 360 (
             }
             heading {
                 heading: Кін. залишок
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -522,9 +536,11 @@ page 360 (
             }
             heading {
                 heading: Курс на кінець
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G990D0000
@@ -538,9 +554,11 @@ page 360 (
             }
             heading {
                 heading: Кін. залишок, грн
+                alignment: end
             }
             layout {
                 sequence: 100
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -579,7 +597,7 @@ page 360 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000428
+            savedReportMappingIdentifier: 910000000437
         }
 
 
@@ -687,9 +705,11 @@ page 360 (
             }
             heading {
                 heading: Надходження
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -703,9 +723,11 @@ page 360 (
             }
             heading {
                 heading: Витрата
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00
@@ -875,7 +897,7 @@ page 360 (
             successMessage: Початковий залишок записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000424
+            executionMappingIdentifier: 910000000433
         }
     )
 
@@ -908,7 +930,7 @@ page 360 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000425
+            savedReportMappingIdentifier: 910000000434
         }
 
 
@@ -987,9 +1009,11 @@ page 360 (
             }
             heading {
                 heading: Сума
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D00

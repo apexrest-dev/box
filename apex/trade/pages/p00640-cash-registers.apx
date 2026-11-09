@@ -243,9 +243,11 @@ page 640 (
             }
             heading {
                 heading: Фіскальних чеків
+                alignment: end
             }
             layout {
                 sequence: 140
+                columnAlignment: end
             }
         )
     )

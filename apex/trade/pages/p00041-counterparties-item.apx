@@ -245,6 +245,35 @@ page 41 (
         }
     )
 
+    pageItem P41_GLN (
+        type: textField
+        label {
+            label: GLN (EDI)
+            alignment: right
+        }
+        layout {
+            sequence: 80
+            region: @form
+            slot: regionBody
+            columnSpan: 4
+        }
+        appearance {
+            template: @/optional
+            templateOptions: #DEFAULT#
+        }
+        validation {
+            maxLength: 13
+        }
+        source {
+            formRegion: @form
+            column: GLN
+            dataType: varchar2
+        }
+        help {
+            helpText: Глобальний номер розташування GS1 (13 цифр, остання — контрольна). За ним EDI-повідомлення мереж зіставляються з довідниками.
+        }
+    )
+
     pageItem P41_STATE (
         type: displayOnly
         label {
@@ -252,7 +281,7 @@ page 41 (
             alignment: right
         }
         layout {
-            sequence: 80
+            sequence: 90
             region: @form
             slot: regionBody
             columnSpan: 6

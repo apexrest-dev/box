@@ -23,20 +23,90 @@ page 20 (
         }
     )
 
+    region tree (
+        name: Групи
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return '<div class="tx-tree-bar"><label class="tx-tree-sub"><input type="checkbox" data-item="P20_SUB"'
+                    || case when nvl(:P20_SUB, 'Y') = 'Y' then ' checked' end || '> З підгрупами</label></div>'
+                    || trade_tree.product_groups_html(:P20_GROUP, 'P20_GROUP');
+                ```
+            pageItemsToSubmit: [
+                P20_GROUP
+                P20_SUB
+            ]
+        }
+        layout {
+            sequence: 5
+            slot: body
+            columnSpan: 3
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-tree-region
+        }
+    )
+
+    pageItem P20_GROUP (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @tree
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P20_SUB (
+        type: hidden
+        layout {
+            sequence: 20
+            region: @tree
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        default {
+            type: static
+            staticValue: Y
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
     region list (
         name: Номенклатура
         type: interactiveReport
         source {
             location: localDatabase
             type: sqlQuery
+            pageItemsToSubmit: [
+                P20_GROUP
+                P20_SUB
+            ]
             sqlQuery:
                 ```sql
-                select case p.state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, p.id, (select r.name from ref_vat_rate r where r.code = p.vat_rate_code) vat_rate_name, p.uktzed_code, p.code, p.article, p.name, case p.product_kind when 'SERVICE' then 'Послуга' else 'Товар' end kind_name, g.full_path group_path, u.short_name unit_name, case p.state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name from ref_product p join ref_unit_of_measure u on u.id = p.unit_of_measure_id left join v_product_group_path g on g.id = p.group_id
+                select case p.state when 'ACTIVE' then 'fa-square tx-ico-item' else 'fa-times tx-ico-marked' end icon_class, ' ' state_icon, p.id, (select r.name from ref_vat_rate r where r.code = p.vat_rate_code) vat_rate_name, p.uktzed_code, p.code, p.article, p.name, case p.product_kind when 'SERVICE' then 'Послуга' else 'Товар' end kind_name, g.full_path group_path, u.short_name unit_name, case p.state when 'ACTIVE' then 'Активний' else 'Помічений на видалення' end state_name, p.weight_kg, p.volume_m3 from ref_product p join ref_unit_of_measure u on u.id = p.unit_of_measure_id left join v_product_group_path g on g.id = p.group_id where trade_tree.in_group(p.group_id, :P20_GROUP, nvl(:P20_SUB, 'Y')) = 'Y'
                 ```
         }
         layout {
             sequence: 10
             slot: body
+            columnSpan: 9
+            startNewRow: false
         }
         appearance {
             template: @/interactive-report
@@ -204,6 +274,132 @@ page 20 (
             }
             layout {
                 sequence: 110
+            }
+        )
+
+        column WEIGHT_KG (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Вага, кг
+            }
+            layout {
+                sequence: 120
+            }
+        )
+
+        column VOLUME_M3 (
+            type: plainText
+            source {
+                dataType: varchar2
+            }
+            heading {
+                heading: Об'єм, м³
+            }
+            layout {
+                sequence: 130
+            }
+        )
+    )
+
+    dynamicAction filter-group (
+        name: Фільтр GROUP
+        when {
+            event: change
+            selectionType: items
+            items: P20_GROUP
+        }
+        execution {
+            sequence: 30
+        }
+
+        action refresh (
+            name: Оновити список
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    dynamicAction filter-sub (
+        name: Фільтр SUB
+        when {
+            event: change
+            selectionType: items
+            items: P20_SUB
+        }
+        execution {
+            sequence: 40
+        }
+
+        action refresh (
+            name: Оновити список
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @list
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    button create-group (
+        buttonName: CREATE_GROUP
+        label: Створити групу
+        layout {
+            sequence: 20
+            region: @list
+            slot: rightOfInteractiveReportSearchBar
+        }
+        appearance {
+            buttonTemplate: @/text
+            hot: false
+            templateOptions: #DEFAULT#
+        }
+        behavior {
+            action: redirectThisApp
+            target: {
+                page: 171
+                clearCache: 171
+            }
+        }
+        security {
+            authorizationScheme: @role-admin
+        }
+    )
+
+    dynamicAction refresh-tree (
+        name: Оновити дерево після діалогу
+        when {
+            event: apexafterclosedialog
+            selectionType: region
+            region: @list
+        }
+        execution {
+            sequence: 20
+        }
+
+        action refresh (
+            name: Оновити дерево
+            action: refresh
+            affectedElements {
+                selectionType: region
+                region: @tree
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
             }
         )
     )

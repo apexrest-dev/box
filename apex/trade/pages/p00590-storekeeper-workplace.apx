@@ -201,7 +201,7 @@ page 590 (
             successMessage: Ордер створено за розпорядженням.
         }
         advanced {
-            executionMappingIdentifier: 910000000443
+            executionMappingIdentifier: 910000000452
         }
     )
 
@@ -301,7 +301,7 @@ page 590 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000444
+            savedReportMappingIdentifier: 910000000453
         }
 
 
@@ -399,9 +399,11 @@ page 590 (
             }
             heading {
                 heading: За документом
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -415,9 +417,11 @@ page 590 (
             }
             heading {
                 heading: Оформлено
+                alignment: end
             }
             layout {
                 sequence: 80
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -431,9 +435,11 @@ page 590 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 90
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -490,7 +496,7 @@ page 590 (
             type: rowRangesXToYOfZ
         }
         advanced {
-            savedReportMappingIdentifier: 910000000445
+            savedReportMappingIdentifier: 910000000454
         }
 
 
@@ -585,9 +591,11 @@ page 590 (
             }
             heading {
                 heading: Кількість
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000

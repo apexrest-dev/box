@@ -671,7 +671,7 @@ page 651 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000386
+            savedReportMappingIdentifier: 910000000395
         }
 
         savedReport primary (
@@ -1142,7 +1142,7 @@ page 651 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000387
+            executionMappingIdentifier: 910000000396
         }
     )
 
@@ -1402,7 +1402,7 @@ page 651 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000388
+            executionMappingIdentifier: 910000000397
         }
     )
 
@@ -1423,7 +1423,7 @@ page 651 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000389
+            executionMappingIdentifier: 910000000398
         }
     )
 
@@ -1472,7 +1472,7 @@ page 651 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000390
+            executionMappingIdentifier: 910000000399
         }
     )
 
@@ -1501,7 +1501,7 @@ page 651 (
             successMessage: Чек проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000391
+            executionMappingIdentifier: 910000000400
         }
     )
 
@@ -1526,7 +1526,7 @@ page 651 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000392
+            executionMappingIdentifier: 910000000401
         }
     )
 
@@ -1556,7 +1556,7 @@ page 651 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000393
+            executionMappingIdentifier: 910000000402
         }
     )
 
@@ -1583,7 +1583,7 @@ page 651 (
             successMessage: Серії підібрано за FEFO (першим спливає — першим відвантажено).
         }
         advanced {
-            executionMappingIdentifier: 910000000394
+            executionMappingIdentifier: 910000000403
         }
     )
 
@@ -1607,7 +1607,7 @@ page 651 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000395
+            executionMappingIdentifier: 910000000404
         }
     )
 
@@ -1655,7 +1655,7 @@ page 651 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000396
+            executionMappingIdentifier: 910000000405
         }
     )
 

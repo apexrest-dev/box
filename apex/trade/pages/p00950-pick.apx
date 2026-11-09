@@ -8,7 +8,7 @@ page 950 (
         templateOptions: #DEFAULT#
     }
     dialog {
-        width: 1000
+        width: 1200
         chained: false
     }
 
@@ -77,6 +77,70 @@ page 950 (
         }
     )
 
+    region tree (
+        name: Групи
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return '<div class="tx-tree-bar"><label class="tx-tree-sub"><input type="checkbox" data-item="P950_SUB"'
+                    || case when nvl(:P950_SUB, 'Y') = 'Y' then ' checked' end || '> З підгрупами</label></div>'
+                    || trade_tree.product_groups_html(:P950_GROUP, 'P950_GROUP');
+                ```
+            pageItemsToSubmit: [
+                P950_GROUP
+                P950_SUB
+            ]
+        }
+        layout {
+            sequence: 5
+            slot: contentBody
+            columnSpan: 3
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+            cssClasses: tx-tree-region
+        }
+    )
+
+    pageItem P950_GROUP (
+        type: hidden
+        layout {
+            sequence: 10
+            region: @tree
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
+    pageItem P950_SUB (
+        type: hidden
+        layout {
+            sequence: 20
+            region: @tree
+            slot: regionBody
+        }
+        settings {
+            valueProtected: false
+        }
+        default {
+            type: static
+            staticValue: Y
+        }
+        sessionState {
+            dataType: varchar2
+            storage: session
+        }
+    )
+
     region goods (
         name: Товари
         type: interactiveGrid
@@ -94,6 +158,7 @@ page 950 (
                   join ref_unit_of_measure u on u.id = p.unit_of_measure_id
                   left join v_product_group_path g on g.id = p.group_id
                  where p.state = 'ACTIVE'
+                   and trade_tree.in_group(p.group_id, :P950_GROUP, nvl(:P950_SUB, 'Y')) = 'Y'
                    and (p.product_kind = 'GOODS' or :P950_KIND in ('SALE', 'RECEIPT', 'CUSTOMER_ORDER', 'SUPPLIER_ORDER', 'INVOICE'))
                  order by g.full_path nulls last, p.name
                 ```
@@ -102,11 +167,15 @@ page 950 (
                 P950_PT
                 P950_SUP
                 P950_KIND
+                P950_GROUP
+                P950_SUB
             ]
         }
         layout {
             sequence: 10
             slot: contentBody
+            columnSpan: 9
+            startNewRow: false
         }
         appearance {
             template: @/blank-with-attributes
@@ -126,7 +195,7 @@ page 950 (
             ]
         }
         advanced {
-            savedReportMappingIdentifier: 910000000472
+            savedReportMappingIdentifier: 910000000492
         }
 
         savedReport primary (
@@ -464,12 +533,85 @@ page 950 (
             sequence: 10
             point: afterSubmit
         }
-        serverSideCondition {
-            whenButtonPressed: @add
-        }
         advanced {
-            executionMappingIdentifier: 910000000473
+            executionMappingIdentifier: 910000000493
         }
+    )
+
+    dynamicAction filter-group (
+        name: Фільтр GROUP
+        when {
+            event: change
+            selectionType: items
+            items: P950_GROUP
+        }
+        execution {
+            sequence: 30
+        }
+
+        action refresh (
+            name: Зберегти й оновити
+            action: executeJsCode
+            settings {
+                jsCode:
+                    ```javascript
+                    var r = apex.region(this.affectedElements[0].id),
+                        m = r.call('getViews', 'grid').model;
+                    if (m.isChanged()) {
+                      r.widget().one('interactivegridsave', function () { r.refresh(); });
+                      r.call('getActions').invoke('save');
+                    } else {
+                      r.refresh();
+                    }
+                    ```
+            }
+            affectedElements {
+                selectionType: region
+                region: @goods
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
+    )
+
+    dynamicAction filter-sub (
+        name: Фільтр SUB
+        when {
+            event: change
+            selectionType: items
+            items: P950_SUB
+        }
+        execution {
+            sequence: 40
+        }
+
+        action refresh (
+            name: Зберегти й оновити
+            action: executeJsCode
+            settings {
+                jsCode:
+                    ```javascript
+                    var r = apex.region(this.affectedElements[0].id),
+                        m = r.call('getViews', 'grid').model;
+                    if (m.isChanged()) {
+                      r.widget().one('interactivegridsave', function () { r.refresh(); });
+                      r.call('getActions').invoke('save');
+                    } else {
+                      r.refresh();
+                    }
+                    ```
+            }
+            affectedElements {
+                selectionType: region
+                region: @goods
+            }
+            execution {
+                sequence: 10
+                fireOnInit: false
+            }
+        )
     )
 
     process close (
@@ -483,7 +625,7 @@ page 950 (
             whenButtonPressed: @add
         }
         advanced {
-            executionMappingIdentifier: 910000000474
+            executionMappingIdentifier: 910000000494
         }
     )
 )

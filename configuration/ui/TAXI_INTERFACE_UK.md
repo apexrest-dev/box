@@ -28,7 +28,7 @@
 
 ## Файли
 
-- `apex/trade/shared-components/static-files/css/trade-taxi.css` — тема (кольори в `:root`).
+- Стиль теми **1C-Taxi** (Theme Roller, Custom CSS); джерело `apex/theme-src/1c-taxi-custom.css` (кольори в `:root`), збірка `apex/gen/build_theme_style.py`.
 - `apex/trade/shared-components/static-files/js/trade-taxi.js` — поведінка й локалізація стандартних підписів.
 - `db/08_ui_taxi.sql` — підсистеми й панель функцій; `db/09_trade_ui.sql` — пакет `trade_ui`.
 

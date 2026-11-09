@@ -1,0 +1,60 @@
+lov cargo-doc-types (
+    name: CARGO_DOC_TYPES
+    source {
+        location: staticValues
+    }
+
+    entry docgoodssale (
+        sequence: 1
+        display: Реалізація товарів
+        return: DocGoodsSale
+    )
+
+    entry doccustomerorder (
+        sequence: 2
+        display: Замовлення клієнта
+        return: DocCustomerOrder
+    )
+
+    entry docgoodsissueorder (
+        sequence: 3
+        display: Видатковий ордер на товари
+        return: DocGoodsIssueOrder
+    )
+
+    entry docsupplierreturn (
+        sequence: 4
+        display: Повернення постачальнику
+        return: DocSupplierReturn
+    )
+
+    entry docgoodstransfer (
+        sequence: 5
+        display: Переміщення товарів
+        return: DocGoodsTransfer
+    )
+
+    entry docgoodsreceipt (
+        sequence: 6
+        display: Прибуткова накладна
+        return: DocGoodsReceipt
+    )
+
+    entry docsupplierorder (
+        sequence: 7
+        display: Замовлення постачальнику
+        return: DocSupplierOrder
+    )
+
+    entry doccustomerreturn (
+        sequence: 8
+        display: Повернення від клієнта
+        return: DocCustomerReturn
+    )
+
+    entry docinvoiceforpayment (
+        sequence: 9
+        display: Рахунок на оплату
+        return: DocInvoiceForPayment
+    )
+)

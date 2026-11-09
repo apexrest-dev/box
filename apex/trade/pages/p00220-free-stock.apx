@@ -70,7 +70,7 @@ page 220 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000414
+            savedReportMappingIdentifier: 910000000423
         }
 
 
@@ -133,9 +133,11 @@ page 220 (
             }
             heading {
                 heading: Залишок
+                alignment: end
             }
             layout {
                 sequence: 50
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -149,9 +151,11 @@ page 220 (
             }
             heading {
                 heading: Резерв
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -165,9 +169,11 @@ page 220 (
             }
             heading {
                 heading: Вільно
+                alignment: end
             }
             layout {
                 sequence: 70
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000
@@ -204,7 +210,7 @@ page 220 (
         }
         advanced {
             regionDisplaySelector: true
-            savedReportMappingIdentifier: 910000000415
+            savedReportMappingIdentifier: 910000000424
         }
 
 
@@ -280,9 +286,11 @@ page 220 (
             }
             heading {
                 heading: Резерв
+                alignment: end
             }
             layout {
                 sequence: 60
+                columnAlignment: end
             }
             appearance {
                 formatMask: FM999G999G999G990D000

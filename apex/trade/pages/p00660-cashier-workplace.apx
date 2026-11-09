@@ -432,7 +432,7 @@ page 660 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000452
+            executionMappingIdentifier: 910000000461
         }
     )
 
@@ -457,7 +457,7 @@ page 660 (
             plsqlExpression: :REQUEST in ('REGISTER')
         }
         advanced {
-            executionMappingIdentifier: 910000000453
+            executionMappingIdentifier: 910000000462
         }
     )
 
@@ -485,7 +485,7 @@ page 660 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000454
+            executionMappingIdentifier: 910000000463
         }
     )
 
@@ -509,7 +509,7 @@ page 660 (
             plsqlExpression: :REQUEST in ('LINE_INC')
         }
         advanced {
-            executionMappingIdentifier: 910000000455
+            executionMappingIdentifier: 910000000464
         }
     )
 
@@ -533,7 +533,7 @@ page 660 (
             plsqlExpression: :REQUEST in ('LINE_DEC')
         }
         advanced {
-            executionMappingIdentifier: 910000000456
+            executionMappingIdentifier: 910000000465
         }
     )
 
@@ -557,7 +557,7 @@ page 660 (
             plsqlExpression: :REQUEST in ('LINE_DEL')
         }
         advanced {
-            executionMappingIdentifier: 910000000457
+            executionMappingIdentifier: 910000000466
         }
     )
 
@@ -591,7 +591,7 @@ page 660 (
             successMessage: Чек оплачено. Решта: &P660_CHANGE. грн. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000458
+            executionMappingIdentifier: 910000000467
         }
     )
 
@@ -625,7 +625,7 @@ page 660 (
             successMessage: Чек оплачено. Решта: &P660_CHANGE. грн. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000459
+            executionMappingIdentifier: 910000000468
         }
     )
 
@@ -659,7 +659,7 @@ page 660 (
             successMessage: Чек оплачено. Решта: &P660_CHANGE. грн. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000460
+            executionMappingIdentifier: 910000000469
         }
     )
 
@@ -687,7 +687,7 @@ page 660 (
             successMessage: Чек скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000461
+            executionMappingIdentifier: 910000000470
         }
     )
 

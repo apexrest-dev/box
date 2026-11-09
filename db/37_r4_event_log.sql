@@ -263,7 +263,8 @@ create or replace package body trade_event_log as
                        'DOC_GOODS_RECEIPT_ORDER','DOC_GOODS_ISSUE_ORDER','REF_STORAGE_BIN',  -- r5 F-WH-11 (db/40)
                        'REF_CURRENCY',  -- r5 F-FIN-06 (db/41)
                        'DOC_TAX_INVOICE',  -- r5 F-TAX-01 (db/42)
-                       'DOC_RETAIL_RECEIPT','REF_CASH_REGISTER')))  -- r5 F-RET-01 (db/43)
+                       'DOC_RETAIL_RECEIPT','REF_CASH_REGISTER',  -- r5 F-RET-01 (db/43)
+                       'REF_DELIVERY_POINT')))  -- r7 F-INT-04 (db/47)
                order by table_name) loop
       l_doc := t.table_name like 'DOC\_%' escape '\';
       -- документи — тип реєстратора (DocGoodsReceipt), довідники — ім'я таблиці (як MARK_FOR_DELETION у trade_core)

@@ -66,7 +66,7 @@ page 610 (
             addButtonLabel: Додати
         }
         advanced {
-            savedReportMappingIdentifier: 910000000447
+            savedReportMappingIdentifier: 910000000456
         }
 
         savedReport primary (
@@ -308,7 +308,7 @@ page 610 (
             point: afterSubmit
         }
         advanced {
-            executionMappingIdentifier: 910000000448
+            executionMappingIdentifier: 910000000457
         }
     )
 
@@ -430,7 +430,7 @@ page 610 (
             whenButtonPressed: @load-nbu
         }
         advanced {
-            executionMappingIdentifier: 910000000446
+            executionMappingIdentifier: 910000000455
         }
     )
 )

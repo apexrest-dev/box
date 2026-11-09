@@ -559,7 +559,7 @@ page 271 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000214
+            savedReportMappingIdentifier: 910000000223
         }
 
         savedReport primary (
@@ -755,6 +755,30 @@ page 271 (
         )
     )
 
+    region cargo (
+        name: Вага й об'єм
+        type: dynamicContent
+        source {
+            language: plsql
+            plsqlFunctionBody:
+                ```plsql
+                return trade_cargo.summary_html('DocSupplierOrder', :P271_ID);
+                ```
+        }
+        layout {
+            sequence: 38
+            slot: body
+        }
+        appearance {
+            template: @/blank-with-attributes
+            templateOptions: #DEFAULT#
+        }
+        serverSideCondition {
+            type: itemIsNotNull
+            item: P271_ID
+        }
+    )
+
     region footer (
         name: Підвал
         type: staticContent
@@ -840,7 +864,7 @@ page 271 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000215
+            executionMappingIdentifier: 910000000224
         }
     )
 
@@ -1219,7 +1243,7 @@ page 271 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000216
+            executionMappingIdentifier: 910000000225
         }
     )
 
@@ -1240,7 +1264,7 @@ page 271 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000217
+            executionMappingIdentifier: 910000000226
         }
     )
 
@@ -1285,7 +1309,7 @@ page 271 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000218
+            executionMappingIdentifier: 910000000227
         }
     )
 
@@ -1314,7 +1338,7 @@ page 271 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000219
+            executionMappingIdentifier: 910000000228
         }
     )
 
@@ -1339,7 +1363,7 @@ page 271 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000220
+            executionMappingIdentifier: 910000000229
         }
     )
 
@@ -1364,7 +1388,7 @@ page 271 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000221
+            executionMappingIdentifier: 910000000230
         }
     )
 
@@ -1391,7 +1415,7 @@ page 271 (
             successMessage: Заповнено за параметрами забезпечення запасів.
         }
         advanced {
-            executionMappingIdentifier: 910000000222
+            executionMappingIdentifier: 910000000231
         }
     )
 
@@ -1418,7 +1442,7 @@ page 271 (
             successMessage: Ціни оновлено.
         }
         advanced {
-            executionMappingIdentifier: 910000000223
+            executionMappingIdentifier: 910000000232
         }
     )
 
@@ -1442,7 +1466,7 @@ page 271 (
             plsqlExpression: :REQUEST in ('CREATE_RECEIPT')
         }
         advanced {
-            executionMappingIdentifier: 910000000224
+            executionMappingIdentifier: 910000000233
         }
     )
 
@@ -1492,7 +1516,7 @@ page 271 (
             successMessage: Замовлення закрито.
         }
         advanced {
-            executionMappingIdentifier: 910000000225
+            executionMappingIdentifier: 910000000234
         }
     )
 
@@ -1519,7 +1543,7 @@ page 271 (
             successMessage: Замовлення відкрито.
         }
         advanced {
-            executionMappingIdentifier: 910000000226
+            executionMappingIdentifier: 910000000235
         }
     )
 
@@ -1543,7 +1567,7 @@ page 271 (
             plsqlExpression: :REQUEST in ('CREATE_SUPPLIER_PAYMENT')
         }
         advanced {
-            executionMappingIdentifier: 910000000227
+            executionMappingIdentifier: 910000000236
         }
     )
 
@@ -1590,7 +1614,7 @@ page 271 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000228
+            executionMappingIdentifier: 910000000237
         }
     )
 
@@ -1638,7 +1662,7 @@ page 271 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000229
+            executionMappingIdentifier: 910000000238
         }
     )
 

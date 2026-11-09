@@ -492,7 +492,7 @@ page 141 (
             addButtonLabel: Додати рядок
         }
         advanced {
-            savedReportMappingIdentifier: 910000000183
+            savedReportMappingIdentifier: 910000000191
         }
 
         savedReport primary (
@@ -764,7 +764,7 @@ page 141 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000184
+            executionMappingIdentifier: 910000000192
         }
     )
 
@@ -1050,7 +1050,7 @@ page 141 (
             point: beforeHeader
         }
         advanced {
-            executionMappingIdentifier: 910000000185
+            executionMappingIdentifier: 910000000193
         }
     )
 
@@ -1071,7 +1071,7 @@ page 141 (
             successMessage: Документ записано.
         }
         advanced {
-            executionMappingIdentifier: 910000000186
+            executionMappingIdentifier: 910000000194
         }
     )
 
@@ -1118,7 +1118,7 @@ page 141 (
             plsqlExpression: :REQUEST in ('CREATE', 'SAVE', 'POST', 'POST_CLOSE', 'CREATE_POST', 'CREATE_POST_CLOSE')
         }
         advanced {
-            executionMappingIdentifier: 910000000187
+            executionMappingIdentifier: 910000000195
         }
     )
 
@@ -1147,7 +1147,7 @@ page 141 (
             successMessage: Документ проведено. &TRADE_WARN.
         }
         advanced {
-            executionMappingIdentifier: 910000000188
+            executionMappingIdentifier: 910000000196
         }
     )
 
@@ -1172,7 +1172,7 @@ page 141 (
             successMessage: Проведення документа скасовано.
         }
         advanced {
-            executionMappingIdentifier: 910000000189
+            executionMappingIdentifier: 910000000197
         }
     )
 
@@ -1202,7 +1202,7 @@ page 141 (
             successMessage: Створено копію документа (чернетка).
         }
         advanced {
-            executionMappingIdentifier: 910000000190
+            executionMappingIdentifier: 910000000198
         }
     )
 
@@ -1229,7 +1229,7 @@ page 141 (
             successMessage: Серії підібрано за FEFO (першим спливає — першим відвантажено). Перевірте рядки без серії.
         }
         advanced {
-            executionMappingIdentifier: 910000000191
+            executionMappingIdentifier: 910000000199
         }
     )
 
@@ -1253,7 +1253,7 @@ page 141 (
             plsqlExpression: :REQUEST in ('CREATE_ISSUE_ORDER')
         }
         advanced {
-            executionMappingIdentifier: 910000000192
+            executionMappingIdentifier: 910000000200
         }
     )
 
@@ -1300,7 +1300,7 @@ page 141 (
             plsqlExpression: :REQUEST in ('PRINT')
         }
         advanced {
-            executionMappingIdentifier: 910000000193
+            executionMappingIdentifier: 910000000201
         }
     )
 
@@ -1348,7 +1348,7 @@ page 141 (
             plsqlExpression: :REQUEST in ('SCAN')
         }
         advanced {
-            executionMappingIdentifier: 910000000194
+            executionMappingIdentifier: 910000000202
         }
     )
 
